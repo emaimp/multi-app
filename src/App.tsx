@@ -2,19 +2,25 @@ import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
+import { AuthProvider, useAuth } from "./context/AuthContext";
+import Login from "./components/Login";
 
-function App() {
+function AppContent() {
+  const { isAuthenticated, user, login } = useAuth();
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
 
   async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
     setGreetMsg(await invoke("greet", { name }));
+  }
+
+  if (!isAuthenticated) {
+    return <Login onLogin={login} />;
   }
 
   return (
     <main className="container">
-      <h1>Welcome to Tauri + React</h1>
+      <h1>Welcome to Tauri + React, {user?.username}!</h1>
 
       <div className="row">
         <a href="https://vite.dev" target="_blank">
@@ -45,6 +51,14 @@ function App() {
       </form>
       <p>{greetMsg}</p>
     </main>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
