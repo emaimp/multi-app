@@ -19,6 +19,8 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [showMasterKey, setShowMasterKey] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
@@ -157,11 +159,10 @@ function RecoverView({ onBack }: RecoverViewProps) {
             onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
           />
           
-          <AuthFormField
+          <PasswordField
             id="newPassword"
             name="newPassword"
             label="New Password"
-            type="password"
             placeholder="••••••"
             autoComplete="new-password"
             value={newPassword}
@@ -175,13 +176,14 @@ function RecoverView({ onBack }: RecoverViewProps) {
             error={newPasswordError}
             helperText={newPasswordErrorMessage}
             icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showNewPassword}
+            onToggleVisibility={() => setShowNewPassword(!showNewPassword)}
           />
           
-          <AuthFormField
+          <PasswordField
             id="confirmNewPassword"
             name="confirmNewPassword"
             label="Confirm New Password"
-            type="password"
             placeholder="••••••"
             autoComplete="new-password"
             value={confirmNewPassword}
@@ -192,6 +194,8 @@ function RecoverView({ onBack }: RecoverViewProps) {
             error={confirmPasswordError}
             helperText={confirmPasswordErrorMessage}
             icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showConfirmNewPassword}
+            onToggleVisibility={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
           />
           
           <Button type="submit" fullWidth variant="contained">

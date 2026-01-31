@@ -76,6 +76,13 @@ function ThemeProvider({ children }: ThemeProviderProps) {
         '#root': {
           minHeight: '100vh',
         },
+        // Hide native password reveal button in WebView2/Edge
+        'input[type="password"]::-ms-reveal': {
+          display: 'none',
+        },
+        'input[type="password"]::-ms-clear': {
+          display: 'none',
+        },
       }}
     />
   );

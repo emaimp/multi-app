@@ -9,7 +9,7 @@ import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
-import { AuthLayout, AuthFormField } from '../../components/auth';
+import { AuthLayout, AuthFormField, PasswordField } from '../../components/auth';
 import RegisterView from './RegisterView';
 import RecoverView from './RecoverView';
 
@@ -25,6 +25,7 @@ function LoginView({ onLogin }: LoginViewProps) {
   const [error, setError] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,11 +101,10 @@ function LoginView({ onLogin }: LoginViewProps) {
             icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
           />
           
-          <AuthFormField
+          <PasswordField
             id="password"
             name="password"
             label="Password"
-            type="password"
             placeholder="••••••"
             autoComplete="current-password"
             value={password}
@@ -112,6 +112,8 @@ function LoginView({ onLogin }: LoginViewProps) {
             error={passwordError}
             helperText={passwordError ? 'Password must be at least 6 characters.' : ''}
             icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showPassword}
+            onToggleVisibility={() => setShowPassword(!showPassword)}
           />
           
           <FormControlLabel

@@ -19,6 +19,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [masterKey, setMasterKey] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showMasterKey, setShowMasterKey] = useState(false);
   const [error, setError] = useState('');
   
@@ -138,11 +140,10 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
           />
           
-          <AuthFormField
+          <PasswordField
             id="password"
             name="password"
             label="Password"
-            type="password"
             placeholder="••••••"
             autoComplete="new-password"
             value={password}
@@ -156,13 +157,14 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             error={passwordError}
             helperText={passwordErrorMessage}
             icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showPassword}
+            onToggleVisibility={() => setShowPassword(!showPassword)}
           />
           
-          <AuthFormField
+          <PasswordField
             id="confirmPassword"
             name="confirmPassword"
             label="Confirm Password"
-            type="password"
             placeholder="••••••"
             autoComplete="new-password"
             value={confirmPassword}
@@ -173,6 +175,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             error={confirmPasswordError}
             helperText={confirmPasswordErrorMessage}
             icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showConfirmPassword}
+            onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
           />
           
           <PasswordField
