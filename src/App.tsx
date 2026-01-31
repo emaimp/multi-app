@@ -3,7 +3,8 @@ import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import Login from "./components/Login";
+import { ThemeProvider } from "./theme";
+import { LoginView } from "./views/auth";
 
 function AppContent() {
   const { isAuthenticated, user, login } = useAuth();
@@ -15,7 +16,7 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    return <Login onLogin={login} />;
+    return <LoginView onLogin={login} />;
   }
 
   return (
@@ -56,9 +57,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
