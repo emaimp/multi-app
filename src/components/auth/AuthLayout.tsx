@@ -20,7 +20,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   boxShadow:
     'hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px',
   [theme.breakpoints.up('sm')]: {
-    maxWidth: '450px',
+    maxWidth: '400px',
   },
   ...theme.applyStyles('dark', {
     boxShadow:
@@ -29,9 +29,9 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 const AuthContainer = styled(Stack)(({ theme }) => ({
-  height: 'calc((1 - var(--template-frame-height, 0)) * 100dvh)',
-  minHeight: '100%',
+  minHeight: '100vh',
   padding: theme.spacing(2),
+  boxSizing: 'border-box',
   [theme.breakpoints.up('sm')]: {
     padding: theme.spacing(4),
   },
@@ -57,7 +57,7 @@ interface AuthLayoutProps {
 
 function AuthLayout({ children, title, showBackButton = false, onBack }: AuthLayoutProps) {
   return (
-    <AuthContainer direction="column" justifyContent="space-between">
+    <AuthContainer direction="column">
       <StyledAppBar position="fixed">
         <Toolbar>
           {showBackButton && onBack && (
@@ -85,7 +85,14 @@ function AuthLayout({ children, title, showBackButton = false, onBack }: AuthLay
           {showBackButton && <Box sx={{ width: 48 }} />}
         </Toolbar>
       </StyledAppBar>
-      <Box sx={{ mt: 8 }}>
+      <Box sx={{ 
+        flex: 1,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pt: 10,
+        pb: 4,
+      }}>
         <Card variant="outlined">
           {children}
         </Card>

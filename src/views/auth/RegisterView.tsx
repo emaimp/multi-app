@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
@@ -196,12 +195,10 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
           />
           
-          <Button type="submit" fullWidth variant="contained">
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
             Register
           </Button>
         </Box>
-        
-        <Divider />
         
         {error && (
           <Typography color="error" sx={{ textAlign: 'center' }}>

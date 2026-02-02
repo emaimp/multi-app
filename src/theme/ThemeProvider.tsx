@@ -64,6 +64,7 @@ function ThemeProvider({ children }: ThemeProviderProps) {
         body: {
           margin: 0,
           padding: 0,
+          boxSizing: 'border-box',
           minHeight: '100vh',
           backgroundImage:
             mode === 'light'
