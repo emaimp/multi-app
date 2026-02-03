@@ -111,7 +111,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
   };
 
   return (
-    <AuthLayout title="Recover Password" showBackButton={true} onBack={onBack}>
+    <AuthLayout showBackButton={true} onBack={onBack}>
         <Typography
           component="h1"
           variant="h4"

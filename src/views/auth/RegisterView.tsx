@@ -109,7 +109,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   };
 
   return (
-    <AuthLayout title="Sign Up" showBackButton={true} onBack={onBack}>
+    <AuthLayout showBackButton={true} onBack={onBack}>
         <Typography
           component="h1"
           variant="h4"

@@ -3,7 +3,6 @@ import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
@@ -39,50 +38,38 @@ const AuthContainer = styled(Stack)(({ theme }) => ({
 }));
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  background: 'transparent',
-  boxShadow: 'none',
+  background: theme.palette.background.paper,
+  boxShadow: theme.shadows[1],
   position: 'fixed',
   top: 0,
   left: 0,
   right: 0,
   zIndex: theme.zIndex.appBar,
+  minHeight: 36,
+  justifyContent: 'center',
 }));
 
 interface AuthLayoutProps {
   children: ReactNode;
-  title: string;
   showBackButton?: boolean;
   onBack?: () => void;
 }
 
-function AuthLayout({ children, title, showBackButton = false, onBack }: AuthLayoutProps) {
+function AuthLayout({ children, showBackButton = false, onBack }: AuthLayoutProps) {
   return (
     <AuthContainer direction="column">
       <StyledAppBar position="fixed">
-        <Toolbar>
-          {showBackButton && onBack && (
+        <Toolbar disableGutters sx={{ minHeight: 36, px: 2 }}>
+          {showBackButton && onBack ? (
             <IconButton
-              edge="start"
               color="inherit"
               aria-label="back"
               onClick={onBack}
-              sx={{ mr: 2 }}
+              sx={{ p: 0 }}
             >
-              <ArrowBackIcon />
+              <ArrowBackIcon fontSize="small" />
             </IconButton>
-          )}
-          <Typography
-            variant="h6"
-            component="div"
-            sx={{
-              flexGrow: 1,
-              textAlign: 'center',
-              fontWeight: 500,
-            }}
-          >
-            {title}
-          </Typography>
-          {showBackButton && <Box sx={{ width: 48 }} />}
+          ) : null}
         </Toolbar>
       </StyledAppBar>
       <Box sx={{ 
@@ -90,7 +77,7 @@ function AuthLayout({ children, title, showBackButton = false, onBack }: AuthLay
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        pt: 10,
+        pt: 6,
         pb: 4,
       }}>
         <Card variant="outlined">

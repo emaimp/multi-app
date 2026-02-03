@@ -67,7 +67,7 @@ function LoginView({ onLogin }: LoginViewProps) {
   }
 
   return (
-    <AuthLayout title="Sign In" showBackButton={false}>
+    <AuthLayout showBackButton={false}>
         <Typography
           component="h1"
           variant="h4"
