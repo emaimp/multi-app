@@ -34,19 +34,6 @@ const AuthContainer = styled(Stack)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     padding: theme.spacing(4),
   },
-  // Background is now handled globally by ThemeProvider
-}));
-
-const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  boxShadow: theme.shadows[1],
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  right: 0,
-  zIndex: theme.zIndex.appBar,
-  minHeight: 36,
-  justifyContent: 'center',
 }));
 
 interface AuthLayoutProps {
@@ -58,27 +45,43 @@ interface AuthLayoutProps {
 function AuthLayout({ children, showBackButton = false, onBack }: AuthLayoutProps) {
   return (
     <AuthContainer direction="column">
-      <StyledAppBar position="fixed">
-        <Toolbar disableGutters sx={{ minHeight: 36, px: 2 }}>
-          {showBackButton && onBack ? (
+      <AppBar
+        position="fixed"
+        sx={{
+          background: (theme) => theme.palette.background.paper,
+          boxShadow: (theme) => theme.shadows[1],
+          minHeight: '45px !important',
+          height: '45px',
+          zIndex: (theme) => theme.zIndex.appBar,
+        }}
+      >
+        <Toolbar
+          sx={{
+            minHeight: '45px !important',
+            height: '45px',
+            minWidth: 'auto',
+            px: 2,
+          }}
+        >
+          {showBackButton && onBack && (
             <IconButton
               color="inherit"
               aria-label="back"
               onClick={onBack}
-              sx={{ p: 0 }}
+              sx={{ p: 0.5 }}
             >
-              <ArrowBackIcon fontSize="small" />
+              <ArrowBackIcon sx={{ fontSize: 25, color: (theme) => theme.palette.text.primary }} />
             </IconButton>
-          ) : null}
+          )}
         </Toolbar>
-      </StyledAppBar>
+      </AppBar>
       <Box sx={{ 
         flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        pt: 6,
-        pb: 4,
+        pt: 10,
+        pb: 5,
       }}>
         <Card variant="outlined">
           {children}
