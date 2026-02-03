@@ -7,9 +7,12 @@ const lightTheme = createTheme({
       main: '#2563eb',
     },
     background: {
-      default: '#f6f6f6',
-      paper: '#ffffff',
+      default: '#ffffff',
+      paper: '#fcfcfc',
     },
+  },
+  cssVariables: {
+    colorSchemeSelector: 'class',
   },
 });
 
@@ -20,9 +23,12 @@ const darkTheme = createTheme({
       main: '#60a5fa',
     },
     background: {
-      default: '#2f2f2f',
-      paper: '#1e1e1e',
+      default: '#000000',
+      paper: '#141414',
     },
+  },
+  cssVariables: {
+    colorSchemeSelector: 'class',
   },
 });
 

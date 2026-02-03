@@ -68,8 +68,8 @@ function ThemeProvider({ children }: ThemeProviderProps) {
           minHeight: '100vh',
           backgroundImage:
             mode === 'light'
-              ? 'radial-gradient(ellipse at 50% 50%, hsl(210, 100%, 97%), hsl(0, 0%, 100%))'
-              : 'radial-gradient(at 50% 50%, hsla(210, 100%, 16%, 0.5), hsl(220, 30%, 5%))',
+              ? 'linear-gradient(135deg, #ffffff 30%, #e8dfef 100%)'
+              : 'linear-gradient(135deg, #000000 30%, #101031 100%)',
           backgroundRepeat: 'no-repeat',
           backgroundAttachment: 'fixed',
           backgroundSize: 'cover',
@@ -77,7 +77,6 @@ function ThemeProvider({ children }: ThemeProviderProps) {
         '#root': {
           minHeight: '100vh',
         },
-        // Hide native password reveal button in WebView2/Edge
         'input[type="password"]::-ms-reveal': {
           display: 'none',
         },
