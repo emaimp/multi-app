@@ -39,49 +39,52 @@ interface AuthLayoutProps {
   children: ReactNode;
   showBackButton?: boolean;
   onBack?: () => void;
+  transparent?: boolean;
 }
 
-function AuthLayout({ children, showBackButton = false, onBack }: AuthLayoutProps) {
+function AuthLayout({ children, showBackButton = false, onBack, transparent = false }: AuthLayoutProps) {
   return (
     <AuthContainer direction="column">
-      <AppBar
-        position="fixed"
-        sx={{
-          background: (theme) => theme.palette.background.paper,
-          boxShadow: (theme) => theme.shadows[1],
-          minHeight: '45px !important',
-          height: '45px',
-          zIndex: (theme) => theme.zIndex.appBar,
-        }}
-      >
-        <Toolbar
+      {showBackButton && (
+        <AppBar
+          position="fixed"
           sx={{
-            minHeight: '45px !important',
-            height: '45px',
-            minWidth: 'auto',
-            px: 2,
+            background: transparent ? 'transparent' : (theme) => theme.palette.background.paper,
+            boxShadow: transparent ? 'none' : (theme) => theme.shadows[1],
+            minHeight: '48px !important',
+            height: '48px',
+            zIndex: (theme) => theme.zIndex.appBar,
           }}
         >
-          {showBackButton && onBack && (
-            <IconButton
-              color="inherit"
-              aria-label="back"
-              onClick={onBack}
-              sx={{ p: 0.5 }}
-            >
-              <ArrowBackIcon sx={{ fontSize: 25, color: (theme) => theme.palette.text.primary }} />
-            </IconButton>
-          )}
-        </Toolbar>
-      </AppBar>
+          <Toolbar
+            sx={{
+              minHeight: '48px !important',
+              height: '48px',
+              minWidth: 'auto',
+              px: 2,
+            }}
+          >
+            {showBackButton && onBack && (
+              <IconButton
+                color="inherit"
+                aria-label="back"
+                onClick={onBack}
+                sx={{ p: 0.5 }}
+              >
+                <ArrowBackIcon sx={{ fontSize: 25, color: (theme) => theme.palette.text.primary }} />
+              </IconButton>
+            )}
+          </Toolbar>
+        </AppBar>
+      )}
       <Box sx={{
         flex: 1,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        pt: 10,
-        pb: 5,
+        pt: 8,
+        pb: 8,
       }}>
         <Card variant="outlined">
           {children}
