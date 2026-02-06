@@ -12,17 +12,17 @@ import {
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Note, NOTE_COLORS, NoteColor } from '../../types/note';
+import { Vault, VAULT_COLORS, VaultColor } from '../../types/vault';
 
-interface EditNoteDialogProps {
+interface EditVaultDialogProps {
   open: boolean;
-  note: Note | null;
+  vault: Vault | null;
   onClose: () => void;
-  onSave: (note: Note) => void;
-  onDelete: (noteId: string) => void;
+  onSave: (vault: Vault) => void;
+  onDelete: (vaultId: string) => void;
 }
 
-const NOTE_COLORS_HEX: Record<string, string> = {
+const VAULT_COLORS_HEX: Record<string, string> = {
   primary: '#2563eb',
   secondary: '#7c3aed',
   success: '#16a34a',
@@ -31,18 +31,18 @@ const NOTE_COLORS_HEX: Record<string, string> = {
   info: '#0891b2',
 };
 
-export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNoteDialogProps) {
-  const [name, setName] = useState(note?.name || '');
-  const [color, setColor] = useState<NoteColor>(note?.color as NoteColor || 'primary');
-  const [image, setImage] = useState<string | undefined>(note?.image);
+export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: EditVaultDialogProps) {
+  const [name, setName] = useState(vault?.name || '');
+  const [color, setColor] = useState<VaultColor>(vault?.color as VaultColor || 'primary');
+  const [image, setImage] = useState<string | undefined>(vault?.image);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!note) return null;
+  if (!vault) return null;
 
   const handleSubmit = () => {
     if (name.trim()) {
       onSave({
-        ...note,
+        ...vault,
         name: name.trim(),
         color,
         image,
@@ -52,7 +52,7 @@ export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNo
   };
 
   const handleDelete = () => {
-    onDelete(note.id);
+    onDelete(vault.id);
     onClose();
   };
 
@@ -76,7 +76,7 @@ export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNo
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Edit Note</DialogTitle>
+      <DialogTitle>Edit Vault</DialogTitle>
       <DialogContent>
         <Stack spacing={3} sx={{ pt: 1 }}>
           <Box sx={{ display: 'flex', justifyContent: 'center' }}>
@@ -85,7 +85,7 @@ export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNo
                 width: 80,
                 height: 80,
                 border: '4px solid',
-                borderColor: NOTE_COLORS_HEX[color],
+                borderColor: VAULT_COLORS_HEX[color],
                 bgcolor: 'transparent',
                 overflow: 'hidden',
               }}
@@ -112,7 +112,7 @@ export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNo
           )}
 
           <TextField
-            label="Note Name"
+            label="Vault Name"
             fullWidth
             variant="outlined"
             value={name}
@@ -124,7 +124,7 @@ export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNo
               Color
             </Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
-              {NOTE_COLORS.map((c) => (
+              {VAULT_COLORS.map((c) => (
                 <Box
                   key={c}
                   onClick={() => setColor(c)}
@@ -132,7 +132,7 @@ export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNo
                     width: 32,
                     height: 32,
                     borderRadius: '50%',
-                    bgcolor: NOTE_COLORS_HEX[c],
+                    bgcolor: VAULT_COLORS_HEX[c],
                     cursor: 'pointer',
                     border: color === c ? '3px solid' : '2px solid',
                     borderColor: color === c ? 'text.primary' : 'transparent',
@@ -161,4 +161,4 @@ export function EditNoteDialog({ open, note, onClose, onSave, onDelete }: EditNo
   );
 }
 
-export default EditNoteDialog;
+export default EditVaultDialog;

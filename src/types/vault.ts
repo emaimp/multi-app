@@ -1,4 +1,4 @@
-export interface Note {
+export interface Vault {
   id: string;
   name: string;
   color: string;
@@ -6,9 +6,9 @@ export interface Note {
   createdAt: Date;
 }
 
-export type NoteColor = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
+export type VaultColor = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
 
-export const NOTE_COLORS: NoteColor[] = [
+export const VAULT_COLORS: VaultColor[] = [
   'primary',
   'secondary',
   'success',

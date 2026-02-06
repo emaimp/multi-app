@@ -8,13 +8,13 @@ import {
   TextField,
 } from '@mui/material';
 
-interface CreateNoteDialogProps {
+interface CreateVaultDialogProps {
   open: boolean;
   onClose: () => void;
   onCreate: (name: string) => void;
 }
 
-export function CreateNoteDialog({ open, onClose, onCreate }: CreateNoteDialogProps) {
+export function CreateVaultDialog({ open, onClose, onCreate }: CreateVaultDialogProps) {
   const [name, setName] = useState('');
 
   const handleSubmit = () => {
@@ -32,12 +32,12 @@ export function CreateNoteDialog({ open, onClose, onCreate }: CreateNoteDialogPr
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New Note</DialogTitle>
+      <DialogTitle>Create New Vault</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
-          label="Note Name"
+          label="Vault Name"
           fullWidth
           variant="outlined"
           value={name}
@@ -55,4 +55,4 @@ export function CreateNoteDialog({ open, onClose, onCreate }: CreateNoteDialogPr
   );
 }
 
-export default CreateNoteDialog;
+export default CreateVaultDialog;

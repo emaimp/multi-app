@@ -1,13 +1,13 @@
 import { Box, Avatar, Typography, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { Note } from '../../types/note';
+import { Vault } from '../../types/vault';
 
-interface NoteCardProps {
-  note: Note;
-  onEdit: (note: Note) => void;
+interface VaultCardProps {
+  vault: Vault;
+  onEdit: (vault: Vault) => void;
 }
 
-const NOTE_COLORS_HEX: Record<string, string> = {
+const VAULT_COLORS_HEX: Record<string, string> = {
   primary: '#2563eb',
   secondary: '#7c3aed',
   success: '#16a34a',
@@ -16,8 +16,8 @@ const NOTE_COLORS_HEX: Record<string, string> = {
   info: '#0891b2',
 };
 
-export function NoteCard({ note, onEdit }: NoteCardProps) {
-  const colorHex = NOTE_COLORS_HEX[note.color] || NOTE_COLORS_HEX.primary;
+export function VaultCard({ vault, onEdit }: VaultCardProps) {
+  const colorHex = VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary;
 
   return (
     <Box
@@ -39,9 +39,9 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
           borderColor: colorHex,
           bgcolor: 'transparent',
         }}
-        src={note.image}
+        src={vault.image}
       >
-        {note.name.charAt(0).toUpperCase()}
+        {vault.name.charAt(0).toUpperCase()}
       </Avatar>
 
       <Typography
@@ -52,12 +52,12 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
           fontWeight: 500,
         }}
       >
-        {note.name}
+        {vault.name}
       </Typography>
 
       <IconButton
         size="small"
-        onClick={() => onEdit(note)}
+        onClick={() => onEdit(vault)}
         sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
       >
         <EditIcon fontSize="small" />
@@ -66,4 +66,4 @@ export function NoteCard({ note, onEdit }: NoteCardProps) {
   );
 }
 
-export default NoteCard;
+export default VaultCard;

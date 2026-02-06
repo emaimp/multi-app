@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { NoteProvider } from "./context/NoteContext";
+import { VaultProvider } from "./context/VaultContext";
 import { ThemeProvider } from "./theme";
 import { LoginView } from "./views/auth";
 import { MainView } from "./views/MainView";
@@ -18,9 +18,9 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <NoteProvider>
+        <VaultProvider>
           <AppContent />
-        </NoteProvider>
+        </VaultProvider>
       </AuthProvider>
     </ThemeProvider>
   );

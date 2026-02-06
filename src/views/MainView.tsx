@@ -2,18 +2,18 @@ import { useState } from 'react';
 import { Box, Drawer, Avatar, Typography, Button, Divider } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../context/AuthContext';
-import { useNotes } from '../context/NoteContext';
-import { NoteList, CreateNoteDialog, EditNoteDialog } from '../components/notes';
-import { Note } from '../types/note';
+import { useVaults } from '../context/VaultContext';
+import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
+import { Vault } from '../types/vault';
 
 const DRAWER_WIDTH = 240;
 
 export function MainView() {
   const { user, logout } = useAuth();
-  const { notes, addNote, updateNote, deleteNote } = useNotes();
+  const { vaults, addVault, updateVault, deleteVault } = useVaults();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [editingVault, setEditingVault] = useState<Vault | null>(null);
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
@@ -57,14 +57,14 @@ export function MainView() {
             fullWidth
             onClick={() => setCreateDialogOpen(true)}
           >
-            New Note
+            New Vault
           </Button>
         </Box>
 
         <Divider />
 
         <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-          <NoteList notes={notes} onEditNote={setEditingNote} />
+          <VaultList vaults={vaults} onEditVault={setEditingVault} />
         </Box>
 
         <Divider />
@@ -94,22 +94,22 @@ export function MainView() {
           Welcome, {user?.username}
         </Typography>
         <Typography color="text.secondary">
-          Select a note from the list to view details.
+          Select a vault from the list to view details.
         </Typography>
       </Box>
 
-      <CreateNoteDialog
+      <CreateVaultDialog
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
-        onCreate={addNote}
+        onCreate={addVault}
       />
 
-      <EditNoteDialog
-        open={!!editingNote}
-        note={editingNote}
-        onClose={() => setEditingNote(null)}
-        onSave={updateNote}
-        onDelete={deleteNote}
+      <EditVaultDialog
+        open={!!editingVault}
+        vault={editingVault}
+        onClose={() => setEditingVault(null)}
+        onSave={updateVault}
+        onDelete={deleteVault}
       />
     </Box>
   );
