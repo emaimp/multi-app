@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -12,7 +12,7 @@ import {
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Vault, VAULT_COLORS, VaultColor } from '../../types/vault';
+import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../types/vault';
 
 interface EditVaultDialogProps {
   open: boolean;
@@ -22,20 +22,19 @@ interface EditVaultDialogProps {
   onDelete: (vaultId: string) => void;
 }
 
-const VAULT_COLORS_HEX: Record<string, string> = {
-  primary: '#2563eb',
-  secondary: '#7c3aed',
-  success: '#16a34a',
-  warning: '#ca8a04',
-  error: '#dc2626',
-  info: '#0891b2',
-};
-
 export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: EditVaultDialogProps) {
   const [name, setName] = useState(vault?.name || '');
-  const [color, setColor] = useState<VaultColor>(vault?.color as VaultColor || 'primary');
+  const [color, setColor] = useState(vault?.color || 'primary');
   const [image, setImage] = useState<string | undefined>(vault?.image);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (vault) {
+      setName(vault.name);
+      setColor(vault.color);
+      setImage(vault.image);
+    }
+  }, [vault]);
 
   if (!vault) return null;
 
@@ -88,6 +87,7 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
                 borderColor: VAULT_COLORS_HEX[color],
                 bgcolor: 'transparent',
                 overflow: 'hidden',
+                color: 'text.primary',
               }}
               src={image}
               onClick={() => fileInputRef.current?.click()}

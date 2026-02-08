@@ -2,8 +2,10 @@ import { useState } from 'react';
 import { Box, TextField, IconButton, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import { Note } from '../../types/note';
-import { Vault } from '../../types/vault';
+import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 
 interface NoteCardProps {
   note: Note;
@@ -11,18 +13,11 @@ interface NoteCardProps {
   onUpdate: (note: Note) => void;
 }
 
-const VAULT_COLORS_HEX: Record<string, string> = {
-  primary: '#2563eb',
-  secondary: '#7c3aed',
-  success: '#16a34a',
-  warning: '#ca8a04',
-  error: '#dc2626',
-  info: '#0891b2',
-};
-
 export function NoteCard({ note, vault, onUpdate }: NoteCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
+  const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const vaultColor = vault ? VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary : VAULT_COLORS_HEX.primary;
 
@@ -49,6 +44,16 @@ export function NoteCard({ note, vault, onUpdate }: NoteCardProps) {
 
   const handleSave = () => {
     onUpdate(note);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  const handleCopy = async () => {
+    if (note.content) {
+      await navigator.clipboard.writeText(note.content);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
+    }
   };
 
   const autoResize = (e: React.FocusEvent<HTMLTextAreaElement>) => {
@@ -119,8 +124,28 @@ export function NoteCard({ note, vault, onUpdate }: NoteCardProps) {
           </Typography>
         )}
 
-        <IconButton size="small" onClick={handleSave} sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}>
-          <SaveIcon fontSize="small" />
+        <IconButton
+          size="small"
+          onClick={handleCopy}
+          sx={{
+            color: copied ? 'success.main' : 'inherit',
+            opacity: copied ? 1 : 0.6,
+            '&:hover': { opacity: 1 },
+          }}
+        >
+          {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+        </IconButton>
+
+        <IconButton
+          size="small"
+          onClick={handleSave}
+          sx={{
+            color: saved ? 'success.main' : 'inherit',
+            opacity: saved ? 1 : 0.6,
+            '&:hover': { opacity: 1 },
+          }}
+        >
+          {saved ? <CheckIcon fontSize="small" /> : <SaveIcon fontSize="small" />}
         </IconButton>
 
         <IconButton size="small" sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}>

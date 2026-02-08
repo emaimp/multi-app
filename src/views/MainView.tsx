@@ -78,8 +78,9 @@ export function MainView() {
 
         <Box sx={{ p: 2 }}>
           <Button
-            variant="contained"
+            variant="outlined"
             fullWidth
+            startIcon={<AddIcon />}
             onClick={() => setCreateDialogOpen(true)}
           >
             New Vault

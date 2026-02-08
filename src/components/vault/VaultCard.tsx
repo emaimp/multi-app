@@ -1,20 +1,11 @@
 import { Box, Avatar, Typography, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { Vault } from '../../types/vault';
+import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 
 interface VaultCardProps {
   vault: Vault;
   onEdit: (vault: Vault) => void;
 }
-
-const VAULT_COLORS_HEX: Record<string, string> = {
-  primary: '#2563eb',
-  secondary: '#7c3aed',
-  success: '#16a34a',
-  warning: '#ca8a04',
-  error: '#dc2626',
-  info: '#0891b2',
-};
 
 export function VaultCard({ vault, onEdit }: VaultCardProps) {
   const colorHex = VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary;
@@ -38,6 +29,7 @@ export function VaultCard({ vault, onEdit }: VaultCardProps) {
           border: '3px solid',
           borderColor: colorHex,
           bgcolor: 'transparent',
+          color: 'text.primary',
         }}
         src={vault.image}
       >
