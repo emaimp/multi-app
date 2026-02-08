@@ -5,18 +5,28 @@ import { VaultCard } from './VaultCard';
 interface VaultListProps {
   vaults: Vault[];
   onEditVault: (vault: Vault) => void;
+  onVaultClick: (vaultId: string) => void;
+  selectedVaultId: string | null;
 }
 
-export function VaultList({ vaults, onEditVault }: VaultListProps) {
+export function VaultList({ vaults, onEditVault, onVaultClick, selectedVaultId }: VaultListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       <List>
         {vaults.map((vault) => (
-          <VaultCard
+          <Box
             key={vault.id}
-            vault={vault}
-            onEdit={onEditVault}
-          />
+            onClick={() => onVaultClick(vault.id)}
+            sx={{
+              cursor: 'pointer',
+              bgcolor: selectedVaultId === vault.id ? 'action.selected' : 'transparent',
+              '&:hover': {
+                bgcolor: 'action.hover',
+              },
+            }}
+          >
+            <VaultCard vault={vault} onEdit={onEditVault} />
+          </Box>
         ))}
       </List>
       {vaults.length === 0 && (

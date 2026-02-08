@@ -1,19 +1,44 @@
 import { useState } from 'react';
 import { Box, Drawer, Avatar, Typography, Button, Divider } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AddIcon from '@mui/icons-material/Add';
 import { useAuth } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
+import { NoteList } from '../components/note';
 import { Vault } from '../types/vault';
 
 const DRAWER_WIDTH = 240;
 
 export function MainView() {
   const { user, logout } = useAuth();
-  const { vaults, addVault, updateVault, deleteVault } = useVaults();
+  const {
+    vaults,
+    selectedVaultId,
+    addVault,
+    updateVault,
+    deleteVault,
+    selectVault,
+    addNote,
+    updateNote,
+    getNotesByVault,
+  } = useVaults();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
+
+  const selectedVault = vaults.find((v) => v.id === selectedVaultId);
+  const vaultNotes = selectedVaultId ? getNotesByVault(selectedVaultId) : [];
+
+  const handleVaultClick = (vaultId: string) => {
+    selectVault(vaultId);
+  };
+
+  const handleAddNote = () => {
+    if (selectedVaultId) {
+      addNote(selectedVaultId, '');
+    }
+  };
 
   return (
     <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
@@ -64,7 +89,12 @@ export function MainView() {
         <Divider />
 
         <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-          <VaultList vaults={vaults} onEditVault={setEditingVault} />
+          <VaultList
+            vaults={vaults}
+            onEditVault={setEditingVault}
+            onVaultClick={handleVaultClick}
+            selectedVaultId={selectedVaultId}
+          />
         </Box>
 
         <Divider />
@@ -90,12 +120,28 @@ export function MainView() {
           overflow: 'auto',
         }}
       >
-        <Typography variant="h4" gutterBottom>
-          Welcome, {user?.username}
-        </Typography>
-        <Typography color="text.secondary">
-          Select a vault from the list to view details.
-        </Typography>
+        {selectedVault ? (
+          <>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h4">
+                {selectedVault.name}
+              </Typography>
+              <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddNote}>
+                New Note
+              </Button>
+            </Box>
+            <NoteList notes={vaultNotes} vault={selectedVault} onUpdateNote={updateNote} />
+          </>
+        ) : (
+          <>
+            <Typography variant="h4" gutterBottom>
+              Welcome, {user?.username}
+            </Typography>
+            <Typography color="text.secondary">
+              Select a vault from the list to view details.
+            </Typography>
+          </>
+        )}
       </Box>
 
       <CreateVaultDialog
