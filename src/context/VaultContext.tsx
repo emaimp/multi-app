@@ -12,6 +12,7 @@ interface VaultContextType {
   selectVault: (vaultId: string) => void;
   addNote: (vaultId: string, title: string) => void;
   updateNote: (note: Note) => void;
+  deleteNote: (noteId: string) => void;
   getNotesByVault: (vaultId: string) => Note[];
 }
 
@@ -96,6 +97,10 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const deleteNote = (noteId: string) => {
+    setNotes((prev) => prev.filter((note) => note.id !== noteId));
+  };
+
   const getNotesByVault = (vaultId: string) => {
     return notes.filter((note) => note.vaultId === vaultId);
   };
@@ -112,6 +117,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         selectVault,
         addNote,
         updateNote,
+        deleteNote,
         getNotesByVault,
       }}
     >

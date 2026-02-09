@@ -21,6 +21,7 @@ export function MainView() {
     selectVault,
     addNote,
     updateNote,
+    deleteNote,
     getNotesByVault,
   } = useVaults();
 
@@ -131,7 +132,7 @@ export function MainView() {
                 New Note
               </Button>
             </Box>
-            <NoteList notes={vaultNotes} vault={selectedVault} onUpdateNote={updateNote} />
+            <NoteList notes={vaultNotes} vault={selectedVault} onUpdateNote={updateNote} onDeleteNote={deleteNote} />
           </>
         ) : (
           <>
