@@ -25,13 +25,18 @@ fn recover_password(username: String, master_key: String, new_password: String, 
     state.recover_password(&username, &master_key, &new_password)
 }
 
+#[tauri::command]
+fn update_avatar(user_id: i32, avatar: Vec<u8>, state: tauri::State<Database>) -> Result<(), String> {
+    state.update_avatar(user_id, &avatar)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let db = Database::new().expect("Failed to initialize database");
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .manage(db)
-        .invoke_handler(tauri::generate_handler![greet, login, register, recover_password])
+        .invoke_handler(tauri::generate_handler![greet, login, register, recover_password, update_avatar])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

@@ -26,4 +26,5 @@ rusqlite = { version = "0.32", features = ["bundled"] }
 argon2 = "0.5"
 rand = "0.8"
 dirs = "5"
+base64 = "0.22"
 

@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { User } from '../types/user';
 
 interface AuthContextType {
@@ -6,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (user: User, remember?: boolean) => void;
   logout: () => void;
-  updateUser: (updates: Partial<User>) => void;
+  updateUser: (updates: Partial<User>) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,8 +58,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('rememberedUser');
   };
 
-  const updateUser = (updates: Partial<User>) => {
+  const updateUser = async (updates: Partial<User>) => {
     if (user) {
+      if (updates.avatar) {
+        const base64Data = updates.avatar.split(',')[1];
+        const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+        await invoke('update_avatar', {
+          userId: user.id,
+          avatar: Array.from(binaryData),
+        });
+      }
       setUser({ ...user, ...updates });
     }
   };

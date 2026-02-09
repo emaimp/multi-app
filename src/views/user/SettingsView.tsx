@@ -15,6 +15,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { useAuth } from '../../context/AuthContext';
+import imageCompression from 'browser-image-compression';
 
 export function SettingsView() {
   const navigate = useNavigate();
@@ -43,14 +44,31 @@ export function SettingsView() {
     fileInputRef.current?.click();
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarPreview(reader.result as string);
+      const options = {
+        maxSizeMB: 0.05,
+        maxWidthOrHeight: 200,
+        useWebWorker: true,
+        fileType: 'image/jpeg',
       };
-      reader.readAsDataURL(file);
+
+      try {
+        const compressedFile = await imageCompression(file, options);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setAvatarPreview(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setAvatarPreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
@@ -80,7 +98,7 @@ export function SettingsView() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     setSuccess('');
 
     if (!validateForm()) {
@@ -89,11 +107,11 @@ export function SettingsView() {
 
     try {
       if (avatarPreview !== user?.avatar) {
-        updateUser({ avatar: avatarPreview });
+        await updateUser({ avatar: avatarPreview });
       }
 
       if (username !== user?.username) {
-        updateUser({ username });
+        await updateUser({ username });
       }
 
       setOldPassword('');
@@ -260,7 +278,7 @@ export function SettingsView() {
             )}
           </Stack>
 
-          <Box sx={{ mt: 5 }}>
+          <Box sx={{ mt: 4 }}>
             <Button
               variant="contained"
               fullWidth

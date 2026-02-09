@@ -6,4 +6,5 @@ pub struct User {
     pub username: String,
     pub password_hash: String,
     pub master_key_hash: String,
+    pub avatar: Option<String>,
 }
