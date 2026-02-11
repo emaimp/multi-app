@@ -7,7 +7,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
-import { NoteList } from '../components/note';
+import { NoteList, CreateNoteDialog } from '../components/note';
 import { Vault } from '../types/vault';
 import { SettingsView } from './user/SettingsView';
 
@@ -30,6 +30,7 @@ export function MainView() {
   } = useVaults();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
 
   const selectedVault = vaults.find((v) => v.id === selectedVaultId);
@@ -41,7 +42,13 @@ export function MainView() {
 
   const handleAddNote = () => {
     if (selectedVaultId) {
-      addNote(selectedVaultId, '', '');
+      setCreateNoteDialogOpen(true);
+    }
+  };
+
+  const handleCreateNote = (title: string) => {
+    if (selectedVaultId) {
+      addNote(selectedVaultId, title, '');
     }
   };
 
@@ -175,6 +182,12 @@ export function MainView() {
               open={createDialogOpen}
               onClose={() => setCreateDialogOpen(false)}
               onCreate={addVault}
+            />
+
+            <CreateNoteDialog
+              open={createNoteDialogOpen}
+              onClose={() => setCreateNoteDialogOpen(false)}
+              onCreate={handleCreateNote}
             />
 
             <EditVaultDialog
