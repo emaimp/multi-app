@@ -4,7 +4,7 @@ import { Box, Drawer, Avatar, Typography, Button, Divider, IconButton } from '@m
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { useAuth } from '../context/AuthContext';
+import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
 import { NoteList } from '../components/note';
@@ -15,7 +15,7 @@ const DRAWER_WIDTH = 240;
 
 export function MainView() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout } = useUser();
   const {
     vaults,
     notes,

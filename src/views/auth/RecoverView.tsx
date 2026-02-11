@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -13,7 +13,7 @@ interface RecoverViewProps {
 }
 
 function RecoverView({ onBack }: RecoverViewProps) {
-  const { recoverPassword } = useAuth();
+  const { recoverPassword } = useUser();
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
   const [newPassword, setNewPassword] = useState('');

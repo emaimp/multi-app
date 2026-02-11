@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -15,7 +15,7 @@ import RegisterView from './RegisterView';
 import RecoverView from './RecoverView';
 
 function LoginView() {
-  const { login, register } = useAuth();
+  const { login, register } = useUser();
   const [view, setView] = useState<'login' | 'register' | 'recover'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

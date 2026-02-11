@@ -14,12 +14,12 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import { useAuth } from '../../context/AuthContext';
+import { useUser } from '../../context/AuthContext';
 import imageCompression from 'browser-image-compression';
 
 export function SettingsView() {
   const navigate = useNavigate();
-  const { user, updateUser } = useAuth();
+  const { user, updateUser } = useUser();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState(user?.username || '');

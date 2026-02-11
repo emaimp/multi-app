@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
-import { useAuth } from './AuthContext';
+import { useUser } from './AuthContext';
 import { useBackend } from '../hooks/useBackend';
 
 interface VaultContextType {
@@ -23,7 +23,7 @@ interface VaultContextType {
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
 
 export function VaultProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user } = useUser();
   const { invoke } = useBackend();
   const [vaults, setVaults] = useState<Vault[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
