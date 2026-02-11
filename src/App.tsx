@@ -6,10 +6,10 @@ import { LoginView } from './views/auth';
 import { MainView } from './views/MainView';
 
 function AppContent() {
-  const { isAuthenticated, login } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    return <LoginView onLogin={login} />;
+    return <LoginView />;
   }
 
   return <MainView />;

@@ -1,12 +1,35 @@
 use rusqlite::Connection;
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_hash::SaltString};
-use std::sync::Mutex;
+use std::sync::{Mutex, MutexGuard};
 use dirs;
 use base64::{Engine as _, engine::general_purpose::STANDARD};
+use generic_array::GenericArray;
+use typenum::U32;
 use crate::models::User;
 
 pub struct Database {
-    conn: Mutex<Connection>,
+    pub conn: Mutex<Connection>,
+    encryption_keys: Mutex<std::collections::HashMap<i32, GenericArray<u8, U32>>>,
+}
+
+pub struct EncryptionKeyGuard<'a> {
+    _guard: MutexGuard<'a, std::collections::HashMap<i32, GenericArray<u8, U32>>>,
+    key: *const GenericArray<u8, U32>,
+}
+
+unsafe impl<'a> Send for EncryptionKeyGuard<'a> {}
+unsafe impl<'a> Sync for EncryptionKeyGuard<'a> {}
+
+impl<'a> EncryptionKeyGuard<'a> {
+    fn new(guard: MutexGuard<'a, std::collections::HashMap<i32, GenericArray<u8, U32>>>, user_id: i32) -> Result<Self, String> {
+        let key_ptr = guard.get(&user_id)
+            .ok_or("Session not initialized. Call init_session first.".to_string())? as *const GenericArray<u8, U32>;
+        Ok(EncryptionKeyGuard { _guard: guard, key: key_ptr })
+    }
+    
+    pub fn as_ref(&self) -> &GenericArray<u8, U32> {
+        unsafe { &*self.key }
+    }
 }
 
 impl Database {
@@ -25,9 +48,84 @@ impl Database {
             )",
             [],
         )?;
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS vaults (
+                id TEXT PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                name TEXT NOT NULL,
+                color TEXT NOT NULL,
+                image BLOB,
+                created_at INTEGER NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )",
+            [],
+        )?;
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS notes (
+                id TEXT PRIMARY KEY,
+                vault_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                content_encrypted TEXT NOT NULL,
+                nonce TEXT NOT NULL,
+                created_at INTEGER NOT NULL,
+                updated_at INTEGER NOT NULL,
+                FOREIGN KEY (vault_id) REFERENCES vaults(id) ON DELETE CASCADE
+            )",
+            [],
+        )?;
         Ok(Database {
             conn: Mutex::new(conn),
+            encryption_keys: Mutex::new(std::collections::HashMap::new()),
         })
+    }
+
+    fn extract_salt_from_hash(hash: &str) -> Result<Vec<u8>, String> {
+        use argon2::PasswordHash;
+        let parsed_hash = PasswordHash::new(hash).map_err(|e| e.to_string())?;
+        let salt = parsed_hash.salt
+            .ok_or("Salt not found in hash".to_string())?;
+        Ok(salt.as_ref().as_bytes().to_vec())
+    }
+
+    pub fn derive_encryption_key(master_key: &str, salt: &[u8]) -> Result<GenericArray<u8, U32>, String> {
+        use crate::crypto::KEY_LENGTH;
+        use argon2::Params;
+        let mut key = GenericArray::<u8, U32>::clone_from_slice(&[0u8; 32]);
+        let argon2 = Argon2::new(
+            argon2::Algorithm::Argon2id,
+            argon2::Version::V0x13,
+            Params::new(65536, 3, 1, Some(KEY_LENGTH)).map_err(|e| e.to_string())?,
+        );
+        argon2.hash_password_into(
+            master_key.as_bytes(),
+            salt,
+            &mut key,
+        ).map_err(|e| e.to_string())?;
+        Ok(key)
+    }
+
+    pub fn init_session(&self, user_id: i32, master_key: &str) -> Result<(), String> {
+        let conn = self.conn.lock().unwrap();
+        let master_key_hash: String = conn.query_row(
+            "SELECT master_key_hash FROM users WHERE id = ?",
+            [user_id],
+            |row| row.get(0)
+        ).map_err(|e| e.to_string())?;
+        let salt = Self::extract_salt_from_hash(&master_key_hash)?;
+        let key = Self::derive_encryption_key(master_key, &salt)?;
+        let mut keys = self.encryption_keys.lock().unwrap();
+        keys.insert(user_id, key);
+        Ok(())
+    }
+
+    pub fn clear_session(&self, user_id: i32) {
+        let mut keys = self.encryption_keys.lock().unwrap();
+        keys.remove(&user_id);
+    }
+
+    pub fn get_encryption_key(&self, user_id: i32) -> Result<EncryptionKeyGuard, String> {
+        let guard = self.encryption_keys.lock().map_err(|e| e.to_string())?;
+        EncryptionKeyGuard::new(guard, user_id)
     }
 
     pub fn login(&self, username: &str, password: &str) -> Result<User, String> {

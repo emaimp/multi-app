@@ -1,9 +1,10 @@
 export interface Vault {
   id: string;
+  user_id: number;
   name: string;
   color: string;
   image?: string;
-  createdAt: Date;
+  created_at: number;
 }
 
 export type VaultColor = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'orange' | 'pink';

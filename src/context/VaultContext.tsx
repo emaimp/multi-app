@@ -1,108 +1,167 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
+import { useAuth } from './AuthContext';
 
 interface VaultContextType {
   vaults: Vault[];
   notes: Note[];
   selectedVaultId: string | null;
-  addVault: (name: string) => void;
-  updateVault: (vault: Vault) => void;
-  deleteVault: (vaultId: string) => void;
-  selectVault: (vaultId: string) => void;
-  addNote: (vaultId: string, title: string) => void;
-  updateNote: (note: Note) => void;
-  deleteNote: (noteId: string) => void;
-  getNotesByVault: (vaultId: string) => Note[];
+  loading: boolean;
+  loadVaults: () => Promise<void>;
+  addVault: (name: string, color: string) => Promise<void>;
+  updateVault: (vault: Vault) => Promise<void>;
+  deleteVault: (vaultId: string) => Promise<void>;
+  selectVault: (vaultId: string) => Promise<void>;
+  loadNotes: (vaultId: string) => Promise<void>;
+  addNote: (vaultId: string, title: string, content: string) => Promise<void>;
+  updateNote: (noteId: string, title: string, content: string) => Promise<void>;
+  deleteNote: (noteId: string) => Promise<void>;
 }
 
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
 
 export function VaultProvider({ children }: { children: ReactNode }) {
-  const [vaults, setVaults] = useState<Vault[]>(() => {
-    const saved = localStorage.getItem('vaults');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const [notes, setNotes] = useState<Note[]>(() => {
-    const saved = localStorage.getItem('notes');
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const { user } = useAuth();
+  const [vaults, setVaults] = useState<Vault[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
   const [selectedVaultId, setSelectedVaultId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('vaults', JSON.stringify(vaults));
-  }, [vaults]);
-
-  useEffect(() => {
-    localStorage.setItem('notes', JSON.stringify(notes));
-  }, [notes]);
-
-  const addVault = (name: string) => {
-    const newVault: Vault = {
-      id: crypto.randomUUID(),
-      name,
-      color: 'primary',
-      createdAt: new Date(),
-    };
-    setVaults((prev) => [...prev, newVault]);
-
-    const newNote: Note = {
-      id: crypto.randomUUID(),
-      vaultId: newVault.id,
-      title: '',
-      content: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setNotes((prev) => [...prev, newNote]);
-  };
-
-  const updateVault = (updatedVault: Vault) => {
-    setVaults((prev) =>
-      prev.map((vault) => (vault.id === updatedVault.id ? updatedVault : vault))
-    );
-  };
-
-  const deleteVault = (vaultId: string) => {
-    setVaults((prev) => prev.filter((vault) => vault.id !== vaultId));
-    setNotes((prev) => prev.filter((note) => note.vaultId !== vaultId));
-    if (selectedVaultId === vaultId) {
-      setSelectedVaultId(null);
+  const loadVaults = async () => {
+    if (!user) return;
+    try {
+      const vaultsData = await invoke<Vault[]>('get_vaults', { userId: user.id });
+      setVaults(vaultsData);
+    } catch (error) {
+      console.error('Failed to load vaults:', error);
     }
   };
 
-  const selectVault = (vaultId: string) => {
+  useEffect(() => {
+    if (user) {
+      loadVaults();
+    } else {
+      setVaults([]);
+      setNotes([]);
+      setSelectedVaultId(null);
+    }
+  }, [user]);
+
+  const addVault = async (name: string, color: string) => {
+    if (!user) return;
+    try {
+      const newVault = await invoke<Vault>('create_vault', {
+        userId: user.id,
+        name,
+        color,
+      });
+      setVaults((prev) => [...prev, newVault]);
+    } catch (error) {
+      console.error('Failed to create vault:', error);
+      throw error;
+    }
+  };
+
+  const updateVault = async (vault: Vault) => {
+    try {
+      await invoke('update_vault', {
+        vault: JSON.stringify(vault),
+        name: vault.name,
+        color: vault.color,
+      });
+      setVaults((prev) =>
+        prev.map((v) => (v.id === vault.id ? vault : v))
+      );
+    } catch (error) {
+      console.error('Failed to update vault:', error);
+      throw error;
+    }
+  };
+
+  const deleteVault = async (vaultId: string) => {
+    try {
+      await invoke('delete_vault', { vaultId });
+      setVaults((prev) => prev.filter((v) => v.id !== vaultId));
+      setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
+      if (selectedVaultId === vaultId) {
+        setSelectedVaultId(null);
+        setNotes([]);
+      }
+    } catch (error) {
+      console.error('Failed to delete vault:', error);
+      throw error;
+    }
+  };
+
+  const selectVault = async (vaultId: string) => {
     setSelectedVaultId(vaultId);
+    await loadNotes(vaultId);
   };
 
-  const addNote = (vaultId: string, title: string) => {
-    const newNote: Note = {
-      id: crypto.randomUUID(),
-      vaultId,
-      title,
-      content: '',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    setNotes((prev) => [...prev, newNote]);
+  const loadNotes = async (vaultId: string) => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const notesData = await invoke<Note[]>('get_notes_decrypted', {
+        vaultId,
+        userId: user.id,
+      });
+      setNotes(notesData);
+    } catch (error) {
+      console.error('Failed to load notes:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateNote = (updatedNote: Note) => {
-    setNotes((prev) =>
-      prev.map((note) =>
-        note.id === updatedNote.id ? { ...updatedNote, updatedAt: new Date() } : note
-      )
-    );
+  const addNote = async (vaultId: string, title: string, content: string) => {
+    if (!user) return;
+    try {
+      const newNote = await invoke<Note>('create_note', {
+        vaultId,
+        title,
+        content,
+        userId: user.id,
+      });
+      setNotes((prev) => [...prev, newNote]);
+    } catch (error) {
+      console.error('Failed to create note:', error);
+      throw error;
+    }
   };
 
-  const deleteNote = (noteId: string) => {
-    setNotes((prev) => prev.filter((note) => note.id !== noteId));
+  const updateNote = async (noteId: string, title: string, content: string) => {
+    if (!user) return;
+    try {
+      await invoke('update_note', {
+        noteId,
+        title,
+        content,
+        userId: user.id,
+      });
+      setNotes((prev) =>
+        prev.map((n) =>
+          n.id === noteId
+            ? { ...n, title, content, updated_at: Date.now() }
+            : n
+        )
+      );
+    } catch (error) {
+      console.error('Failed to update note:', error);
+      throw error;
+    }
   };
 
-  const getNotesByVault = (vaultId: string) => {
-    return notes.filter((note) => note.vaultId === vaultId);
+  const deleteNote = async (noteId: string) => {
+    try {
+      await invoke('delete_note', { noteId });
+      setNotes((prev) => prev.filter((n) => n.id !== noteId));
+    } catch (error) {
+      console.error('Failed to delete note:', error);
+      throw error;
+    }
   };
 
   return (
@@ -111,14 +170,16 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         vaults,
         notes,
         selectedVaultId,
+        loading,
+        loadVaults,
         addVault,
         updateVault,
         deleteVault,
         selectVault,
+        loadNotes,
         addNote,
         updateNote,
         deleteNote,
-        getNotesByVault,
       }}
     >
       {children}

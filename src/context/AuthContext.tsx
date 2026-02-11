@@ -5,7 +5,8 @@ import { User } from '../types/user';
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
-  login: (user: User, remember?: boolean) => void;
+  login: (username: string, password: string, remember?: boolean, masterKey?: string) => Promise<void>;
+  register: (username: string, password: string, masterKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
 }
@@ -24,9 +25,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(savedUser);
         } else {
           localStorage.removeItem('rememberedUser');
+          localStorage.removeItem('masterKey');
         }
       } catch (e) {
         localStorage.removeItem('rememberedUser');
+        localStorage.removeItem('masterKey');
       }
     }
   }, []);
@@ -42,20 +45,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('rememberedUser', JSON.stringify({ user, expiry: Date.now() + 7 * 24 * 60 * 60 * 1000 }));
         }
       }
+      const masterKey = localStorage.getItem('masterKey');
+      if (masterKey) {
+        invoke('init_session', { userId: user.id, masterKey }).catch(console.error);
+      }
     }
   }, [user]);
 
-  const login = (user: User, remember?: boolean) => {
+  const login = async (username: string, password: string, remember?: boolean, masterKey?: string) => {
+    const user = await invoke<User>('login', { username, password });
     setUser(user);
+    if (masterKey) {
+      localStorage.setItem('masterKey', masterKey);
+      await invoke('init_session', { userId: user.id, masterKey });
+    }
     if (remember) {
       const expiry = Date.now() + 7 * 24 * 60 * 60 * 1000;
       localStorage.setItem('rememberedUser', JSON.stringify({ user, expiry }));
     }
   };
 
+  const register = async (username: string, password: string, masterKey: string) => {
+    const user = await invoke<User>('register', { username, password, masterKey });
+    setUser(user);
+    localStorage.setItem('masterKey', masterKey);
+    await invoke('init_session', { userId: user.id, masterKey });
+  };
+
   const logout = () => {
+    if (user) {
+      invoke('logout', { userId: user.id }).catch(console.error);
+    }
     setUser(null);
     localStorage.removeItem('rememberedUser');
+    localStorage.removeItem('masterKey');
   };
 
   const updateUser = async (updates: Partial<User>) => {
@@ -73,7 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -8,3 +8,23 @@ pub struct User {
     pub master_key_hash: String,
     pub avatar: Option<String>,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Vault {
+    pub id: String,
+    pub user_id: i32,
+    pub name: String,
+    pub color: String,
+    pub image: Option<String>,
+    pub created_at: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Note {
+    pub id: String,
+    pub vault_id: String,
+    pub title: String,
+    pub content: String,
+    pub created_at: i64,
+    pub updated_at: i64,
+}

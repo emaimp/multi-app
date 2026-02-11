@@ -1,8 +1,8 @@
 export interface Note {
   id: string;
-  vaultId: string;
+  vault_id: string;
   title: string;
   content: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: number;
+  updated_at: number;
 }

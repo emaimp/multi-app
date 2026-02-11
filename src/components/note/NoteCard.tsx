@@ -11,13 +11,14 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 interface NoteCardProps {
   note: Note;
   vault: Vault | undefined;
-  onUpdate: (note: Note) => void;
+  onUpdate: (noteId: string, title: string, content: string) => void;
   onDelete: (noteId: string) => void;
 }
 
 export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
+  const [content, setContent] = useState(note.content);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -31,7 +32,7 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
   const handleTitleBlur = () => {
     setIsEditingTitle(false);
     if (title !== note.title) {
-      onUpdate({ ...note, title });
+      onUpdate(note.id, title, content);
     }
   };
 
@@ -42,11 +43,11 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
   };
 
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onUpdate({ ...note, content: e.target.value });
+    setContent(e.target.value);
   };
 
   const handleSave = () => {
-    onUpdate(note);
+    onUpdate(note.id, title, content);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -172,7 +173,7 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
             fullWidth
             variant="standard"
             placeholder="Write your note here..."
-            value={note.content}
+            value={content}
             onChange={handleContentChange}
             onFocus={autoResize}
             inputProps={{

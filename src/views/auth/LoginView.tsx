@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { useAuth } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -9,23 +9,24 @@ import Link from '@mui/material/Link';
 import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
+import KeyIcon from '@mui/icons-material/Key';
 import { AuthLayout, AuthFormField, PasswordField } from '../../components/auth';
 import RegisterView from './RegisterView';
 import RecoverView from './RecoverView';
 
-interface LoginViewProps {
-  onLogin: (user: any, remember?: boolean) => void;
-}
-
-function LoginView({ onLogin }: LoginViewProps) {
+function LoginView() {
+  const { login, register } = useAuth();
   const [view, setView] = useState<'login' | 'register' | 'recover'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [masterKey, setMasterKey] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [usernameError, setUsernameError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [masterKeyError, setMasterKeyError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showMasterKey, setShowMasterKey] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,21 +46,27 @@ function LoginView({ onLogin }: LoginViewProps) {
     } else {
       setPasswordError(false);
     }
+
+    if (!masterKey || masterKey.length < 1) {
+      setMasterKeyError(true);
+      isValid = false;
+    } else {
+      setMasterKeyError(false);
+    }
     
     if (!isValid) {
       return;
     }
     
     try {
-      const user = await invoke('login', { username, password });
-      onLogin(user, rememberMe);
+      await login(username, password, rememberMe, masterKey);
     } catch (err) {
       setError(err as string);
     }
   };
 
   if (view === 'register') {
-    return <RegisterView onRegister={(user) => onLogin(user)} onBack={() => setView('login')} />;
+    return <RegisterView onRegister={register} onBack={() => setView('login')} />;
   }
 
   if (view === 'recover') {
@@ -114,6 +121,20 @@ function LoginView({ onLogin }: LoginViewProps) {
             icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
             showPassword={showPassword}
             onToggleVisibility={() => setShowPassword(!showPassword)}
+          />
+
+          <PasswordField
+            id="masterKey"
+            name="masterKey"
+            label="Master Key"
+            placeholder="Enter your master key"
+            value={masterKey}
+            onChange={setMasterKey}
+            error={masterKeyError}
+            helperText={masterKeyError ? 'Master key is required.' : ''}
+            icon={<KeyIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showMasterKey}
+            onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
           />
           
           <FormControlLabel

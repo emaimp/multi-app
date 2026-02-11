@@ -18,6 +18,7 @@ export function MainView() {
   const { user, logout } = useAuth();
   const {
     vaults,
+    notes,
     selectedVaultId,
     addVault,
     updateVault,
@@ -26,14 +27,13 @@ export function MainView() {
     addNote,
     updateNote,
     deleteNote,
-    getNotesByVault,
   } = useVaults();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
 
   const selectedVault = vaults.find((v) => v.id === selectedVaultId);
-  const vaultNotes = selectedVaultId ? getNotesByVault(selectedVaultId) : [];
+  const vaultNotes = selectedVaultId ? notes.filter((n) => n.vault_id === selectedVaultId) : [];
 
   const handleVaultClick = (vaultId: string) => {
     selectVault(vaultId);
@@ -41,7 +41,7 @@ export function MainView() {
 
   const handleAddNote = () => {
     if (selectedVaultId) {
-      addNote(selectedVaultId, '');
+      addNote(selectedVaultId, '', '');
     }
   };
 
@@ -99,66 +99,49 @@ export function MainView() {
                       borderColor: 'divider',
                       width: 24,
                       height: 24,
-                      '&:hover': {
-                        bgcolor: 'action.hover',
-                      },
+                      '&:hover': { bgcolor: 'action.hover' },
                     }}
                   >
                     <SettingsIcon sx={{ fontSize: 14 }} />
                   </IconButton>
                 </Box>
                 <Typography variant="subtitle1" fontWeight={500}>
-                  {user?.username || 'User'}
+                  {user?.username}
                 </Typography>
               </Box>
-
               <Divider />
-
+              <Box sx={{ flex: 1, overflow: 'auto', py: 1 }}>
+                <VaultList
+                  vaults={vaults}
+                  selectedVaultId={selectedVaultId}
+                  onVaultClick={handleVaultClick}
+                  onEditVault={(vault) => setEditingVault(vault)}
+                />
+              </Box>
+              <Divider />
               <Box sx={{ p: 2 }}>
                 <Button
-                  variant="outlined"
                   fullWidth
+                  variant="outlined"
                   startIcon={<AddIcon />}
                   onClick={() => setCreateDialogOpen(true)}
+                  sx={{ mb: 1 }}
                 >
                   New Vault
                 </Button>
-              </Box>
-
-              <Divider />
-
-              <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
-                <VaultList
-                  vaults={vaults}
-                  onEditVault={setEditingVault}
-                  onVaultClick={handleVaultClick}
-                  selectedVaultId={selectedVaultId}
-                />
-              </Box>
-
-              <Divider />
-
-              <Box sx={{ p: 2 }}>
                 <Button
-                  variant="outlined"
+                  fullWidth
+                  variant="text"
                   color="error"
                   startIcon={<LogoutIcon />}
                   onClick={logout}
-                  fullWidth
                 >
-                  Log out
+                  Logout
                 </Button>
               </Box>
             </Drawer>
 
-            <Box
-              component="main"
-              sx={{
-                flexGrow: 1,
-                p: 3,
-                overflow: 'auto',
-              }}
-            >
+            <Box sx={{ flex: 1, overflow: 'auto', p: 4 }}>
               {selectedVault ? (
                 <>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>

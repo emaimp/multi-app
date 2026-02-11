@@ -6,7 +6,7 @@ import { NoteCard } from './NoteCard';
 interface NoteListProps {
   notes: Note[];
   vault: Vault | undefined;
-  onUpdateNote: (note: Note) => void;
+  onUpdateNote: (noteId: string, title: string, content: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 

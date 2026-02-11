@@ -27,4 +27,9 @@ argon2 = "0.5"
 rand = "0.8"
 dirs = "5"
 base64 = "0.22"
+aes-gcm = "0.10"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+generic-array = "0.14"
+typenum = "1"
 

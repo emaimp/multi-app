@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -9,7 +8,7 @@ import KeyIcon from '@mui/icons-material/Key';
 import { AuthLayout, AuthFormField, PasswordField } from '../../components/auth';
 
 interface RegisterViewProps {
-  onRegister: (user: any) => void;
+  onRegister: (username: string, password: string, masterKey: string) => Promise<void>;
   onBack: () => void;
 }
 
@@ -101,8 +100,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     }
     
     try {
-      const user = await invoke('register', { username, password, masterKey });
-      onRegister(user);
+      await onRegister(username, password, masterKey);
     } catch (err) {
       setError(err as string);
     }
