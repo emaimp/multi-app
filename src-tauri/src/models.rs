@@ -10,6 +10,23 @@ pub struct User {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct UserResponse {
+    pub id: i32,
+    pub username: String,
+    pub avatar: Option<String>,
+}
+
+impl From<User> for UserResponse {
+    fn from(user: User) -> Self {
+        UserResponse {
+            id: user.id,
+            username: user.username,
+            avatar: user.avatar,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Vault {
     pub id: String,
     pub user_id: i32,

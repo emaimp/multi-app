@@ -5,7 +5,7 @@ mod db;
 mod models;
 
 use auth::Database;
-use models::{User, Vault, Note};
+use models::{UserResponse, Vault, Note};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -13,8 +13,15 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn login(username: String, password: String, state: tauri::State<Database>) -> Result<User, String> {
-    state.login(&username, &password)
+fn login(username: String, password: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
+    let user = state.login(&username, &password)?;
+    Ok(user.into())
+}
+
+#[tauri::command]
+fn register(username: String, password: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
+    let user = state.register(&username, &password, &master_key)?;
+    Ok(user.into())
 }
 
 #[tauri::command]
@@ -26,11 +33,6 @@ fn init_session(user_id: i32, master_key: String, state: tauri::State<Database>)
 fn logout(user_id: i32, state: tauri::State<Database>) -> Result<(), String> {
     state.clear_session(user_id);
     Ok(())
-}
-
-#[tauri::command]
-fn register(username: String, password: String, master_key: String, state: tauri::State<Database>) -> Result<User, String> {
-    state.register(&username, &password, &master_key)
 }
 
 #[tauri::command]

@@ -6,6 +6,7 @@ use base64::{Engine as _, engine::general_purpose::STANDARD};
 use generic_array::GenericArray;
 use typenum::U32;
 use crate::models::User;
+use crate::crypto::derive_encryption_key;
 
 pub struct Database {
     pub conn: Mutex<Connection>,
@@ -87,23 +88,6 @@ impl Database {
         Ok(salt.as_ref().as_bytes().to_vec())
     }
 
-    pub fn derive_encryption_key(master_key: &str, salt: &[u8]) -> Result<GenericArray<u8, U32>, String> {
-        use crate::crypto::KEY_LENGTH;
-        use argon2::Params;
-        let mut key = GenericArray::<u8, U32>::clone_from_slice(&[0u8; 32]);
-        let argon2 = Argon2::new(
-            argon2::Algorithm::Argon2id,
-            argon2::Version::V0x13,
-            Params::new(65536, 3, 1, Some(KEY_LENGTH)).map_err(|e| e.to_string())?,
-        );
-        argon2.hash_password_into(
-            master_key.as_bytes(),
-            salt,
-            &mut key,
-        ).map_err(|e| e.to_string())?;
-        Ok(key)
-    }
-
     pub fn init_session(&self, user_id: i32, master_key: &str) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
         let master_key_hash: String = conn.query_row(
@@ -112,7 +96,7 @@ impl Database {
             |row| row.get(0)
         ).map_err(|e| e.to_string())?;
         let salt = Self::extract_salt_from_hash(&master_key_hash)?;
-        let key = Self::derive_encryption_key(master_key, &salt)?;
+        let key = derive_encryption_key(master_key, &salt).map_err(|e| e.to_string())?;
         let mut keys = self.encryption_keys.lock().unwrap();
         keys.insert(user_id, key);
         Ok(())
@@ -123,7 +107,7 @@ impl Database {
         keys.remove(&user_id);
     }
 
-    pub fn get_encryption_key(&self, user_id: i32) -> Result<EncryptionKeyGuard, String> {
+    pub fn get_encryption_key(&self, user_id: i32) -> Result<EncryptionKeyGuard<'_>, String> {
         let guard = self.encryption_keys.lock().map_err(|e| e.to_string())?;
         EncryptionKeyGuard::new(guard, user_id)
     }
