@@ -25,7 +25,7 @@ interface EditVaultDialogProps {
 
 export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: EditVaultDialogProps) {
   const [name, setName] = useState(vault?.name || '');
-  const [color, setColor] = useState(vault?.color || 'primary');
+  const [color, setColor] = useState(vault?.color || 'blue');
   const [image, setImage] = useState<string | undefined>(vault?.image);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

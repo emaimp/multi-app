@@ -7,26 +7,26 @@ export interface Vault {
   created_at: number;
 }
 
-export type VaultColor = 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'orange' | 'pink';
+export type VaultColor = 'blue' | 'cyan' | 'green' | 'yellow' | 'orange' | 'red' | 'pink' | 'purple';
 
 export const VAULT_COLORS: VaultColor[] = [
-  'primary',
-  'secondary',
-  'success',
-  'warning',
-  'error',
-  'info',
+  'blue',
+  'cyan',
+  'green',
+  'yellow',
   'orange',
+  'red',
   'pink',
+  'purple',
 ];
 
 export const VAULT_COLORS_HEX: Record<string, string> = {
-  primary: '#2563eb',
-  secondary: '#7c3aed',
-  success: '#16a34a',
-  warning: '#facc15',
-  error: '#dc2626',
-  info: '#0891b2',
+  blue: '#2563eb',
+  cyan: '#0891b2',
+  green: '#16a34a',
+  yellow: '#facc15',
   orange: '#f97316',
+  red: '#dc2626',
   pink: '#ec4899',
+  purple: '#7c3aed',
 };

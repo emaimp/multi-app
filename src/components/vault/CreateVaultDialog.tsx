@@ -6,12 +6,10 @@ import {
   DialogActions,
   Button,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
+  Box,
+  Typography,
 } from '@mui/material';
-import { VAULT_COLORS } from '../../types/vault';
+import { VAULT_COLORS, VAULT_COLORS_HEX } from '../../types/vault';
 
 interface CreateVaultDialogProps {
   open: boolean;
@@ -21,20 +19,20 @@ interface CreateVaultDialogProps {
 
 export function CreateVaultDialog({ open, onClose, onCreate }: CreateVaultDialogProps) {
   const [name, setName] = useState('');
-  const [color, setColor] = useState('primary');
+  const [color, setColor] = useState('blue');
 
   const handleSubmit = () => {
     if (name.trim()) {
       onCreate(name.trim(), color);
       setName('');
-      setColor('primary');
+      setColor('blue');
       onClose();
     }
   };
 
   const handleClose = () => {
     setName('');
-    setColor('primary');
+    setColor('blue');
     onClose();
   };
 
@@ -53,18 +51,30 @@ export function CreateVaultDialog({ open, onClose, onCreate }: CreateVaultDialog
           onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
           sx={{ mb: 2 }}
         />
-        <FormControl fullWidth>
-          <InputLabel>Color</InputLabel>
-          <Select
-            value={color}
-            label="Color"
-            onChange={(e) => setColor(e.target.value)}
-          >
+        <Box>
+          <Typography variant="subtitle2" sx={{ mb: 1 }}>
+            Color
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1 }}>
             {VAULT_COLORS.map((c) => (
-              <MenuItem key={c} value={c}>{c}</MenuItem>
+              <Box
+                key={c}
+                onClick={() => setColor(c)}
+                sx={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: '50%',
+                  bgcolor: VAULT_COLORS_HEX[c],
+                  cursor: 'pointer',
+                  border: color === c ? '3px solid' : '2px solid',
+                  borderColor: color === c ? 'text.primary' : 'transparent',
+                  transition: 'all 0.2s',
+                  '&:hover': { transform: 'scale(1.1)' },
+                }}
+              />
             ))}
-          </Select>
-        </FormControl>
+          </Box>
+        </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
