@@ -1,8 +1,8 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
 import { useAuth } from './AuthContext';
+import { useBackend } from '../hooks/useBackend';
 
 interface VaultContextType {
   vaults: Vault[];
@@ -24,6 +24,7 @@ const VaultContext = createContext<VaultContextType | undefined>(undefined);
 
 export function VaultProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const { invoke } = useBackend();
   const [vaults, setVaults] = useState<Vault[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedVaultId, setSelectedVaultId] = useState<string | null>(null);

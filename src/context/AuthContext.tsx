@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 import { User } from '../types/user';
+import { useBackend } from '../hooks/useBackend';
 
 interface AuthContextType {
   user: User | null;
@@ -16,6 +16,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const { invoke } = useBackend();
 
   useEffect(() => {
     const remembered = localStorage.getItem('rememberedUser');
