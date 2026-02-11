@@ -32,12 +32,8 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const loadVaults = async () => {
     if (!user) return;
-    try {
-      const vaultsData = await invoke<Vault[]>('get_vaults', { userId: user.id });
-      setVaults(vaultsData);
-    } catch (error) {
-      console.error('Failed to load vaults:', error);
-    }
+    const vaultsData = await invoke<Vault[]>('get_vaults', { userId: user.id });
+    setVaults(vaultsData);
   };
 
   useEffect(() => {
@@ -52,47 +48,32 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const addVault = async (name: string, color: string) => {
     if (!user) return;
-    try {
-      const newVault = await invoke<Vault>('create_vault', {
-        userId: user.id,
-        name,
-        color,
-      });
-      setVaults((prev) => [...prev, newVault]);
-    } catch (error) {
-      console.error('Failed to create vault:', error);
-      throw error;
-    }
+    const newVault = await invoke<Vault>('create_vault', {
+      userId: user.id,
+      name,
+      color,
+    });
+    setVaults((prev) => [...prev, newVault]);
   };
 
   const updateVault = async (vault: Vault) => {
-    try {
-      await invoke('update_vault', {
-        vault: JSON.stringify(vault),
-        name: vault.name,
-        color: vault.color,
-      });
-      setVaults((prev) =>
-        prev.map((v) => (v.id === vault.id ? vault : v))
-      );
-    } catch (error) {
-      console.error('Failed to update vault:', error);
-      throw error;
-    }
+    await invoke('update_vault', {
+      vault: JSON.stringify(vault),
+      name: vault.name,
+      color: vault.color,
+    });
+    setVaults((prev) =>
+      prev.map((v) => (v.id === vault.id ? vault : v))
+    );
   };
 
   const deleteVault = async (vaultId: string) => {
-    try {
-      await invoke('delete_vault', { vaultId });
-      setVaults((prev) => prev.filter((v) => v.id !== vaultId));
-      setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
-      if (selectedVaultId === vaultId) {
-        setSelectedVaultId(null);
-        setNotes([]);
-      }
-    } catch (error) {
-      console.error('Failed to delete vault:', error);
-      throw error;
+    await invoke('delete_vault', { vaultId });
+    setVaults((prev) => prev.filter((v) => v.id !== vaultId));
+    setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
+    if (selectedVaultId === vaultId) {
+      setSelectedVaultId(null);
+      setNotes([]);
     }
   };
 
@@ -110,8 +91,6 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         userId: user.id,
       });
       setNotes(notesData);
-    } catch (error) {
-      console.error('Failed to load notes:', error);
     } finally {
       setLoading(false);
     }
@@ -119,50 +98,35 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const addNote = async (vaultId: string, title: string, content: string) => {
     if (!user) return;
-    try {
-      const newNote = await invoke<Note>('create_note', {
-        vaultId,
-        title,
-        content,
-        userId: user.id,
-      });
-      setNotes((prev) => [...prev, newNote]);
-    } catch (error) {
-      console.error('Failed to create note:', error);
-      throw error;
-    }
+    const newNote = await invoke<Note>('create_note', {
+      vaultId,
+      title,
+      content,
+      userId: user.id,
+    });
+    setNotes((prev) => [...prev, newNote]);
   };
 
   const updateNote = async (noteId: string, title: string, content: string) => {
     if (!user) return;
-    try {
-      await invoke('update_note', {
-        noteId,
-        title,
-        content,
-        userId: user.id,
-      });
-      setNotes((prev) =>
-        prev.map((n) =>
-          n.id === noteId
-            ? { ...n, title, content, updated_at: Date.now() }
-            : n
-        )
-      );
-    } catch (error) {
-      console.error('Failed to update note:', error);
-      throw error;
-    }
+    await invoke('update_note', {
+      noteId,
+      title,
+      content,
+      userId: user.id,
+    });
+    setNotes((prev) =>
+      prev.map((n) =>
+        n.id === noteId
+          ? { ...n, title, content, updated_at: Date.now() }
+          : n
+      )
+    );
   };
 
   const deleteNote = async (noteId: string) => {
-    try {
-      await invoke('delete_note', { noteId });
-      setNotes((prev) => prev.filter((n) => n.id !== noteId));
-    } catch (error) {
-      console.error('Failed to delete note:', error);
-      throw error;
-    }
+    await invoke('delete_note', { noteId });
+    setNotes((prev) => prev.filter((n) => n.id !== noteId));
   };
 
   return (
