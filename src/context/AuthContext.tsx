@@ -7,6 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (username: string, password: string, remember?: boolean, masterKey?: string) => Promise<void>;
   register: (username: string, password: string, masterKey: string) => Promise<void>;
+  recoverPassword: (username: string, masterKey: string, newPassword: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
 }
@@ -72,6 +73,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await invoke('init_session', { userId: user.id, masterKey });
   };
 
+  const recoverPassword = async (username: string, masterKey: string, newPassword: string) => {
+    await invoke('recover_password', { username, masterKey, newPassword });
+  };
+
   const logout = () => {
     if (user) {
       invoke('logout', { userId: user.id }).catch(console.error);
@@ -96,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, login, register, recoverPassword, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

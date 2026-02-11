@@ -78,8 +78,8 @@ impl Database {
         let created_at = Utc::now().timestamp_millis();
         let updated_at = created_at;
         
-        let key_guard = self.get_encryption_key(user_id)?;
-        let (content_encrypted, nonce) = encrypt_to_base64(content, key_guard.as_ref())?;
+        let key = self.get_encryption_key(user_id)?;
+        let (content_encrypted, nonce) = encrypt_to_base64(content, &key)?;
         
         conn.execute(
             "INSERT INTO notes (id, vault_id, title, content_encrypted, nonce, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -100,8 +100,8 @@ impl Database {
         let conn = self.conn.lock().unwrap();
         let updated_at = Utc::now().timestamp_millis();
         
-        let key_guard = self.get_encryption_key(user_id)?;
-        let (content_encrypted, nonce) = encrypt_to_base64(content, key_guard.as_ref())?;
+        let key = self.get_encryption_key(user_id)?;
+        let (content_encrypted, nonce) = encrypt_to_base64(content, &key)?;
         
         conn.execute(
             "UPDATE notes SET title = ?, content_encrypted = ?, nonce = ?, updated_at = ? WHERE id = ?",
@@ -137,8 +137,8 @@ impl Database {
             ))
         ).map_err(|e| e.to_string())?;
         
-        let key_guard = self.get_encryption_key(user_id)?;
-        let content = decrypt_from_base64(&content_encrypted, &nonce, key_guard.as_ref())?;
+        let key = self.get_encryption_key(user_id)?;
+        let content = decrypt_from_base64(&content_encrypted, &nonce, &key)?;
         
         Ok(Some(Note {
             id,
@@ -153,8 +153,7 @@ impl Database {
     pub fn get_notes_decrypted(&self, vault_id: &str, user_id: i32) -> Result<Vec<Note>, String> {
         let conn = self.conn.lock().unwrap();
         
-        let key_guard = self.get_encryption_key(user_id)?;
-        let key = key_guard.as_ref();
+        let key = self.get_encryption_key(user_id)?;
         
         let mut stmt = conn.prepare(
             "SELECT id, vault_id, title, content_encrypted, nonce, created_at, updated_at FROM notes WHERE vault_id = ? ORDER BY updated_at DESC"
@@ -175,7 +174,7 @@ impl Database {
         
         for note_data in note_iter {
             let (id, vault_id, title, content_encrypted, nonce, created_at, updated_at): (String, String, String, String, String, i64, i64) = note_data.map_err(|e| e.to_string())?;
-            let content = decrypt_from_base64(&content_encrypted, &nonce, key)?;
+            let content = decrypt_from_base64(&content_encrypted, &nonce, &key)?;
             result.push(Note {
                 id,
                 vault_id,

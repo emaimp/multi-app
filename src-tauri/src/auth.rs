@@ -1,6 +1,6 @@
 use rusqlite::Connection;
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_hash::SaltString};
-use std::sync::{Mutex, MutexGuard};
+use std::sync::Mutex;
 use dirs;
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use generic_array::GenericArray;
@@ -11,26 +11,6 @@ use crate::crypto::derive_encryption_key;
 pub struct Database {
     pub conn: Mutex<Connection>,
     encryption_keys: Mutex<std::collections::HashMap<i32, GenericArray<u8, U32>>>,
-}
-
-pub struct EncryptionKeyGuard<'a> {
-    _guard: MutexGuard<'a, std::collections::HashMap<i32, GenericArray<u8, U32>>>,
-    key: *const GenericArray<u8, U32>,
-}
-
-unsafe impl<'a> Send for EncryptionKeyGuard<'a> {}
-unsafe impl<'a> Sync for EncryptionKeyGuard<'a> {}
-
-impl<'a> EncryptionKeyGuard<'a> {
-    fn new(guard: MutexGuard<'a, std::collections::HashMap<i32, GenericArray<u8, U32>>>, user_id: i32) -> Result<Self, String> {
-        let key_ptr = guard.get(&user_id)
-            .ok_or("Session not initialized. Call init_session first.".to_string())? as *const GenericArray<u8, U32>;
-        Ok(EncryptionKeyGuard { _guard: guard, key: key_ptr })
-    }
-    
-    pub fn as_ref(&self) -> &GenericArray<u8, U32> {
-        unsafe { &*self.key }
-    }
 }
 
 impl Database {
@@ -107,9 +87,11 @@ impl Database {
         keys.remove(&user_id);
     }
 
-    pub fn get_encryption_key(&self, user_id: i32) -> Result<EncryptionKeyGuard<'_>, String> {
-        let guard = self.encryption_keys.lock().map_err(|e| e.to_string())?;
-        EncryptionKeyGuard::new(guard, user_id)
+    pub fn get_encryption_key(&self, user_id: i32) -> Result<GenericArray<u8, U32>, String> {
+        let keys = self.encryption_keys.lock().map_err(|e| e.to_string())?;
+        Ok(keys.get(&user_id)
+            .ok_or("Session not initialized. Call init_session first.".to_string())?
+            .clone())
     }
 
     pub fn login(&self, username: &str, password: &str) -> Result<User, String> {
@@ -150,7 +132,6 @@ impl Database {
 
     pub fn recover_password(&self, username: &str, master_key: &str, new_password: &str) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
-        // Get user and verify master key
         let mut stmt = conn.prepare("SELECT id, username, master_key_hash FROM users WHERE username = ?").map_err(|e| e.to_string())?;
         let (id, _, stored_master_hash): (i32, String, String) = stmt.query_row([username], |row| {
             Ok((row.get(0)?, row.get(1)?, row.get(2)?))
@@ -159,11 +140,9 @@ impl Database {
         let parsed_hash = PasswordHash::new(&stored_master_hash).map_err(|e| e.to_string())?;
         Argon2::default().verify_password(master_key.as_bytes(), &parsed_hash).map_err(|_| "Invalid master key".to_string())?;
 
-        // Hash new password
         let salt = SaltString::generate(&mut rand::thread_rng());
         let new_password_hash = Argon2::default().hash_password(new_password.as_bytes(), &salt).map_err(|e| e.to_string())?.to_string();
 
-        // Update password
         conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", [&new_password_hash, &id.to_string()]).map_err(|e| e.to_string())?;
         Ok(())
     }

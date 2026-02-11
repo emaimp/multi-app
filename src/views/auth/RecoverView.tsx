@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
+import { useAuth } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -13,6 +13,7 @@ interface RecoverViewProps {
 }
 
 function RecoverView({ onBack }: RecoverViewProps) {
+  const { recoverPassword } = useAuth();
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -101,7 +102,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
     }
     
     try {
-      await invoke('recover_password', { username, masterKey, newPassword });
+      await recoverPassword(username, masterKey, newPassword);
       setSuccess('Password recovered successfully. You can now log in.');
       setError('');
     } catch (err) {
