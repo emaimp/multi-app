@@ -33,7 +33,7 @@ impl Database {
             "CREATE TABLE IF NOT EXISTS vaults (
                 id TEXT PRIMARY KEY,
                 user_id INTEGER NOT NULL,
-                name TEXT NOT NULL,
+                name_encrypted TEXT NOT NULL,
                 color TEXT NOT NULL,
                 image BLOB,
                 created_at INTEGER NOT NULL,
@@ -45,7 +45,7 @@ impl Database {
             "CREATE TABLE IF NOT EXISTS notes (
                 id TEXT PRIMARY KEY,
                 vault_id TEXT NOT NULL,
-                title TEXT NOT NULL,
+                title_encrypted TEXT NOT NULL,
                 content_encrypted TEXT NOT NULL,
                 nonce TEXT NOT NULL,
                 created_at INTEGER NOT NULL,
@@ -54,6 +54,7 @@ impl Database {
             )",
             [],
         )?;
+
         Ok(Database {
             conn: Mutex::new(conn),
             encryption_keys: Mutex::new(std::collections::HashMap::new()),
@@ -77,6 +78,7 @@ impl Database {
         ).map_err(|e| e.to_string())?;
         let salt = Self::extract_salt_from_hash(&master_key_hash)?;
         let key = derive_encryption_key(master_key, &salt).map_err(|e| e.to_string())?;
+
         let mut keys = self.encryption_keys.lock().unwrap();
         keys.insert(user_id, key);
         Ok(())
