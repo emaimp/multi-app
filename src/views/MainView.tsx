@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Drawer, Avatar, Typography, Button, Divider, IconButton } from '@mui/material';
+import { Box, Drawer, Avatar, Typography, Button, Divider, IconButton, CircularProgress } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -20,6 +20,7 @@ export function MainView() {
     vaults,
     notes,
     selectedVaultId,
+    vaultsLoading,
     addVault,
     updateVault,
     deleteVault,
@@ -118,12 +119,18 @@ export function MainView() {
               </Box>
               <Divider />
               <Box sx={{ flex: 1, overflow: 'auto', py: 1 }}>
-                <VaultList
-                  vaults={vaults}
-                  selectedVaultId={selectedVaultId}
-                  onVaultClick={handleVaultClick}
-                  onEditVault={(vault) => setEditingVault(vault)}
-                />
+                {vaultsLoading ? (
+                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <CircularProgress size={24} />
+                  </Box>
+                ) : (
+                  <VaultList
+                    vaults={vaults}
+                    selectedVaultId={selectedVaultId}
+                    onVaultClick={handleVaultClick}
+                    onEditVault={(vault) => setEditingVault(vault)}
+                  />
+                )}
               </Box>
               <Divider />
               <Box sx={{ p: 2 }}>

@@ -9,6 +9,7 @@ interface VaultContextType {
   notes: Note[];
   selectedVaultId: string | null;
   loading: boolean;
+  vaultsLoading: boolean;
   loadVaults: () => Promise<void>;
   addVault: (name: string, color: string) => Promise<void>;
   updateVault: (vault: Vault) => Promise<void>;
@@ -29,11 +30,17 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedVaultId, setSelectedVaultId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [vaultsLoading, setVaultsLoading] = useState(true);
 
   const loadVaults = async () => {
     if (!user) return;
-    const vaultsData = await invoke<Vault[]>('get_vaults', { userId: user.id });
-    setVaults(vaultsData);
+    setVaultsLoading(true);
+    try {
+      const vaultsData = await invoke<Vault[]>('get_vaults', { userId: user.id });
+      setVaults(vaultsData);
+    } finally {
+      setVaultsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -136,6 +143,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         notes,
         selectedVaultId,
         loading,
+        vaultsLoading,
         loadVaults,
         addVault,
         updateVault,
