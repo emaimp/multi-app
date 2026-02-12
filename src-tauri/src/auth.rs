@@ -34,6 +34,7 @@ impl Database {
                 id TEXT PRIMARY KEY,
                 user_id INTEGER NOT NULL,
                 name_encrypted TEXT NOT NULL,
+                name_nonce TEXT NOT NULL,
                 color TEXT NOT NULL,
                 image BLOB,
                 created_at INTEGER NOT NULL,
@@ -47,7 +48,8 @@ impl Database {
                 vault_id TEXT NOT NULL,
                 title_encrypted TEXT NOT NULL,
                 content_encrypted TEXT NOT NULL,
-                nonce TEXT NOT NULL,
+                title_nonce TEXT NOT NULL,
+                content_nonce TEXT NOT NULL,
                 created_at INTEGER NOT NULL,
                 updated_at INTEGER NOT NULL,
                 FOREIGN KEY (vault_id) REFERENCES vaults(id) ON DELETE CASCADE

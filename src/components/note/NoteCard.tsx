@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Box, TextField, IconButton, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -22,8 +22,16 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const vaultColor = vault ? VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary : VAULT_COLORS_HEX.primary;
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+    }
+  }, [content]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -40,10 +48,6 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
     if (e.key === 'Enter') {
       handleTitleBlur();
     }
-  };
-
-  const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
   };
 
   const handleSave = () => {
@@ -67,12 +71,6 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
   const handleConfirmDelete = () => {
     onDelete(note.id);
     setConfirmOpen(false);
-  };
-
-  const autoResize = (e: React.FocusEvent<HTMLTextAreaElement>) => {
-    const target = e.target as HTMLTextAreaElement;
-    target.style.height = 'auto';
-    target.style.height = target.scrollHeight + 'px';
   };
 
   return (
@@ -168,29 +166,21 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
         </Box>
 
         <Box sx={{ p: 2 }}>
-          <TextField
-            multiline
-            fullWidth
-            variant="standard"
-            placeholder="Write your note here..."
+          <textarea
+            ref={textareaRef}
             value={content}
-            onChange={handleContentChange}
-            onFocus={autoResize}
-            inputProps={{
-              style: {
-                resize: 'none',
-                border: 'none',
-                outline: 'none',
-                fontSize: '1rem',
-                lineHeight: 1.6,
-                padding: 0,
-              },
-            }}
-            InputProps={{
-              disableUnderline: true,
-            }}
-            sx={{
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write your note here..."
+            style={{
               width: '100%',
+              border: 'none',
+              outline: 'none',
+              fontSize: '1rem',
+              lineHeight: 1.6,
+              padding: 0,
+              resize: 'none',
+              fontFamily: 'inherit',
+              backgroundColor: 'transparent',
             }}
           />
         </Box>
