@@ -99,7 +99,7 @@ function LoginView() {
             label="Username"
             type="text"
             placeholder="Enter your username"
-            autoComplete="username"
+            autoComplete="off"
             autoFocus
             value={username}
             onChange={setUsername}
@@ -113,7 +113,7 @@ function LoginView() {
             name="password"
             label="Password"
             placeholder="••••••"
-            autoComplete="current-password"
+            autoComplete="off"
             value={password}
             onChange={setPassword}
             error={passwordError}

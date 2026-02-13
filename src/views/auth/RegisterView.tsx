@@ -126,7 +126,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             label="Username"
             type="text"
             placeholder="Enter your username"
-            autoComplete="username"
+            autoComplete="off"
             value={username}
             onChange={(value) => {
               setUsername(value);
@@ -142,7 +142,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             name="password"
             label="Password"
             placeholder="••••••"
-            autoComplete="new-password"
+            autoComplete="off"
             value={password}
             onChange={(value) => {
               setPassword(value);
@@ -163,7 +163,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             name="confirmPassword"
             label="Confirm Password"
             placeholder="••••••"
-            autoComplete="new-password"
+            autoComplete="off"
             value={confirmPassword}
             onChange={(value) => {
               setConfirmPassword(value);

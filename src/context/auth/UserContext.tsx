@@ -57,7 +57,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const login = async (username: string, password: string, remember?: boolean, masterKey?: string) => {
-    const user = await invoke<User>('login', { username, password });
+    const user = await invoke<User>('login', { username, password, masterKey: masterKey || '' });
     setUser(user);
     if (masterKey) {
       localStorage.setItem('masterKey', masterKey);

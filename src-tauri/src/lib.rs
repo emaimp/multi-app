@@ -13,8 +13,8 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-fn login(username: String, password: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
-    let user = state.login(&username, &password)?;
+fn login(username: String, password: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
+    let user = state.login(&username, &password, &master_key)?;
     Ok(user.into())
 }
 

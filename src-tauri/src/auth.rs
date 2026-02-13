@@ -98,7 +98,7 @@ impl Database {
             .clone())
     }
 
-    pub fn login(&self, username: &str, password: &str) -> Result<User, String> {
+    pub fn login(&self, username: &str, password: &str, master_key: &str) -> Result<User, String> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare("SELECT id, username, password_hash, master_key_hash, avatar FROM users WHERE username = ?").map_err(|e| e.to_string())?;
         let user = stmt.query_row([username], |row| {
@@ -115,6 +115,10 @@ impl Database {
 
         let parsed_hash = PasswordHash::new(&user.password_hash).map_err(|e| e.to_string())?;
         Argon2::default().verify_password(password.as_bytes(), &parsed_hash).map_err(|_| "Invalid password".to_string())?;
+
+        let parsed_master_hash = PasswordHash::new(&user.master_key_hash).map_err(|e| e.to_string())?;
+        Argon2::default().verify_password(master_key.as_bytes(), &parsed_master_hash).map_err(|_| "Invalid master key".to_string())?;
+
         Ok(user)
     }
 

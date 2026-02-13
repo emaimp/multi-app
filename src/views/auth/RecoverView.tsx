@@ -131,7 +131,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             label="Username"
             type="text"
             placeholder="Enter your username"
-            autoComplete="username"
+            autoComplete="off"
             value={username}
             onChange={(value) => {
               setUsername(value);
@@ -164,7 +164,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             name="newPassword"
             label="New Password"
             placeholder="••••••"
-            autoComplete="new-password"
+            autoComplete="off"
             value={newPassword}
             onChange={(value) => {
               setNewPassword(value);
@@ -185,7 +185,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             name="confirmNewPassword"
             label="Confirm New Password"
             placeholder="••••••"
-            autoComplete="new-password"
+            autoComplete="off"
             value={confirmNewPassword}
             onChange={(value) => {
               setConfirmNewPassword(value);
