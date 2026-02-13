@@ -1,9 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Box, TextField, IconButton, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { Note } from '../../types/note';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -22,16 +24,9 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isLocked, setIsLocked] = useState(false);
 
   const vaultColor = vault ? VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary : VAULT_COLORS_HEX.primary;
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
-    }
-  }, [content]);
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -97,7 +92,7 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
             borderColor: vaultColor,
           }}
         >
-          {isEditingTitle ? (
+          {isEditingTitle && !isLocked ? (
             <TextField
               autoFocus
               size="small"
@@ -106,6 +101,7 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
               onBlur={handleTitleBlur}
               onKeyDown={handleTitleKeyDown}
               variant="standard"
+              disabled={isLocked}
               InputProps={{
                 disableUnderline: true,
                 sx: {
@@ -123,14 +119,15 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
               sx={{
                 flexGrow: 1,
                 fontWeight: 500,
-                cursor: 'pointer',
-                '&:hover': {
+                cursor: isLocked ? 'default' : 'pointer',
+                opacity: isLocked ? 0.7 : 1,
+                '&:hover': !isLocked ? {
                   bgcolor: 'rgba(255,255,255,0.1)',
-                },
+                } : {},
                 px: 0.5,
                 borderRadius: 0.5,
               }}
-              onClick={() => setIsEditingTitle(true)}
+              onClick={() => !isLocked && setIsEditingTitle(true)}
             >
               {note.title || 'Untitled Note'}
             </Typography>
@@ -146,6 +143,18 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
             }}
           >
             {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+          </IconButton>
+
+          <IconButton
+            size="small"
+            onClick={() => setIsLocked(!isLocked)}
+            sx={{
+              color: isLocked ? 'success.main' : 'inherit',
+              opacity: isLocked ? 1 : 0.6,
+              '&:hover': { opacity: 1 },
+            }}
+          >
+            {isLocked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
           </IconButton>
 
           <IconButton
@@ -166,21 +175,26 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
         </Box>
 
         <Box sx={{ p: 2 }}>
-          <textarea
-            ref={textareaRef}
+          <TextField
+            multiline
+            fullWidth
+            variant="standard"
             value={content}
-            onChange={(e) => setContent(e.target.value)}
+            onChange={(e) => !isLocked && setContent(e.target.value)}
             placeholder="Write your note here..."
-            style={{
-              width: '100%',
-              border: 'none',
-              outline: 'none',
-              fontSize: '1rem',
-              lineHeight: 1.6,
-              padding: 0,
-              resize: 'none',
-              fontFamily: 'inherit',
-              backgroundColor: 'transparent',
+            disabled={isLocked}
+            InputProps={{
+              disableUnderline: true,
+              sx: {
+                fontSize: '0.9rem',
+                lineHeight: 1.6,
+                p: 0,
+              },
+            }}
+            inputProps={{
+              sx: {
+                minHeight: '60px',
+              },
             }}
           />
         </Box>
