@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Drawer, Avatar, Typography, Button, Divider, IconButton, CircularProgress } from '@mui/material';
+import { Box, Drawer, Avatar, Typography, Button, Divider, IconButton, CircularProgress, Tooltip } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -82,40 +82,54 @@ export function MainView() {
                 sx={{
                   p: 2,
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
-                  gap: 1,
+                  justifyContent: 'space-between',
+                  bgcolor: 'action.hover',
                 }}
               >
-                <Box sx={{ position: 'relative' }}>
-                  <Avatar
-                    sx={{ width: 64, height: 64, bgcolor: 'primary.main', cursor: 'pointer' }}
-                    src={user?.avatar}
-                    onClick={handleSettingsClick}
-                  >
-                    {user?.username?.charAt(0).toUpperCase() || 'U'}
-                  </Avatar>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Box sx={{ position: 'relative' }}>
+                    <Avatar
+                      sx={{ 
+                        width: 48, 
+                        height: 48, 
+                        bgcolor: 'primary.main',
+                      }}
+                      src={user?.avatar}
+                    >
+                      {user?.username?.charAt(0).toUpperCase() || 'U'}
+                    </Avatar>
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: 0,
+                        width: 10,
+                        height: 10,
+                        borderRadius: '50%',
+                        bgcolor: 'success.main',
+                        border: '1px solid',
+                        borderColor: 'background.paper',
+                      }}
+                    />
+                  </Box>
+                  <Typography variant="body1" fontWeight={500}>
+                    {user?.username}
+                  </Typography>
+                </Box>
+                <Tooltip title="Logout" arrow>
                   <IconButton
+                    onClick={logout}
+                    color="error"
                     size="small"
-                    onClick={handleSettingsClick}
-                    sx={{
-                      position: 'absolute',
-                      bottom: -4,
-                      right: -4,
-                      bgcolor: 'background.paper',
-                      border: '1px solid',
-                      borderColor: 'divider',
-                      width: 24,
-                      height: 24,
-                      '&:hover': { bgcolor: 'action.hover' },
+                    sx={{ 
+                      borderRadius: 1,
+                      '&:hover': { color: 'error.contrastText' }
                     }}
                   >
-                    <SettingsIcon sx={{ fontSize: 14 }} />
+                    <LogoutIcon />
                   </IconButton>
-                </Box>
-                <Typography variant="subtitle1" fontWeight={500}>
-                  {user?.username}
-                </Typography>
+                </Tooltip>
               </Box>
 
               <Divider />
@@ -124,14 +138,21 @@ export function MainView() {
                 <Button
                   fullWidth
                   variant="outlined"
-                  startIcon={<AddIcon />}
                   onClick={() => setCreateDialogOpen(true)}
+                  sx={{ 
+                    position: 'relative',
+                    '& .MuiButton-startIcon': {
+                      position: 'absolute',
+                      left: 30,
+                    }
+                  }}
+                  startIcon={<AddIcon />}
                 >
                   New Vault
                 </Button>
               </Box>
 
-              <Divider />
+              <Divider sx={{ mx: 2 }} />
 
               <Box sx={{ flex: 1, overflow: 'auto', py: 1 }}>
                 {vaultsLoading ? (
@@ -153,21 +174,26 @@ export function MainView() {
               <Box sx={{ p: 2 }}>
                 <Button
                   fullWidth
-                  variant="text"
-                  color="error"
-                  startIcon={<LogoutIcon />}
-                  onClick={logout}
-                  sx={{ border: '1px solid', borderColor: 'error.main' }}
+                  variant="outlined"
+                  onClick={handleSettingsClick}
+                  sx={{ 
+                    position: 'relative',
+                    '& .MuiButton-startIcon': {
+                      position: 'absolute',
+                      left: 30,
+                    }
+                  }}
+                  startIcon={<SettingsIcon />}
                 >
-                  Logout
+                  Settings
                 </Button>
               </Box>
             </Drawer>
 
-            <Box sx={{ flex: 1, overflow: 'auto', p: 4 }}>
+            <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
               {selectedVault ? (
                 <>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="h4">
                       {selectedVault.name}
                     </Typography>
@@ -175,12 +201,17 @@ export function MainView() {
                       New Note
                     </Button>
                   </Box>
-                  <NoteList
+
+                  <Divider sx={{ my: 3 }} />
+
+                  <Box>
+                    <NoteList
                     notes={vaultNotes}
                     vault={selectedVault}
                     onUpdateNote={updateNote}
                     onDeleteNote={deleteNote}
-                  />
+                    />
+                  </Box>
                 </>
               ) : (
                 <>
