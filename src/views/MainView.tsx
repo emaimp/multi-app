@@ -117,7 +117,22 @@ export function MainView() {
                   {user?.username}
                 </Typography>
               </Box>
+
               <Divider />
+
+              <Box sx={{ p: 2 }}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => setCreateDialogOpen(true)}
+                >
+                  New Vault
+                </Button>
+              </Box>
+
+              <Divider />
+
               <Box sx={{ flex: 1, overflow: 'auto', py: 1 }}>
                 {vaultsLoading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -132,23 +147,17 @@ export function MainView() {
                   />
                 )}
               </Box>
+
               <Divider />
+
               <Box sx={{ p: 2 }}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<AddIcon />}
-                  onClick={() => setCreateDialogOpen(true)}
-                  sx={{ mb: 1 }}
-                >
-                  New Vault
-                </Button>
                 <Button
                   fullWidth
                   variant="text"
                   color="error"
                   startIcon={<LogoutIcon />}
                   onClick={logout}
+                  sx={{ border: '1px solid', borderColor: 'error.main' }}
                 >
                   Logout
                 </Button>

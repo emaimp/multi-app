@@ -10,8 +10,10 @@ import {
   Avatar,
   Typography,
   Stack,
+  IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../types/vault';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 
@@ -86,29 +88,49 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
         <DialogTitle>Edit Vault</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ pt: 1 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Avatar
-                sx={{
-                  width: 80,
-                  height: 80,
-                  border: '4px solid',
-                  borderColor: VAULT_COLORS_HEX[color],
-                  bgcolor: 'transparent',
-                  overflow: 'hidden',
-                  color: 'text.primary',
-                }}
-                src={image}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                {name.charAt(0).toUpperCase()}
-              </Avatar>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleImageUpload}
-              />
+            <Box sx={{ textAlign: 'center', mb: 2 }}>
+              <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                <Avatar
+                  sx={{
+                    width: 80,
+                    height: 80,
+                    fontSize: '2rem',
+                    border: '4px solid',
+                    borderColor: VAULT_COLORS_HEX[color],
+                    bgcolor: 'primary.main',
+                    overflow: 'hidden',
+                  }}
+                  src={image}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {name.charAt(0).toUpperCase()}
+                </Avatar>
+                <IconButton
+                  onClick={() => fileInputRef.current?.click()}
+                  sx={{
+                    position: 'absolute',
+                    bottom: -4,
+                    right: -4,
+                    bgcolor: 'background.paper',
+                    border: '1px solid',
+                    borderColor: 'divider',
+                    width: 32,
+                    height: 32,
+                    '&:hover': {
+                      bgcolor: 'action.hover',
+                    },
+                  }}
+                >
+                  <PhotoCameraIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleImageUpload}
+                />
+              </Box>
             </Box>
 
             {image && (
