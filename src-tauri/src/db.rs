@@ -11,7 +11,7 @@ impl Database {
     pub fn get_vaults(&self, user_id: i32) -> Result<Vec<Vault>, String> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT id, user_id, name_encrypted, color, image, name_nonce, created_at FROM vaults WHERE user_id = ? ORDER BY created_at DESC"
+            "SELECT id, user_id, name_encrypted, color, image, name_nonce, created_at FROM vaults WHERE user_id = ? ORDER BY created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let key = self.get_encryption_key(user_id)?;

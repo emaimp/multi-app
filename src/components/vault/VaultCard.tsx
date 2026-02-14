@@ -1,5 +1,5 @@
 import { Box, Avatar, Typography, IconButton } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 
 interface VaultCardProps {
@@ -52,7 +52,7 @@ export function VaultCard({ vault, onEdit }: VaultCardProps) {
         onClick={() => onEdit(vault)}
         sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
       >
-        <EditIcon fontSize="small" />
+        <MoreVertIcon fontSize="small" />
       </IconButton>
     </Box>
   );
