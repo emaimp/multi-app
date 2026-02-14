@@ -178,7 +178,7 @@ impl Database {
         let key = self.get_encryption_key(user_id)?;
 
         let mut stmt = conn.prepare(
-            "SELECT id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at FROM notes WHERE vault_id = ? ORDER BY updated_at DESC"
+            "SELECT id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at FROM notes WHERE vault_id = ? ORDER BY created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let mut result = Vec::new();

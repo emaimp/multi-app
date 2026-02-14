@@ -10,6 +10,7 @@ interface VaultContextType {
   selectedVaultId: string | null;
   loading: boolean;
   vaultsLoading: boolean;
+  lockedNoteIds: Set<string>;
   loadVaults: () => Promise<void>;
   addVault: (name: string, color: string) => Promise<void>;
   updateVault: (vault: Vault) => Promise<void>;
@@ -31,6 +32,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   const [selectedVaultId, setSelectedVaultId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [vaultsLoading, setVaultsLoading] = useState(true);
+  const [lockedNoteIds, setLockedNoteIds] = useState<Set<string>>(new Set());
 
   const loadVaults = async () => {
     if (!user) return;
@@ -46,10 +48,12 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user) {
       loadVaults();
+      setLockedNoteIds(new Set());
     } else {
       setVaults([]);
       setNotes([]);
       setSelectedVaultId(null);
+      setLockedNoteIds(new Set());
     }
   }, [user]);
 
@@ -98,6 +102,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         userId: user.id,
       });
       setNotes(notesData);
+      setLockedNoteIds(new Set(notesData.map(n => n.id)));
     } finally {
       setLoading(false);
     }
@@ -144,6 +149,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         selectedVaultId,
         loading,
         vaultsLoading,
+        lockedNoteIds,
         loadVaults,
         addVault,
         updateVault,

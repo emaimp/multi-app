@@ -21,6 +21,7 @@ export function MainView() {
     notes,
     selectedVaultId,
     vaultsLoading,
+    lockedNoteIds,
     addVault,
     updateVault,
     deleteVault,
@@ -206,10 +207,11 @@ export function MainView() {
 
                   <Box>
                     <NoteList
-                    notes={vaultNotes}
-                    vault={selectedVault}
-                    onUpdateNote={updateNote}
-                    onDeleteNote={deleteNote}
+                      notes={vaultNotes}
+                      vault={selectedVault}
+                      lockedNoteIds={lockedNoteIds}
+                      onUpdateNote={updateNote}
+                      onDeleteNote={deleteNote}
                     />
                   </Box>
                 </>

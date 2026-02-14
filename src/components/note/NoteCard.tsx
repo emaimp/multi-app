@@ -13,18 +13,19 @@ import { ConfirmDialog } from '../ui/ConfirmDialog';
 interface NoteCardProps {
   note: Note;
   vault: Vault | undefined;
+  isLockedByDefault?: boolean;
   onUpdate: (noteId: string, title: string, content: string) => void;
   onDelete: (noteId: string) => void;
 }
 
-export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
+export function NoteCard({ note, vault, isLockedByDefault = false, onUpdate, onDelete }: NoteCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
+  const [isLocked, setIsLocked] = useState(isLockedByDefault);
 
   const vaultColor = vault ? VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary : VAULT_COLORS_HEX.primary;
 
@@ -135,18 +136,6 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
 
           <IconButton
             size="small"
-            onClick={handleCopy}
-            sx={{
-              color: copied ? 'success.main' : 'inherit',
-              opacity: copied ? 1 : 0.6,
-              '&:hover': { opacity: 1 },
-            }}
-          >
-            {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
-          </IconButton>
-
-          <IconButton
-            size="small"
             onClick={() => setIsLocked(!isLocked)}
             sx={{
               color: isLocked ? 'success.main' : 'inherit',
@@ -155,6 +144,18 @@ export function NoteCard({ note, vault, onUpdate, onDelete }: NoteCardProps) {
             }}
           >
             {isLocked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
+          </IconButton>
+
+          <IconButton
+            size="small"
+            onClick={handleCopy}
+            sx={{
+              color: copied ? 'success.main' : 'inherit',
+              opacity: copied ? 1 : 0.6,
+              '&:hover': { opacity: 1 },
+            }}
+          >
+            {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
           </IconButton>
 
           <IconButton
