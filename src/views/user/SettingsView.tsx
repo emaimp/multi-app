@@ -1,32 +1,27 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Avatar,
   Typography,
   TextField,
   Button,
-  IconButton,
   Stack,
   Divider,
 } from '@mui/material';
-import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useUser } from '../../context/AuthContext';
 import { TopBar } from '../../components/ui/TopBar';
-import imageCompression from 'browser-image-compression';
+import { AvatarPicker } from '../../components/ui/AvatarPicker';
 
 export function SettingsView() {
   const navigate = useNavigate();
   const { user, updateUser } = useUser();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [username, setUsername] = useState(user?.username || '');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [masterKey, setMasterKey] = useState('');
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar || undefined);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
 
   const [errors, setErrors] = useState<{
     username?: string;
@@ -38,45 +33,6 @@ export function SettingsView() {
   }>({});
 
   const [success, setSuccess] = useState('');
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleRemoveAvatar = () => {
-    setAvatarPreview(undefined);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const options = {
-        maxSizeMB: 0.015,
-        maxWidthOrHeight: 250,
-        useWebWorker: true,
-        fileType: 'image/webp' as const,
-      };
-
-      try {
-        const compressedFile = await imageCompression(file, options);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setAvatarPreview(reader.result as string);
-        };
-        reader.readAsDataURL(compressedFile);
-      } catch (error) {
-        console.error('Error compressing image:', error);
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setAvatarPreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      }
-    }
-  };
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -142,42 +98,11 @@ export function SettingsView() {
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', pt: 8, pb: 5 }}>
         <Box sx={{ maxWidth: 500, width: '100%', px: 2 }}>
           <Box sx={{ textAlign: 'center', mb: 4 }}>
-            <Box sx={{ position: 'relative', display: 'inline-block' }}>
-              <Avatar
-                sx={{
-                  width: 120,
-                  height: 120,
-                  fontSize: '3rem',
-                  bgcolor: 'primary.main',
-                }}
-                src={avatarPreview}
-              >
-                {username.charAt(0).toUpperCase()}
-              </Avatar>
-              <IconButton
-                onClick={avatarPreview ? handleRemoveAvatar : handleAvatarClick}
-                sx={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                  bgcolor: 'background.paper',
-                  border: '2px solid',
-                  borderColor: 'divider',
-                  '&:hover': {
-                    bgcolor: 'action.hover',
-                  },
-                }}
-              >
-                {avatarPreview ? <DeleteIcon fontSize="small" /> : <PhotoCameraIcon fontSize="small" />}
-              </IconButton>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleAvatarChange}
-              />
-            </Box>
+            <AvatarPicker
+              value={avatarPreview}
+              onChange={setAvatarPreview}
+              size={120}
+            />
           </Box>
 
           <Divider sx={{ my: 2 }} />
