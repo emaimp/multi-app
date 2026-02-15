@@ -9,13 +9,11 @@ import {
   IconButton,
   Stack,
   Divider,
-  AppBar,
-  Toolbar,
 } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useUser } from '../../context/AuthContext';
+import { TopBar } from '../../components/ui/TopBar';
 import imageCompression from 'browser-image-compression';
 
 export function SettingsView() {
@@ -139,29 +137,7 @@ export function SettingsView() {
 
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <AppBar
-        position="fixed"
-        sx={{
-          background: (theme) => theme.palette.background.paper,
-          boxShadow: (theme) => theme.shadows[1],
-          minHeight: '48px !important',
-          height: '48px',
-          zIndex: (theme) => theme.zIndex.appBar,
-        }}
-      >
-        <Toolbar
-          sx={{
-            minHeight: '48px !important',
-            height: '48px',
-            minWidth: 'auto',
-            px: 2,
-          }}
-        >
-          <IconButton color="inherit" onClick={handleBack} sx={{ p: 0.5 }}>
-            <ArrowBackIcon sx={{ fontSize: 25, color: (theme) => theme.palette.text.primary }} />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
+      <TopBar onBack={handleBack} transparent={true} />
 
       <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', pt: 8, pb: 5 }}>
         <Box sx={{ maxWidth: 500, width: '100%', px: 2 }}>

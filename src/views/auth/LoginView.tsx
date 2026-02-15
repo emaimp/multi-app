@@ -74,7 +74,7 @@ function LoginView() {
   }
 
   return (
-    <AuthLayout showBackButton={false}>
+    <AuthLayout>
         <Typography
           component="h1"
           variant="h4"

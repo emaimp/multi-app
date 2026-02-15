@@ -7,6 +7,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import KeyIcon from '@mui/icons-material/Key';
 import { AuthLayout, AuthFormField, PasswordField } from '../../components/auth';
+import { TopBar } from '../../components/ui/TopBar';
 
 interface RecoverViewProps {
   onBack: () => void;
@@ -112,7 +113,9 @@ function RecoverView({ onBack }: RecoverViewProps) {
   };
 
   return (
-    <AuthLayout showBackButton={true} onBack={onBack} transparent={true}>
+    <>
+      <TopBar onBack={onBack} transparent={true} />
+      <AuthLayout>
         <Typography
           component="h1"
           variant="h4"
@@ -215,6 +218,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
           </Typography>
         )}
       </AuthLayout>
+    </>
   );
 }
 
