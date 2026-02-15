@@ -96,7 +96,7 @@ export function MainView() {
                         height: 48, 
                         bgcolor: 'primary.main',
                       }}
-                      src={user?.avatar}
+                      src={user?.avatar || undefined}
                     >
                       {user?.username?.charAt(0).toUpperCase() || 'U'}
                     </Avatar>

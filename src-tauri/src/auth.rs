@@ -103,7 +103,10 @@ impl Database {
         let mut stmt = conn.prepare("SELECT id, username, password_hash, master_key_hash, avatar FROM users WHERE username = ?").map_err(|e| e.to_string())?;
         let user = stmt.query_row([username], |row| {
             let avatar_bytes: Option<Vec<u8>> = row.get(4)?;
-            let avatar_base64 = avatar_bytes.map(|bytes| STANDARD.encode(&bytes));
+            let avatar_base64 = avatar_bytes.map(|bytes| {
+                let b64 = STANDARD.encode(&bytes);
+                format!("data:image/webp;base64,{}", b64)
+            });
             Ok(User {
                 id: row.get(0)?,
                 username: row.get(1)?,
@@ -155,13 +158,23 @@ impl Database {
         Ok(())
     }
 
-    pub fn update_avatar(&self, user_id: i32, avatar: &[u8]) -> Result<(), String> {
+    pub fn update_avatar(&self, user_id: i32, avatar: Option<&[u8]>) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
-        let avatar_vec = avatar.to_vec();
-        conn.execute(
-            "UPDATE users SET avatar = ? WHERE id = ?",
-            rusqlite::params![avatar_vec, user_id],
-        ).map_err(|e| e.to_string())?;
+        match avatar {
+            Some(data) => {
+                let avatar_vec = data.to_vec();
+                conn.execute(
+                    "UPDATE users SET avatar = ? WHERE id = ?",
+                    rusqlite::params![avatar_vec, user_id],
+                ).map_err(|e| e.to_string())?;
+            }
+            None => {
+                conn.execute(
+                    "UPDATE users SET avatar = NULL WHERE id = ?",
+                    rusqlite::params![user_id],
+                ).map_err(|e| e.to_string())?;
+            }
+        }
         Ok(())
     }
 }

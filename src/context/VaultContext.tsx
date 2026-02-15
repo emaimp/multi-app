@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
 import { useUser } from './AuthContext';
@@ -12,8 +12,8 @@ interface VaultContextType {
   vaultsLoading: boolean;
   lockedNoteIds: Set<string>;
   loadVaults: () => Promise<void>;
-  addVault: (name: string, color: string) => Promise<void>;
-  updateVault: (vault: Vault) => Promise<void>;
+  addVault: (name: string, color: string, image?: string) => Promise<void>;
+  updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
   selectVault: (vaultId: string) => Promise<void>;
   loadNotes: (vaultId: string) => Promise<void>;
@@ -33,6 +33,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(false);
   const [vaultsLoading, setVaultsLoading] = useState(true);
   const [lockedNoteIds, setLockedNoteIds] = useState<Set<string>>(new Set());
+  const prevUserRef = useRef(user);
 
   const loadVaults = async () => {
     if (!user) return;
@@ -46,35 +47,50 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (user) {
+    const prevUser = prevUserRef.current;
+    if (user && !prevUser) {
       loadVaults();
-      setLockedNoteIds(new Set());
-    } else {
+    } else if (!user && prevUser) {
       setVaults([]);
       setNotes([]);
       setSelectedVaultId(null);
       setLockedNoteIds(new Set());
     }
+    prevUserRef.current = user;
   }, [user]);
 
-  const addVault = async (name: string, color: string) => {
+  const addVault = async (name: string, color: string, image?: string) => {
     if (!user) return;
+    let imageBytes: number[] | undefined;
+    if (image) {
+      const base64Data = image.split(',')[1];
+      imageBytes = Array.from(Uint8Array.from(atob(base64Data), c => c.charCodeAt(0)));
+    }
     const newVault = await invoke<Vault>('create_vault', {
       userId: user.id,
       name,
       color,
+      image: imageBytes,
     });
     setVaults((prev) => [...prev, newVault]);
   };
 
-  const updateVault = async (vault: Vault) => {
+  const updateVault = async (vault: Vault, image?: string | null) => {
+    let imageBytes: number[] | null | undefined;
+    if (image === null) {
+      imageBytes = null;
+    } else if (image) {
+      const base64Data = image.split(',')[1];
+      imageBytes = Array.from(Uint8Array.from(atob(base64Data), c => c.charCodeAt(0)));
+    }
     await invoke('update_vault', {
       vault: JSON.stringify(vault),
       name: vault.name,
       color: vault.color,
+      image: imageBytes,
     });
     setVaults((prev) =>
-      prev.map((v) => (v.id === vault.id ? vault : v))
+      prev.map((v) => (v.id === vault.id ? { ...v, name: vault.name, color: vault.color, image: image === null ? undefined : image } : v))
     );
   };
 

@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { useUser } from '../../context/AuthContext';
 import imageCompression from 'browser-image-compression';
 
@@ -27,7 +28,7 @@ export function SettingsView() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [masterKey, setMasterKey] = useState('');
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar);
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar || undefined);
 
   const [errors, setErrors] = useState<{
     username?: string;
@@ -44,14 +45,21 @@ export function SettingsView() {
     fileInputRef.current?.click();
   };
 
+  const handleRemoveAvatar = () => {
+    setAvatarPreview(undefined);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const options = {
-        maxSizeMB: 0.05,
-        maxWidthOrHeight: 200,
+        maxSizeMB: 0.015,
+        maxWidthOrHeight: 250,
         useWebWorker: true,
-        fileType: 'image/jpeg',
+        fileType: 'image/webp' as const,
       };
 
       try {
@@ -107,7 +115,7 @@ export function SettingsView() {
 
     try {
       if (avatarPreview !== user?.avatar) {
-        await updateUser({ avatar: avatarPreview });
+        await updateUser({ avatar: avatarPreview || null });
       }
 
       if (username !== user?.username) {
@@ -171,7 +179,7 @@ export function SettingsView() {
                 {username.charAt(0).toUpperCase()}
               </Avatar>
               <IconButton
-                onClick={handleAvatarClick}
+                onClick={avatarPreview ? handleRemoveAvatar : handleAvatarClick}
                 sx={{
                   position: 'absolute',
                   bottom: 0,
@@ -184,7 +192,7 @@ export function SettingsView() {
                   },
                 }}
               >
-                <PhotoCameraIcon fontSize="small" />
+                {avatarPreview ? <DeleteIcon fontSize="small" /> : <PhotoCameraIcon fontSize="small" />}
               </IconButton>
               <input
                 ref={fileInputRef}

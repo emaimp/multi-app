@@ -27,7 +27,7 @@ impl Database {
         Ok(result)
     }
 
-    pub fn create_vault(&self, user_id: i32, name: &str, color: &str) -> Result<Vault, String> {
+    pub fn create_vault(&self, user_id: i32, name: &str, color: &str, image: Option<&[u8]>) -> Result<Vault, String> {
         let conn = self.conn.lock().unwrap();
         let id = uuid::Uuid::new_v4().to_string();
         let created_at = Utc::now().timestamp_millis();
@@ -35,9 +35,11 @@ impl Database {
         let key = self.get_encryption_key(user_id)?;
         let (name_encrypted, name_nonce) = encrypt_to_base64(name, &key)?;
 
+        let image_vec = image.map(|i| i.to_vec());
+
         conn.execute(
-            "INSERT INTO vaults (id, user_id, name_encrypted, color, name_nonce, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-            [&id, &user_id.to_string(), &name_encrypted, color, &name_nonce, &created_at.to_string()],
+            "INSERT INTO vaults (id, user_id, name_encrypted, color, name_nonce, image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            rusqlite::params![&id, user_id, &name_encrypted, color, &name_nonce, image_vec, created_at],
         ).map_err(|e| e.to_string())?;
 
         Ok(Vault {
@@ -50,14 +52,16 @@ impl Database {
         })
     }
 
-    pub fn update_vault(&self, vault: &Vault) -> Result<(), String> {
+    pub fn update_vault(&self, vault: &Vault, image: Option<&[u8]>) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
         let key = self.get_encryption_key(vault.user_id)?;
         let (name_encrypted, name_nonce) = encrypt_to_base64(&vault.name, &key)?;
 
+        let image_vec = image.map(|i| i.to_vec());
+
         conn.execute(
-            "UPDATE vaults SET name_encrypted = ?, color = ?, name_nonce = ? WHERE id = ?",
-            [&name_encrypted, &vault.color, &name_nonce, &vault.id],
+            "UPDATE vaults SET name_encrypted = ?, color = ?, name_nonce = ?, image = ? WHERE id = ?",
+            rusqlite::params![&name_encrypted, &vault.color, &name_nonce, image_vec, &vault.id],
         ).map_err(|e| e.to_string())?;
         Ok(())
     }
@@ -216,7 +220,10 @@ fn vault_from_row(row: &Row, user_id: i32, key: &GenericArray<u8, U32>) -> Resul
     let name_encrypted: String = row.get(2)?;
     let name_nonce: String = row.get(5)?;
     let image_bytes: Option<Vec<u8>> = row.get(4)?;
-    let image_b64 = image_bytes.map(|bytes| base64::engine::general_purpose::STANDARD.encode(&bytes));
+    let image_b64 = image_bytes.map(|bytes| {
+        let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
+        format!("data:image/webp;base64,{}", b64)
+    });
 
     let name = match decrypt_from_base64(&name_encrypted, &name_nonce, key) {
         Ok(n) => n,

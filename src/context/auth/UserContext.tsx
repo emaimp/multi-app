@@ -91,13 +91,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const updateUser = async (updates: Partial<User>) => {
     if (user) {
-      if (updates.avatar) {
-        const base64Data = updates.avatar.split(',')[1];
-        const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-        await invoke('update_avatar', {
-          userId: user.id,
-          avatar: Array.from(binaryData),
-        });
+      if (updates.avatar !== undefined) {
+        if (updates.avatar === null) {
+          await invoke('update_avatar', {
+            userId: user.id,
+            avatar: null,
+          });
+        } else if (updates.avatar) {
+          const base64Data = updates.avatar.split(',')[1];
+          const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+          await invoke('update_avatar', {
+            userId: user.id,
+            avatar: Array.from(binaryData),
+          });
+        }
       }
       setUser({ ...user, ...updates });
     }

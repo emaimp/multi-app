@@ -16,19 +16,20 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../types/vault';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
+import imageCompression from 'browser-image-compression';
 
 interface EditVaultDialogProps {
   open: boolean;
   vault: Vault | null;
   onClose: () => void;
-  onSave: (vault: Vault) => void;
+  onSave: (vault: Vault, image?: string | null) => void;
   onDelete: (vaultId: string) => void;
 }
 
 export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: EditVaultDialogProps) {
   const [name, setName] = useState(vault?.name || '');
   const [color, setColor] = useState(vault?.color || 'blue');
-  const [image, setImage] = useState<string | undefined>(vault?.image);
+  const [image, setImage] = useState<string | null | undefined>(vault?.image || undefined);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,9 +48,10 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
       onSave({
         ...vault,
         name: name.trim(),
-        color,
-        image,
-      });
+        color
+        },
+      image
+      );
       onClose();
     }
   };
@@ -64,19 +66,36 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
     onClose();
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
+      const options = {
+        maxSizeMB: 0.015,
+        maxWidthOrHeight: 250,
+        useWebWorker: true,
+        fileType: 'image/webp' as const,
       };
-      reader.readAsDataURL(file);
+
+      try {
+        const compressedFile = await imageCompression(file, options);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setImage(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
   const handleRemoveImage = () => {
-    setImage(undefined);
+    setImage(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -100,13 +119,12 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
                     bgcolor: 'primary.main',
                     overflow: 'hidden',
                   }}
-                  src={image}
-                  onClick={() => fileInputRef.current?.click()}
+                  src={image || undefined}
                 >
                   {name.charAt(0).toUpperCase()}
                 </Avatar>
                 <IconButton
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={image ? handleRemoveImage : () => fileInputRef.current?.click()}
                   sx={{
                     position: 'absolute',
                     bottom: -4,
@@ -121,7 +139,7 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
                     },
                   }}
                 >
-                  <PhotoCameraIcon sx={{ fontSize: 18 }} />
+                  {image ? <DeleteIcon sx={{ fontSize: 18 }} /> : <PhotoCameraIcon sx={{ fontSize: 18 }} />}
                 </IconButton>
                 <input
                   ref={fileInputRef}
@@ -132,14 +150,6 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
                 />
               </Box>
             </Box>
-
-            {image && (
-              <Box sx={{ textAlign: 'center' }}>
-                <Button size="small" onClick={handleRemoveImage}>
-                  Remove Image
-                </Button>
-              </Box>
-            )}
 
             <TextField
               label="Vault Name"
