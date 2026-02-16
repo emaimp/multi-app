@@ -8,6 +8,7 @@ import {
   Stack,
   Divider,
 } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 import { useUser } from '../../context/AuthContext';
 import { TopBar } from '../../components/ui/TopBar';
 import { AvatarPicker } from '../../components/ui/AvatarPicker';
@@ -32,7 +33,7 @@ export function SettingsView() {
     general?: string;
   }>({});
 
-  const [success, setSuccess] = useState('');
+  const [saved, setSaved] = useState(false);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -61,8 +62,6 @@ export function SettingsView() {
   };
 
   const handleSave = async () => {
-    setSuccess('');
-
     if (!validateForm()) {
       return;
     }
@@ -81,7 +80,8 @@ export function SettingsView() {
       setConfirmPassword('');
       setMasterKey('');
 
-      setSuccess('Settings saved successfully.');
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       setErrors({ general: 'Failed to save settings.' });
     }
@@ -95,9 +95,20 @@ export function SettingsView() {
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <TopBar onBack={handleBack} transparent={true} />
 
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', pt: 8, pb: 5 }}>
-        <Box sx={{ maxWidth: 500, width: '100%', px: 2 }}>
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
+      <Box
+      sx={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: 'hidden',
+        pt: 7,
+        pb: 5
+      }}
+      >
+        <Box sx={{ maxWidth: 400, width: '100%' }}>
+          <Box sx={{ textAlign: 'center', mb: 2 }}>
             <AvatarPicker
               value={avatarPreview}
               onChange={setAvatarPreview}
@@ -179,12 +190,6 @@ export function SettingsView() {
                 {errors.general}
               </Typography>
             )}
-
-            {success && (
-              <Typography color="success" sx={{ textAlign: 'center' }}>
-                {success}
-              </Typography>
-            )}
           </Stack>
 
           <Box sx={{ mt: 4 }}>
@@ -192,8 +197,16 @@ export function SettingsView() {
               variant="contained"
               fullWidth
               onClick={handleSave}
+              color={saved ? 'success' : 'primary'}
+              endIcon={saved ? <CheckIcon /> : null}
+              sx={{
+                transition: 'all 0.3s ease',
+                ...(saved && {
+                  animation: 'pulse 0.3s ease-in-out',
+                }),
+              }}
             >
-              Save Changes
+              {saved ? 'Saved' : 'Save Changes'}
             </Button>
           </Box>
         </Box>
