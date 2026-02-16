@@ -17,6 +17,8 @@ export function VaultCard({ vault, onEdit }: VaultCardProps) {
         alignItems: 'center',
         p: 1.5,
         borderRadius: 1,
+        borderLeft: '4px solid',
+        borderLeftColor: colorHex,
         '&:hover': {
           bgcolor: 'action.hover',
         },
@@ -26,10 +28,10 @@ export function VaultCard({ vault, onEdit }: VaultCardProps) {
         sx={{
           width: 48,
           height: 48,
-          border: '3px solid',
-          borderColor: colorHex,
-          bgcolor: 'transparent',
           color: 'text.primary',
+          bgcolor: 'transparent',
+          border: '1px solid',
+          borderColor: 'divider',
         }}
         src={vault.image}
       >

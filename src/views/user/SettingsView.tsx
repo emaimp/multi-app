@@ -113,6 +113,7 @@ export function SettingsView() {
               value={avatarPreview}
               onChange={setAvatarPreview}
               size={120}
+              showUserIcon={true}
             />
           </Box>
 

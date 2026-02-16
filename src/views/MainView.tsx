@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Drawer, Avatar, Typography, Button, Divider, IconButton, CircularProgress, Tooltip } from '@mui/material';
+import { Box, Drawer, Avatar, Typography, Button, Divider, IconButton, CircularProgress } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
+import PersonIcon from '@mui/icons-material/Person';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
@@ -94,11 +95,14 @@ export function MainView() {
                       sx={{ 
                         width: 48, 
                         height: 48, 
-                        bgcolor: 'primary.main',
+                        color: 'text.primary',
+                        bgcolor: 'transparent',
+                        border: '1px solid',
+                        borderColor: 'divider',
                       }}
                       src={user?.avatar || undefined}
                     >
-                      {user?.username?.charAt(0).toUpperCase() || 'U'}
+                      {!user?.avatar && <PersonIcon />}
                     </Avatar>
                     <Box
                       sx={{
@@ -118,19 +122,16 @@ export function MainView() {
                     {user?.username}
                   </Typography>
                 </Box>
-                <Tooltip title="Logout" arrow>
-                  <IconButton
-                    onClick={logout}
-                    color="error"
-                    size="small"
-                    sx={{ 
-                      borderRadius: 1,
-                      '&:hover': { color: 'error.contrastText' }
-                    }}
-                  >
-                    <LogoutIcon />
-                  </IconButton>
-                </Tooltip>
+                <IconButton
+                  onClick={logout}
+                  color="error"
+                  size="small"
+                  sx={{ 
+                    borderRadius: 1,
+                  }}
+                >
+                  <LogoutIcon />
+                </IconButton>
               </Box>
 
               <Divider />

@@ -2,20 +2,23 @@ import { useRef } from 'react';
 import { Avatar, Box, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import PersonIcon from '@mui/icons-material/Person';
 import imageCompression from 'browser-image-compression';
 
 interface AvatarPickerProps {
   value?: string | null;
   onChange: (image: string | null) => void;
   size?: number;
-  color?: string;
+  label?: string;
+  showUserIcon?: boolean;
 }
 
 export function AvatarPicker({
   value,
   onChange,
   size = 120,
-  color,
+  label,
+  showUserIcon = false,
 }: AvatarPickerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -68,13 +71,15 @@ export function AvatarPicker({
           width: size,
           height: size,
           fontSize: size * 0.25,
-          bgcolor: 'primary.main',
-          border: color ? `4px solid ${color}` : 'none',
+          color: 'text.primary',
+          bgcolor: 'transparent',
+          border: '2px solid',
+          borderColor: 'divider',
           overflow: 'hidden',
         }}
         src={value || undefined}
       >
-        {!value && '?'}
+        {!value && (showUserIcon ? <PersonIcon sx={{ fontSize: size * 0.5 }} /> : label)}
       </Avatar>
       <IconButton
         onClick={handleClick}

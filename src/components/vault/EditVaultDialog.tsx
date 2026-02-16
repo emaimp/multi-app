@@ -73,7 +73,7 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
                 value={image}
                 onChange={setImage}
                 size={80}
-                color={VAULT_COLORS_HEX[color]}
+                label={name.charAt(0).toUpperCase()}
               />
             </Box>
 
