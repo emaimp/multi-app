@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Drawer, Typography, Button, Divider, CircularProgress } from '@mui/material';
+import { Box, Drawer, Button, Divider, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
-import { NoteList, CreateNoteDialog } from '../components/note';
+import { CreateNoteDialog } from '../components/note';
 import { Vault } from '../types/vault';
 import { SettingsView } from './user/SettingsView';
 import { UserHeader } from '../components/main/UserHeader';
+import { MainContent } from '../components/main/MainContent';
 
 const DRAWER_WIDTH = 240;
 
@@ -143,41 +144,15 @@ export function MainView() {
               </Box>
             </Drawer>
 
-            <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
-              {selectedVault ? (
-                <>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant="h4">
-                      {selectedVault.name}
-                    </Typography>
-                    <Button variant="outlined" startIcon={<AddIcon />} onClick={handleAddNote}>
-                      New Note
-                    </Button>
-                  </Box>
-
-                  <Divider sx={{ my: 3 }} />
-
-                  <Box>
-                    <NoteList
-                      notes={vaultNotes}
-                      vault={selectedVault}
-                      lockedNoteIds={lockedNoteIds}
-                      onUpdateNote={updateNote}
-                      onDeleteNote={deleteNote}
-                    />
-                  </Box>
-                </>
-              ) : (
-                <>
-                  <Typography variant="h4" gutterBottom>
-                    Welcome, {user?.username}
-                  </Typography>
-                  <Typography color="text.secondary">
-                    Select a vault from the list to view details.
-                  </Typography>
-                </>
-              )}
-            </Box>
+            <MainContent
+              selectedVault={selectedVault}
+              vaultNotes={vaultNotes}
+              lockedNoteIds={lockedNoteIds}
+              username={user?.username}
+              onAddNote={handleAddNote}
+              onUpdateNote={updateNote}
+              onDeleteNote={deleteNote}
+            />
 
             <CreateVaultDialog
               open={createDialogOpen}
