@@ -10,7 +10,7 @@ import { Note } from '../../types/note';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 
-interface NoteCardProps {
+interface SimpleNoteCardProps {
   note: Note;
   vault: Vault | undefined;
   isLockedByDefault?: boolean;
@@ -18,7 +18,7 @@ interface NoteCardProps {
   onDelete: (noteId: string) => void;
 }
 
-export function NoteCard({ note, vault, isLockedByDefault = false, onUpdate, onDelete }: NoteCardProps) {
+export function SimpleNoteCard({ note, vault, isLockedByDefault = false, onUpdate, onDelete }: SimpleNoteCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
@@ -130,7 +130,7 @@ export function NoteCard({ note, vault, isLockedByDefault = false, onUpdate, onD
               }}
               onClick={() => !isLocked && setIsEditingTitle(true)}
             >
-              {note.title || 'Untitled Note'}
+              {note.title || 'Untitled Simple Note'}
             </Typography>
           )}
 
@@ -182,7 +182,7 @@ export function NoteCard({ note, vault, isLockedByDefault = false, onUpdate, onD
             variant="standard"
             value={content}
             onChange={(e) => !isLocked && setContent(e.target.value)}
-            placeholder="Write your note here..."
+            placeholder="Write your simple note here..."
             disabled={isLocked}
             InputProps={{
               disableUnderline: true,
@@ -203,8 +203,8 @@ export function NoteCard({ note, vault, isLockedByDefault = false, onUpdate, onD
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Delete Note"
-        message={`Are you sure you want to delete "${note.title || 'Untitled Note'}"? This action cannot be undone.`}
+        title="Delete Simple Note"
+        message={`Are you sure you want to delete "${note.title || 'Untitled Simple Note'}"? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />
@@ -212,4 +212,4 @@ export function NoteCard({ note, vault, isLockedByDefault = false, onUpdate, onD
   );
 }
 
-export default NoteCard;
+export default SimpleNoteCard;

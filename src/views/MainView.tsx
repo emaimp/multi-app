@@ -6,7 +6,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
-import { CreateNoteDialog } from '../components/note';
+import { CreateSimpleNoteDialog, CreateAccessNoteDialog } from '../components/note';
 import { Vault } from '../types/vault';
 import { SettingsView } from './user/SettingsView';
 import { UserHeader } from '../components/main/UserHeader';
@@ -33,7 +33,8 @@ export function MainView() {
   } = useVaults();
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
+  const [createSimpleNoteDialogOpen, setCreateSimpleNoteDialogOpen] = useState(false);
+  const [createAccessNoteDialogOpen, setCreateAccessNoteDialogOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
 
   const selectedVault = vaults.find((v) => v.id === selectedVaultId);
@@ -43,15 +44,27 @@ export function MainView() {
     selectVault(vaultId);
   };
 
-  const handleAddNote = () => {
+  const handleAddSimpleNote = () => {
     if (selectedVaultId) {
-      setCreateNoteDialogOpen(true);
+      setCreateSimpleNoteDialogOpen(true);
     }
   };
 
-  const handleCreateNote = (title: string) => {
+  const handleAddAccessNote = () => {
+    if (selectedVaultId) {
+      setCreateAccessNoteDialogOpen(true);
+    }
+  };
+
+  const handleCreateSimpleNote = (title: string) => {
     if (selectedVaultId) {
       addNote(selectedVaultId, title, '');
+    }
+  };
+
+  const handleCreateAccessNote = (title: string) => {
+    if (selectedVaultId) {
+      addNote(selectedVaultId, title, '::');
     }
   };
 
@@ -93,13 +106,6 @@ export function MainView() {
                   fullWidth
                   variant="outlined"
                   onClick={() => setCreateDialogOpen(true)}
-                  sx={{ 
-                    position: 'relative',
-                    '& .MuiButton-startIcon': {
-                      position: 'absolute',
-                      left: 30,
-                    }
-                  }}
                   startIcon={<AddIcon />}
                 >
                   New Vault
@@ -130,13 +136,6 @@ export function MainView() {
                   fullWidth
                   variant="outlined"
                   onClick={handleSettingsClick}
-                  sx={{ 
-                    position: 'relative',
-                    '& .MuiButton-startIcon': {
-                      position: 'absolute',
-                      left: 30,
-                    }
-                  }}
                   startIcon={<SettingsIcon />}
                 >
                   Settings
@@ -149,7 +148,8 @@ export function MainView() {
               vaultNotes={vaultNotes}
               lockedNoteIds={lockedNoteIds}
               username={user?.username}
-              onAddNote={handleAddNote}
+              onAddSimpleNote={handleAddSimpleNote}
+              onAddAccessNote={handleAddAccessNote}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}
             />
@@ -160,10 +160,16 @@ export function MainView() {
               onCreate={addVault}
             />
 
-            <CreateNoteDialog
-              open={createNoteDialogOpen}
-              onClose={() => setCreateNoteDialogOpen(false)}
-              onCreate={handleCreateNote}
+            <CreateSimpleNoteDialog
+              open={createSimpleNoteDialogOpen}
+              onClose={() => setCreateSimpleNoteDialogOpen(false)}
+              onCreate={handleCreateSimpleNote}
+            />
+
+            <CreateAccessNoteDialog
+              open={createAccessNoteDialogOpen}
+              onClose={() => setCreateAccessNoteDialogOpen(false)}
+              onCreate={handleCreateAccessNote}
             />
 
             <EditVaultDialog

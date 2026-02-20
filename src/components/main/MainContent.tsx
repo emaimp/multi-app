@@ -1,15 +1,18 @@
-import { Box, Typography, Button, Divider } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { useState } from 'react';
+import { Box, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import DescriptionIcon from '@mui/icons-material/Description';
+import KeyIcon from '@mui/icons-material/Key';
 import { NoteList } from '../note/NoteList';
-import { Vault } from '../../types/vault';
 import { Note } from '../../types/note';
+import { Vault } from '../../types/vault';
 
 interface MainContentProps {
   selectedVault: Vault | undefined;
   vaultNotes: Note[];
   lockedNoteIds?: Set<string>;
   username?: string;
-  onAddNote: () => void;
+  onAddSimpleNote: () => void;
+  onAddAccessNote: () => void;
   onUpdateNote: (noteId: string, title: string, content: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
@@ -19,10 +22,22 @@ export function MainContent({
   vaultNotes,
   lockedNoteIds,
   username,
-  onAddNote,
+  onAddSimpleNote,
+  onAddAccessNote,
   onUpdateNote,
   onDeleteNote,
 }: MainContentProps) {
+  const [createType, setCreateType] = useState<string | null>('simpleNote');
+
+  const handleCreateType = (_: React.MouseEvent<HTMLElement>, newType: string | null) => {
+    if (newType === 'simpleNote') {
+      onAddSimpleNote();
+    } else if (newType === 'accessNote') {
+      onAddAccessNote();
+    }
+    setCreateType(newType);
+  };
+
   return (
     <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
       {selectedVault ? (
@@ -31,9 +46,24 @@ export function MainContent({
             <Typography variant="h4">
               {selectedVault.name}
             </Typography>
-            <Button variant="outlined" startIcon={<AddIcon />} onClick={onAddNote}>
-              New Note
-            </Button>
+            <ToggleButtonGroup
+              value={createType}
+              exclusive
+              onChange={handleCreateType}
+              size="small"
+              sx={{
+                '& .MuiToggleButton-root': {
+                  minWidth: 150,
+                },
+              }}
+            >
+              <ToggleButton value="simpleNote">
+                <DescriptionIcon sx={{ mr: 1 }} /> Simple Note
+              </ToggleButton>
+              <ToggleButton value="accessNote">
+                <KeyIcon sx={{ mr: 1 }} /> Access Note
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
 
           <Divider sx={{ my: 3 }} />

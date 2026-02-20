@@ -1,3 +1,5 @@
-export { NoteCard } from './NoteCard';
 export { NoteList } from './NoteList';
-export { CreateNoteDialog } from './CreateNoteDialog';
+export { SimpleNoteCard } from './SimpleNoteCard';
+export { CreateSimpleNoteDialog } from './CreateSimpleNoteDialog';
+export { AccessNoteCard } from './AccessNoteCard';
+export { CreateAccessNoteDialog } from './CreateAccessNoteDialog';

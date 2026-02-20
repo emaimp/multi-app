@@ -8,13 +8,13 @@ import {
   TextField,
 } from '@mui/material';
 
-interface CreateNoteDialogProps {
+interface CreateAccessNoteDialogProps {
   open: boolean;
   onClose: () => void;
   onCreate: (title: string) => void;
 }
 
-export function CreateNoteDialog({ open, onClose, onCreate }: CreateNoteDialogProps) {
+export function CreateAccessNoteDialog({ open, onClose, onCreate }: CreateAccessNoteDialogProps) {
   const [title, setTitle] = useState('');
 
   const handleSubmit = () => {
@@ -32,18 +32,18 @@ export function CreateNoteDialog({ open, onClose, onCreate }: CreateNoteDialogPr
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New Note</DialogTitle>
+      <DialogTitle>Create New Access Note</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
-          label="Note Title"
+          label="Access Note Title"
           fullWidth
           variant="outlined"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="Enter a title for your note"
+          placeholder="Enter a title for your access note"
         />
       </DialogContent>
       <DialogActions>
@@ -56,4 +56,4 @@ export function CreateNoteDialog({ open, onClose, onCreate }: CreateNoteDialogPr
   );
 }
 
-export default CreateNoteDialog;
+export default CreateAccessNoteDialog;
