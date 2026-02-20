@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Drawer, Button, Divider, CircularProgress } from '@mui/material';
+import { Box, Button, Divider, CircularProgress } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
+import { SideDrawer } from '../components/ui/SideDrawer';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
@@ -11,8 +12,6 @@ import { Vault } from '../types/vault';
 import { SettingsView } from './user/SettingsView';
 import { UserHeader } from '../components/main/UserHeader';
 import { MainContent } from '../components/main/MainContent';
-
-const DRAWER_WIDTH = 240;
 
 export function MainView() {
   const navigate = useNavigate();
@@ -78,70 +77,64 @@ export function MainView() {
         path="/"
         element={
           <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-            <Drawer
-              sx={{
-                width: DRAWER_WIDTH,
-                flexShrink: 0,
-                '& .MuiDrawer-paper': {
-                  width: DRAWER_WIDTH,
-                  height: '100vh',
-                  boxSizing: 'border-box',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  backgroundColor: 'background.paper',
-                },
-              }}
-              variant="permanent"
-            >
-              <UserHeader
-                username={user?.username}
-                avatar={user?.avatar}
-                onLogout={logout}
-              />
-
-              <Divider />
-
-              <Box sx={{ p: 2 }}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={() => setCreateDialogOpen(true)}
-                  startIcon={<AddIcon />}
-                >
-                  New Vault
-                </Button>
-              </Box>
-
-              <Divider sx={{ mx: 2 }} />
-
-              <Box sx={{ flex: 1, overflow: 'auto', py: 1 }}>
-                {vaultsLoading ? (
-                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                    <CircularProgress size={24} />
-                  </Box>
-                ) : (
-                  <VaultList
-                    vaults={vaults}
-                    selectedVaultId={selectedVaultId}
-                    onVaultClick={handleVaultClick}
-                    onEditVault={(vault) => setEditingVault(vault)}
+            <SideDrawer
+              header={
+                <>
+                  <UserHeader
+                    username={user?.username}
+                    avatar={user?.avatar}
+                    onLogout={logout}
                   />
-                )}
-              </Box>
-
-              <Divider />
-
-              <Box sx={{ p: 2 }}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  onClick={handleSettingsClick}
-                  startIcon={<SettingsIcon />}
+                  <Divider />
+                  <Box sx={{ p: 2 }}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      onClick={() => setCreateDialogOpen(true)}
+                      startIcon={<AddIcon />}
+                    >
+                      New Vault
+                    </Button>
+                  </Box>
+                  <Divider sx={{ mx: 2 }} />
+                </>
+              }
+              footer={
+                <>
+                  <Divider />
+                  <Box sx={{ p: 2 }}>
+                    <Button
+                      fullWidth
+                      variant="outlined"
+                      onClick={handleSettingsClick}
+                      startIcon={<SettingsIcon />}
+                    >
+                      Settings
+                    </Button>
+                  </Box>
+                </>
+              }
+            >
+              {vaultsLoading ? (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: '100%',
+                  }}
                 >
-                  Settings
-                </Button>
-              </Box>
-            </Drawer>
+                  <CircularProgress size={24} />
+                </Box>
+              ) : (
+                <VaultList
+                  vaults={vaults}
+                  selectedVaultId={selectedVaultId}
+                  onVaultClick={handleVaultClick}
+                  onEditVault={(vault) => setEditingVault(vault)}
+                />
+              )}
+            </SideDrawer>
 
             <MainContent
               selectedVault={selectedVault}
