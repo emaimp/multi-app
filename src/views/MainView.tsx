@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Button, Divider, CircularProgress } from '@mui/material';
+import { Box, Button, Divider, CircularProgress, Avatar, IconButton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 import { SideDrawer } from '../components/ui/SideDrawer';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
 import { CreateSimpleNoteDialog, CreateAccessNoteDialog } from '../components/note';
 import { Vault } from '../types/vault';
+import { VaultView } from './vault/VaultView';
 import { SettingsView } from './user/SettingsView';
-import { UserHeader } from '../components/main/UserHeader';
-import { MainContent } from '../components/main/MainContent';
 
 export function MainView() {
   const navigate = useNavigate();
@@ -80,11 +81,57 @@ export function MainView() {
             <SideDrawer
               header={
                 <>
-                  <UserHeader
-                    username={user?.username}
-                    avatar={user?.avatar}
-                    onLogout={logout}
-                  />
+                  <Box
+                    sx={{
+                      p: 2,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      bgcolor: 'action.hover',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box sx={{ position: 'relative' }}>
+                        <Avatar
+                          sx={{
+                            width: 48,
+                            height: 48,
+                            color: 'text.primary',
+                            bgcolor: 'transparent',
+                            border: '1px solid',
+                            borderColor: 'divider',
+                          }}
+                          src={user?.avatar || undefined}
+                        >
+                          {!user?.avatar && <PersonIcon />}
+                        </Avatar>
+                        <Box
+                          sx={{
+                            position: 'absolute',
+                            bottom: 0,
+                            right: 0,
+                            width: 10,
+                            height: 10,
+                            borderRadius: '50%',
+                            bgcolor: 'success.main',
+                            border: '1px solid',
+                            borderColor: 'background.paper',
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="body1" fontWeight={500}>
+                        {user?.username}
+                      </Typography>
+                    </Box>
+                    <IconButton
+                      onClick={logout}
+                      color="error"
+                      size="small"
+                      sx={{ borderRadius: 1 }}
+                    >
+                      <LogoutIcon />
+                    </IconButton>
+                  </Box>
                   <Divider />
                   <Box sx={{ p: 2 }}>
                     <Button
@@ -136,7 +183,7 @@ export function MainView() {
               )}
             </SideDrawer>
 
-            <MainContent
+            <VaultView
               selectedVault={selectedVault}
               vaultNotes={vaultNotes}
               lockedNoteIds={lockedNoteIds}

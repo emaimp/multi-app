@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Box, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import KeyIcon from '@mui/icons-material/Key';
-import { NoteList } from '../note/NoteList';
+import { NoteList } from '../../components/note/NoteList';
 import { Note } from '../../types/note';
 import { Vault } from '../../types/vault';
 
-interface MainContentProps {
+interface VaultViewProps {
   selectedVault: Vault | undefined;
   vaultNotes: Note[];
   lockedNoteIds?: Set<string>;
@@ -17,7 +17,7 @@ interface MainContentProps {
   onDeleteNote: (noteId: string) => void;
 }
 
-export function MainContent({
+export function VaultView({
   selectedVault,
   vaultNotes,
   lockedNoteIds,
@@ -26,7 +26,7 @@ export function MainContent({
   onAddAccessNote,
   onUpdateNote,
   onDeleteNote,
-}: MainContentProps) {
+}: VaultViewProps) {
   const [createType, setCreateType] = useState<string | null>('simpleNote');
 
   const handleCreateType = (_: React.MouseEvent<HTMLElement>, newType: string | null) => {
@@ -43,9 +43,7 @@ export function MainContent({
       {selectedVault ? (
         <>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h4">
-              {selectedVault.name}
-            </Typography>
+            <Typography variant="h4">{selectedVault.name}</Typography>
             <ToggleButtonGroup
               value={createType}
               exclusive
@@ -92,4 +90,4 @@ export function MainContent({
   );
 }
 
-export default MainContent;
+export default VaultView;
