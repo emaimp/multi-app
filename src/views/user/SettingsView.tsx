@@ -1,32 +1,37 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Stack,
-  Divider,
-} from '@mui/material';
+import { Box, Typography, Button, Stack } from '@mui/material';
 import CheckIcon from '@mui/icons-material/Check';
+import DeleteIcon from '@mui/icons-material/Delete';
+import PersonIcon from '@mui/icons-material/Person';
+import LockIcon from '@mui/icons-material/Lock';
+import KeyIcon from '@mui/icons-material/Key';
 import { useUser } from '../../context/AuthContext';
 import { TopBar } from '../../components/ui/TopBar';
 import { AvatarPicker } from '../../components/ui/AvatarPicker';
+import CenteredCard from '../../components/ui/CenteredCard';
+import TextInput from '../../components/ui/TextInput';
+import PasswordInput from '../../components/ui/PasswordInput';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export function SettingsView() {
   const navigate = useNavigate();
-  const { user, updateUser } = useUser();
+  const { user, updateUser, logout } = useUser();
 
   const [username, setUsername] = useState(user?.username || '');
-  const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [masterKey, setMasterKey] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
 
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showMasterKey, setShowMasterKey] = useState(false);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
   const [errors, setErrors] = useState<{
     username?: string;
-    oldPassword?: string;
     newPassword?: string;
     confirmPassword?: string;
     masterKey?: string;
@@ -42,10 +47,7 @@ export function SettingsView() {
       newErrors.username = 'Username must be at least 3 characters.';
     }
 
-    if (oldPassword || masterKey || newPassword || confirmPassword) {
-      if (!oldPassword) {
-        newErrors.oldPassword = 'Old password is required.';
-      }
+    if (masterKey || newPassword || confirmPassword) {
       if (newPassword && newPassword.length < 6) {
         newErrors.newPassword = 'Password must be at least 6 characters.';
       }
@@ -75,7 +77,6 @@ export function SettingsView() {
         await updateUser({ username });
       }
 
-      setOldPassword('');
       setNewPassword('');
       setConfirmPassword('');
       setMasterKey('');
@@ -91,128 +92,128 @@ export function SettingsView() {
     navigate(-1);
   };
 
+  const handleDeleteAccount = () => {
+    logout();
+    navigate('/');
+  };
+
+  const deleteAccountButton = (
+    <Button
+      variant="outlined"
+      color="error"
+      size="small"
+      startIcon={<DeleteIcon />}
+      onClick={() => setDeleteDialogOpen(true)}
+    >
+      Delete Account
+    </Button>
+  );
+
   return (
-    <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <TopBar onBack={handleBack} transparent={true} />
-
-      <Box
-      sx={{
-        flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        pt: 7,
-        pb: 5
-      }}
-      >
-        <Box sx={{ maxWidth: 400, width: '100%' }}>
-          <Box sx={{ textAlign: 'center', mb: 2 }}>
-            <AvatarPicker
-              value={avatarPreview}
-              onChange={setAvatarPreview}
-              size={120}
-              showUserIcon={true}
-            />
-          </Box>
-
-          <Divider sx={{ my: 2 }} />
-
-          <Stack spacing={3}>
-            <Box>
-              <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-                Username
-              </Typography>
-
-              <TextField
-                fullWidth
-                variant="outlined"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                error={!!errors.username}
-                helperText={errors.username}
-                placeholder="Enter username"
-              />
-            </Box>
-
-            <Box>
-              <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-                Change Password
-              </Typography>
-
-              <TextField
-                fullWidth
-                variant="outlined"
-                type="password"
-                label="Old Password"
-                value={oldPassword}
-                onChange={(e) => setOldPassword(e.target.value)}
-                error={!!errors.oldPassword}
-                helperText={errors.oldPassword}
-              />
-            </Box>
-
-            <TextField
-              fullWidth
-              variant="outlined"
-              type="password"
-              label="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              error={!!errors.newPassword}
-              helperText={errors.newPassword}
-            />
-
-            <TextField
-              fullWidth
-              variant="outlined"
-              type="password"
-              label="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              error={!!errors.confirmPassword}
-              helperText={errors.confirmPassword}
-            />
-
-            <TextField
-              fullWidth
-              variant="outlined"
-              type="password"
-              label="Master Key"
-              value={masterKey}
-              onChange={(e) => setMasterKey(e.target.value)}
-              error={!!errors.masterKey}
-              helperText={errors.masterKey}
-            />
-
-            {errors.general && (
-              <Typography color="error" sx={{ textAlign: 'center' }}>
-                {errors.general}
-              </Typography>
-            )}
-          </Stack>
-
-          <Box sx={{ mt: 4 }}>
-            <Button
-              variant="contained"
-              fullWidth
-              onClick={handleSave}
-              color={saved ? 'success' : 'primary'}
-              endIcon={saved ? <CheckIcon /> : null}
-              sx={{
-                transition: 'all 0.3s ease',
-                ...(saved && {
-                  animation: 'pulse 0.3s ease-in-out',
-                }),
-              }}
-            >
-              {saved ? 'Saved' : 'Save Changes'}
-            </Button>
-          </Box>
+    <>
+      <TopBar
+        onBack={handleBack}
+        title="Settings"
+        transparent={true}
+        actions={[deleteAccountButton]}
+      />
+      <CenteredCard>
+        <Box sx={{ textAlign: 'center', mb: 1 }}>
+          <AvatarPicker
+            value={avatarPreview}
+            onChange={setAvatarPreview}
+            size={100}
+            showUserIcon={true}
+          />
         </Box>
-      </Box>
-    </Box>
+
+        <Stack spacing={3}>
+          <TextInput
+            id="username"
+            name="username"
+            label="Username"
+            type="text"
+            placeholder="Enter username"
+            value={username}
+            onChange={setUsername}
+            error={!!errors.username}
+            helperText={errors.username || ''}
+            icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
+          />
+
+          <PasswordInput
+            id="newPassword"
+            name="newPassword"
+            label="New Password"
+            value={newPassword}
+            onChange={setNewPassword}
+            error={!!errors.newPassword}
+            helperText={errors.newPassword || ''}
+            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showNewPassword}
+            onToggleVisibility={() => setShowNewPassword(!showNewPassword)}
+          />
+
+          <PasswordInput
+            id="confirmPassword"
+            name="confirmPassword"
+            label="Confirm Password"
+            value={confirmPassword}
+            onChange={setConfirmPassword}
+            error={!!errors.confirmPassword}
+            helperText={errors.confirmPassword || ''}
+            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showConfirmPassword}
+            onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+          />
+
+          <PasswordInput
+            id="masterKey"
+            name="masterKey"
+            label="Master Key"
+            value={masterKey}
+            onChange={setMasterKey}
+            error={!!errors.masterKey}
+            helperText={errors.masterKey || ''}
+            icon={<KeyIcon sx={{ color: 'action.active', mr: 1 }} />}
+            showPassword={showMasterKey}
+            onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
+          />
+
+          {errors.general && (
+            <Typography color="error" sx={{ textAlign: 'center' }}>
+              {errors.general}
+            </Typography>
+          )}
+        </Stack>
+
+        <Box sx={{ mt: 4 }}>
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={handleSave}
+            color={saved ? 'success' : 'primary'}
+            endIcon={saved ? <CheckIcon /> : null}
+            sx={{
+              transition: 'all 0.3s ease',
+              ...(saved && {
+                animation: 'pulse 0.3s ease-in-out',
+              }),
+            }}
+          >
+            {saved ? 'Saved' : 'Save Changes'}
+          </Button>
+        </Box>
+      </CenteredCard>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        title="Delete Account"
+        message="Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost."
+        onConfirm={handleDeleteAccount}
+        onCancel={() => setDeleteDialogOpen(false)}
+      />
+    </>
   );
 }
 

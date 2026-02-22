@@ -3,14 +3,17 @@ import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Box from '@mui/material/Box';
+import { ReactNode } from 'react';
 
 interface TopBarProps {
   onBack: () => void;
   title?: string;
   transparent?: boolean;
+  actions?: ReactNode[];
 }
 
-export function TopBar({ onBack, title, transparent = false }: TopBarProps) {
+export function TopBar({ onBack, title, transparent = false, actions }: TopBarProps) {
   return (
     <AppBar
       position="fixed"
@@ -50,6 +53,11 @@ export function TopBar({ onBack, title, transparent = false }: TopBarProps) {
           >
             {title}
           </Typography>
+        )}
+        {actions && actions.length > 0 && (
+          <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
+            {actions}
+          </Box>
         )}
       </Toolbar>
     </AppBar>
