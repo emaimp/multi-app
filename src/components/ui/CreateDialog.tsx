@@ -8,47 +8,50 @@ import {
   TextField,
 } from '@mui/material';
 
-interface CreateAccessNoteDialogProps {
+interface CreateDialogProps {
   open: boolean;
+  title: string;
+  label: string;
+  placeholder?: string;
   onClose: () => void;
-  onCreate: (title: string) => void;
+  onCreate: (value: string) => void;
 }
 
-export function CreateAccessNoteDialog({ open, onClose, onCreate }: CreateAccessNoteDialogProps) {
-  const [title, setTitle] = useState('');
+export function CreateDialog({ open, title, label, placeholder, onClose, onCreate }: CreateDialogProps) {
+  const [value, setValue] = useState('');
 
   const handleSubmit = () => {
-    if (title.trim()) {
-      onCreate(title.trim());
-      setTitle('');
+    if (value.trim()) {
+      onCreate(value.trim());
+      setValue('');
       onClose();
     }
   };
 
   const handleClose = () => {
-    setTitle('');
+    setValue('');
     onClose();
   };
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Create New Access Note</DialogTitle>
+      <DialogTitle>{title}</DialogTitle>
       <DialogContent>
         <TextField
           autoFocus
           margin="dense"
-          label="Access Note Title"
+          label={label}
+          placeholder={placeholder}
           fullWidth
           variant="outlined"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
-          placeholder="Enter a title for your access note"
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" disabled={!title.trim()}>
+        <Button onClick={handleSubmit} variant="contained" disabled={!value.trim()}>
           Create
         </Button>
       </DialogActions>
@@ -56,4 +59,4 @@ export function CreateAccessNoteDialog({ open, onClose, onCreate }: CreateAccess
   );
 }
 
-export default CreateAccessNoteDialog;
+export default CreateDialog;

@@ -9,8 +9,8 @@ import { UserStatus } from '../components/ui/UserStatus';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useUserActivity } from '../hooks/useUserActivity';
-import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
-import { CreateSimpleNoteDialog, CreateAccessNoteDialog } from '../components/note';
+import { VaultList, EditVaultDialog } from '../components/vault';
+import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
 import { VaultView } from './vault/VaultView';
 import { SettingsView } from './user/SettingsView';
@@ -168,20 +168,29 @@ export function MainView() {
               onDeleteNote={deleteNote}
             />
 
-            <CreateVaultDialog
+            <CreateDialog
               open={createDialogOpen}
+              title="Create New Vault"
+              label="Vault Name"
+              placeholder="Enter vault name"
               onClose={() => setCreateDialogOpen(false)}
-              onCreate={addVault}
+              onCreate={(name) => addVault(name, 'blue')}
             />
 
-            <CreateSimpleNoteDialog
+            <CreateDialog
               open={createSimpleNoteDialogOpen}
+              title="Create New Simple Note"
+              label="Simple Note Title"
+              placeholder="Enter a title for your simple note"
               onClose={() => setCreateSimpleNoteDialogOpen(false)}
               onCreate={handleCreateSimpleNote}
             />
 
-            <CreateAccessNoteDialog
+            <CreateDialog
               open={createAccessNoteDialogOpen}
+              title="Create New Access Note"
+              label="Access Note Title"
+              placeholder="Enter a title for your access note"
               onClose={() => setCreateAccessNoteDialogOpen(false)}
               onCreate={handleCreateAccessNote}
             />
