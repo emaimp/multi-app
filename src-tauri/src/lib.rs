@@ -41,13 +41,18 @@ fn recover_password(username: String, master_key: String, new_password: String, 
 }
 
 #[tauri::command]
+fn change_password(user_id: i32, master_key: String, new_password: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.change_password(user_id, &master_key, &new_password)
+}
+
+#[tauri::command]
 fn update_avatar(user_id: i32, avatar: Option<Vec<u8>>, state: tauri::State<Database>) -> Result<(), String> {
     state.update_avatar(user_id, avatar.as_deref())
 }
 
 #[tauri::command]
-fn change_password(user_id: i32, master_key: String, new_password: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.change_password(user_id, &master_key, &new_password)
+fn delete_user(user_id: i32, state: tauri::State<Database>) -> Result<(), String> {
+    state.delete_user(user_id)
 }
 
 // Vault commands
@@ -121,6 +126,7 @@ pub fn run() {
             recover_password,
             update_avatar,
             change_password,
+            delete_user,
             init_session,
             logout,
             get_vaults,

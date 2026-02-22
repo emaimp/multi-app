@@ -16,7 +16,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export function SettingsView() {
   const navigate = useNavigate();
-  const { user, updateUser, logout, changePassword } = useUser();
+  const { user, updateUser, changePassword, deleteAccount } = useUser();
 
   const [username, setUsername] = useState(user?.username || '');
   const [newPassword, setNewPassword] = useState('');
@@ -102,8 +102,8 @@ export function SettingsView() {
     navigate(-1);
   };
 
-  const handleDeleteAccount = () => {
-    logout();
+  const handleDeleteAccount = async () => {
+    await deleteAccount();
     navigate('/');
   };
 

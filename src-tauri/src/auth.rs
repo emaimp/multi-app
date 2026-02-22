@@ -158,26 +158,6 @@ impl Database {
         Ok(())
     }
 
-    pub fn update_avatar(&self, user_id: i32, avatar: Option<&[u8]>) -> Result<(), String> {
-        let conn = self.conn.lock().unwrap();
-        match avatar {
-            Some(data) => {
-                let avatar_vec = data.to_vec();
-                conn.execute(
-                    "UPDATE users SET avatar = ? WHERE id = ?",
-                    rusqlite::params![avatar_vec, user_id],
-                ).map_err(|e| e.to_string())?;
-            }
-            None => {
-                conn.execute(
-                    "UPDATE users SET avatar = NULL WHERE id = ?",
-                    rusqlite::params![user_id],
-                ).map_err(|e| e.to_string())?;
-            }
-        }
-        Ok(())
-    }
-
     pub fn change_password(&self, user_id: i32, master_key: &str, new_password: &str) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
         
@@ -198,6 +178,33 @@ impl Database {
             [&new_password_hash, &user_id.to_string()]
         ).map_err(|e| e.to_string())?;
 
+        Ok(())
+    }
+
+    pub fn update_avatar(&self, user_id: i32, avatar: Option<&[u8]>) -> Result<(), String> {
+        let conn = self.conn.lock().unwrap();
+        match avatar {
+            Some(data) => {
+                let avatar_vec = data.to_vec();
+                conn.execute(
+                    "UPDATE users SET avatar = ? WHERE id = ?",
+                    rusqlite::params![avatar_vec, user_id],
+                ).map_err(|e| e.to_string())?;
+            }
+            None => {
+                conn.execute(
+                    "UPDATE users SET avatar = NULL WHERE id = ?",
+                    rusqlite::params![user_id],
+                ).map_err(|e| e.to_string())?;
+            }
+        }
+        Ok(())
+    }
+
+    pub fn delete_user(&self, user_id: i32) -> Result<(), String> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute("DELETE FROM users WHERE id = ?", [user_id])
+            .map_err(|e| e.to_string())?;
         Ok(())
     }
 }
