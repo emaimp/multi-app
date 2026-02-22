@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Button, Divider, CircularProgress, Avatar, IconButton, Typography } from '@mui/material';
+import { Box, Button, Divider, CircularProgress, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PersonIcon from '@mui/icons-material/Person';
 import { SideDrawer } from '../components/ui/SideDrawer';
+import { UserStatus } from '../components/ui/UserStatus';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
+import { useUserActivity } from '../hooks/useUserActivity';
 import { VaultList, CreateVaultDialog, EditVaultDialog } from '../components/vault';
 import { CreateSimpleNoteDialog, CreateAccessNoteDialog } from '../components/note';
 import { Vault } from '../types/vault';
@@ -17,6 +18,7 @@ import { SettingsView } from './user/SettingsView';
 export function MainView() {
   const navigate = useNavigate();
   const { user, logout } = useUser();
+  const { status: userStatus } = useUserActivity();
   const {
     vaults,
     notes,
@@ -90,39 +92,11 @@ export function MainView() {
                       bgcolor: 'action.hover',
                     }}
                   >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Box sx={{ position: 'relative' }}>
-                        <Avatar
-                          sx={{
-                            width: 48,
-                            height: 48,
-                            color: 'text.primary',
-                            bgcolor: 'transparent',
-                            border: '1px solid',
-                            borderColor: 'divider',
-                          }}
-                          src={user?.avatar || undefined}
-                        >
-                          {!user?.avatar && <PersonIcon />}
-                        </Avatar>
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            right: 0,
-                            width: 10,
-                            height: 10,
-                            borderRadius: '50%',
-                            bgcolor: 'success.main',
-                            border: '1px solid',
-                            borderColor: 'background.paper',
-                          }}
-                        />
-                      </Box>
-                      <Typography variant="body1" fontWeight={500}>
-                        {user?.username}
-                      </Typography>
-                    </Box>
+                    <UserStatus
+                      username={user?.username}
+                      avatar={user?.avatar}
+                      status={userStatus}
+                    />
                     <IconButton
                       onClick={logout}
                       color="error"
