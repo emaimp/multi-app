@@ -10,7 +10,7 @@ import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import KeyIcon from '@mui/icons-material/Key';
-import { AuthLayout, AuthFormField, PasswordField } from '../../components/auth';
+import { CenteredCard, TextInput, PasswordInput } from '../../components/ui';
 import RegisterView from './RegisterView';
 import RecoverView from './RecoverView';
 
@@ -74,7 +74,7 @@ function LoginView() {
   }
 
   return (
-    <AuthLayout>
+    <CenteredCard>
         <Typography
           component="h1"
           variant="h4"
@@ -93,7 +93,7 @@ function LoginView() {
             gap: 2,
           }}
         >
-          <AuthFormField
+          <TextInput
             id="username"
             name="username"
             label="Username"
@@ -108,7 +108,7 @@ function LoginView() {
             icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
           />
           
-          <PasswordField
+          <PasswordInput
             id="password"
             name="password"
             label="Password"
@@ -123,7 +123,7 @@ function LoginView() {
             onToggleVisibility={() => setShowPassword(!showPassword)}
           />
 
-          <PasswordField
+          <PasswordInput
             id="masterKey"
             name="masterKey"
             label="Master Key"
@@ -181,7 +181,7 @@ function LoginView() {
             {error}
           </Typography>
         )}
-      </AuthLayout>
+      </CenteredCard>
   );
 }
 

@@ -6,7 +6,7 @@ import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import KeyIcon from '@mui/icons-material/Key';
-import { AuthLayout, AuthFormField, PasswordField } from '../../components/auth';
+import { CenteredCard, TextInput, PasswordInput } from '../../components/ui';
 import { TopBar } from '../../components/ui/TopBar';
 
 interface RecoverViewProps {
@@ -115,7 +115,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
   return (
     <>
       <TopBar onBack={onBack} transparent={true} />
-      <AuthLayout>
+      <CenteredCard>
         <Typography
           component="h1"
           variant="h4"
@@ -128,7 +128,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
           onSubmit={handleSubmit}
           sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
         >
-          <AuthFormField
+          <TextInput
             id="username"
             name="username"
             label="Username"
@@ -145,7 +145,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
           />
           
-          <PasswordField
+          <PasswordInput
             id="masterKey"
             name="masterKey"
             label="Master Key"
@@ -162,7 +162,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
           />
           
-          <PasswordField
+          <PasswordInput
             id="newPassword"
             name="newPassword"
             label="New Password"
@@ -183,7 +183,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             onToggleVisibility={() => setShowNewPassword(!showNewPassword)}
           />
           
-          <PasswordField
+          <PasswordInput
             id="confirmNewPassword"
             name="confirmNewPassword"
             label="Confirm New Password"
@@ -217,7 +217,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             {success}
           </Typography>
         )}
-      </AuthLayout>
+      </CenteredCard>
     </>
   );
 }

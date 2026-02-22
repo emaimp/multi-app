@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
-import TextField from '@mui/material/TextField';
+import MuiTextField from '@mui/material/TextField';
 
-interface AuthFormFieldProps {
+interface TextInputProps {
   id: string;
   name: string;
   label: string;
@@ -20,7 +20,7 @@ interface AuthFormFieldProps {
   endAdornment?: ReactNode;
 }
 
-function AuthFormField({
+function TextInput({
   id,
   name,
   label,
@@ -35,11 +35,11 @@ function AuthFormField({
   helperText = '',
   icon,
   endAdornment,
-}: AuthFormFieldProps) {
+}: TextInputProps) {
   return (
     <FormControl>
       <FormLabel htmlFor={id}>{label}</FormLabel>
-      <TextField
+      <MuiTextField
         id={id}
         name={name}
         type={type}
@@ -65,4 +65,4 @@ function AuthFormField({
   );
 }
 
-export default AuthFormField;
+export default TextInput;

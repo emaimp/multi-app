@@ -31,29 +31,29 @@ const AuthContainer = styled(Stack)(() => ({
   boxSizing: 'border-box',
 }));
 
-interface AuthLayoutProps {
+interface CenteredCardProps {
   children: ReactNode;
 }
 
-function AuthLayout({ children }: AuthLayoutProps) {
+function CenteredCard({ children }: CenteredCardProps) {
   return (
     <AuthContainer direction="column">
-      <Box sx={{
-        flex: 1,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-        pt: 8,
-        pb: 8,
-      }}>
-        <Card variant="outlined">
-          {children}
-        </Card>
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          pt: 8,
+          pb: 8,
+        }}
+      >
+        <Card variant="outlined">{children}</Card>
       </Box>
     </AuthContainer>
   );
 }
 
-export default AuthLayout;
+export default CenteredCard;
 export { Card };

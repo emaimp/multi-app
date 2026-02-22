@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import KeyIcon from '@mui/icons-material/Key';
-import { AuthLayout, AuthFormField, PasswordField } from '../../components/auth';
+import { CenteredCard, TextInput, PasswordInput } from '../../components/ui';
 import { TopBar } from '../../components/ui/TopBar';
 
 interface RegisterViewProps {
@@ -110,7 +110,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   return (
     <>
       <TopBar onBack={onBack} transparent={true} />
-      <AuthLayout>
+      <CenteredCard>
         <Typography
           component="h1"
           variant="h4"
@@ -123,7 +123,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
           onSubmit={handleSubmit}
           sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
         >
-          <AuthFormField
+          <TextInput
             id="username"
             name="username"
             label="Username"
@@ -140,7 +140,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
           />
           
-          <PasswordField
+          <PasswordInput
             id="password"
             name="password"
             label="Password"
@@ -161,7 +161,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             onToggleVisibility={() => setShowPassword(!showPassword)}
           />
           
-          <PasswordField
+          <PasswordInput
             id="confirmPassword"
             name="confirmPassword"
             label="Confirm Password"
@@ -179,7 +179,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
           />
           
-          <PasswordField
+          <PasswordInput
             id="masterKey"
             name="masterKey"
             label="Master Key"
@@ -206,7 +206,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             {error}
           </Typography>
         )}
-      </AuthLayout>
+      </CenteredCard>
     </>
   );
 }

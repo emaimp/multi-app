@@ -3,9 +3,9 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import AuthFormField from './AuthFormField';
+import TextInput from './TextInput';
 
-interface PasswordFieldProps {
+interface PasswordInputProps {
   id: string;
   name: string;
   label: string;
@@ -21,7 +21,7 @@ interface PasswordFieldProps {
   onToggleVisibility: () => void;
 }
 
-function PasswordField({
+function PasswordInput({
   id,
   name,
   label,
@@ -35,9 +35,9 @@ function PasswordField({
   icon,
   showPassword,
   onToggleVisibility,
-}: PasswordFieldProps) {
+}: PasswordInputProps) {
   return (
-    <AuthFormField
+    <TextInput
       id={id}
       name={name}
       label={label}
@@ -65,4 +65,4 @@ function PasswordField({
   );
 }
 
-export default PasswordField;
+export default PasswordInput;
