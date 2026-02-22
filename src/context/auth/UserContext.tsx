@@ -9,6 +9,7 @@ interface UserContextType {
   login: (username: string, password: string, remember?: boolean, masterKey?: string) => Promise<void>;
   register: (username: string, password: string, masterKey: string) => Promise<void>;
   recoverPassword: (username: string, masterKey: string, newPassword: string) => Promise<void>;
+  changePassword: (masterKey: string, newPassword: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
 }
@@ -80,6 +81,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
     await invoke('recover_password', { username, masterKey, newPassword });
   };
 
+  const changePassword = async (masterKey: string, newPassword: string) => {
+    if (user) {
+      await invoke('change_password', { userId: user.id, masterKey, newPassword });
+    }
+  };
+
   const logout = () => {
     if (user) {
       clearSession(user.id);
@@ -111,7 +118,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, isAuthenticated: !!user, login, register, recoverPassword, logout, updateUser }}>
+    <UserContext.Provider value={{ user, isAuthenticated: !!user, login, register, recoverPassword, changePassword, logout, updateUser }}>
       {children}
     </UserContext.Provider>
   );

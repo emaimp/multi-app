@@ -16,7 +16,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export function SettingsView() {
   const navigate = useNavigate();
-  const { user, updateUser, logout } = useUser();
+  const { user, updateUser, logout, changePassword } = useUser();
 
   const [username, setUsername] = useState(user?.username || '');
   const [newPassword, setNewPassword] = useState('');
@@ -77,14 +77,24 @@ export function SettingsView() {
         await updateUser({ username });
       }
 
+      if (newPassword && masterKey) {
+        await changePassword(masterKey, newPassword);
+      }
+
       setNewPassword('');
       setConfirmPassword('');
       setMasterKey('');
 
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-    } catch (err) {
-      setErrors({ general: 'Failed to save settings.' });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      
+      if (errorMessage.includes('Invalid master key')) {
+        setErrors({ masterKey: 'Invalid master key' });
+      } else {
+        setErrors({ general: 'Failed to save settings.' });
+      }
     }
   };
 
@@ -127,7 +137,7 @@ export function SettingsView() {
           />
         </Box>
 
-        <Stack spacing={3}>
+        <Stack spacing={2}>
           <TextInput
             id="username"
             name="username"
@@ -187,7 +197,7 @@ export function SettingsView() {
           )}
         </Stack>
 
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 2 }}>
           <Button
             variant="contained"
             fullWidth

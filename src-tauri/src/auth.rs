@@ -177,4 +177,27 @@ impl Database {
         }
         Ok(())
     }
+
+    pub fn change_password(&self, user_id: i32, master_key: &str, new_password: &str) -> Result<(), String> {
+        let conn = self.conn.lock().unwrap();
+        
+        let stored_master_hash: String = conn.query_row(
+            "SELECT master_key_hash FROM users WHERE id = ?",
+            [user_id],
+            |row| row.get(0)
+        ).map_err(|e| e.to_string())?;
+
+        let parsed_hash = PasswordHash::new(&stored_master_hash).map_err(|e| e.to_string())?;
+        Argon2::default().verify_password(master_key.as_bytes(), &parsed_hash).map_err(|_| "Invalid master key".to_string())?;
+
+        let salt = SaltString::generate(&mut rand::thread_rng());
+        let new_password_hash = Argon2::default().hash_password(new_password.as_bytes(), &salt).map_err(|e| e.to_string())?.to_string();
+
+        conn.execute(
+            "UPDATE users SET password_hash = ? WHERE id = ?",
+            [&new_password_hash, &user_id.to_string()]
+        ).map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
 }

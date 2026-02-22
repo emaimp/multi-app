@@ -45,6 +45,11 @@ fn update_avatar(user_id: i32, avatar: Option<Vec<u8>>, state: tauri::State<Data
     state.update_avatar(user_id, avatar.as_deref())
 }
 
+#[tauri::command]
+fn change_password(user_id: i32, master_key: String, new_password: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.change_password(user_id, &master_key, &new_password)
+}
+
 // Vault commands
 #[tauri::command]
 fn get_vaults(user_id: i32, state: tauri::State<Database>) -> Result<Vec<Vault>, String> {
@@ -115,6 +120,7 @@ pub fn run() {
             register,
             recover_password,
             update_avatar,
+            change_password,
             init_session,
             logout,
             get_vaults,
