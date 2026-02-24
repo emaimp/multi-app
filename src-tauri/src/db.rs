@@ -11,7 +11,7 @@ impl Database {
     pub fn get_vaults(&self, user_id: i32) -> Result<Vec<Vault>, String> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT id, user_id, name_encrypted, color, image, name_nonce, created_at FROM vaults WHERE user_id = ? ORDER BY position ASC, created_at ASC"
+            "SELECT id, user_id, name_encrypted, color, image, name_nonce, created_at, position FROM vaults WHERE user_id = ? ORDER BY position ASC, created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let key = self.get_encryption_key(user_id)?;
@@ -55,6 +55,7 @@ impl Database {
             color: color.to_string(),
             image: None,
             created_at,
+            position: max_position,
         })
     }
 
@@ -122,7 +123,6 @@ impl Database {
         let conn = self.conn.lock().unwrap();
         let id = uuid::Uuid::new_v4().to_string();
         let created_at = Utc::now().timestamp_millis();
-        let updated_at = created_at;
 
         let key = self.get_encryption_key(user_id)?;
         let (title_encrypted, title_nonce) = encrypt_to_base64(title, &key)?;
@@ -135,8 +135,8 @@ impl Database {
         ).unwrap_or(0);
 
         conn.execute(
-            "INSERT INTO notes (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            rusqlite::params![&id, vault_id, &title_encrypted, &content_encrypted, &title_nonce, &content_nonce, created_at, updated_at, max_position],
+            "INSERT INTO notes (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            rusqlite::params![&id, vault_id, &title_encrypted, &content_encrypted, &title_nonce, &content_nonce, created_at, max_position],
         ).map_err(|e| e.to_string())?;
 
         Ok(Note {
@@ -145,21 +145,20 @@ impl Database {
             title: title.to_string(),
             content: content.to_string(),
             created_at,
-            updated_at,
+            position: max_position,
         })
     }
 
     pub fn update_note(&self, note_id: &str, title: &str, content: &str, user_id: i32) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
-        let updated_at = Utc::now().timestamp_millis();
 
         let key = self.get_encryption_key(user_id)?;
         let (title_encrypted, title_nonce) = encrypt_to_base64(title, &key)?;
         let (content_encrypted, content_nonce) = encrypt_to_base64(content, &key)?;
 
         conn.execute(
-            "UPDATE notes SET title_encrypted = ?, content_encrypted = ?, title_nonce = ?, content_nonce = ?, updated_at = ? WHERE id = ?",
-            [&title_encrypted, &content_encrypted, &title_nonce, &content_nonce, &updated_at.to_string(), note_id],
+            "UPDATE notes SET title_encrypted = ?, content_encrypted = ?, title_nonce = ?, content_nonce = ? WHERE id = ?",
+            rusqlite::params![&title_encrypted, &content_encrypted, &title_nonce, &content_nonce, note_id],
         ).map_err(|e| e.to_string())?;
 
         Ok(())
@@ -175,8 +174,8 @@ impl Database {
     pub fn get_note_with_content(&self, note_id: &str, user_id: i32) -> Result<Option<Note>, String> {
         let conn = self.conn.lock().unwrap();
 
-        let (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at): (String, String, String, String, String, String, i64, i64) = conn.query_row(
-            "SELECT n.id, n.vault_id, n.title_encrypted, n.content_encrypted, n.title_nonce, n.content_nonce, n.created_at, n.updated_at
+        let (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, position): (String, String, String, String, String, String, i64, i32) = conn.query_row(
+            "SELECT n.id, n.vault_id, n.title_encrypted, n.content_encrypted, n.title_nonce, n.content_nonce, n.created_at, n.position
              FROM notes n
              WHERE n.id = ?",
             [note_id],
@@ -202,7 +201,7 @@ impl Database {
             title,
             content,
             created_at,
-            updated_at,
+            position,
         }))
     }
 
@@ -212,7 +211,7 @@ impl Database {
         let key = self.get_encryption_key(user_id)?;
 
         let mut stmt = conn.prepare(
-            "SELECT id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at FROM notes WHERE vault_id = ? ORDER BY position ASC, created_at ASC"
+            "SELECT id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, position FROM notes WHERE vault_id = ? ORDER BY position ASC, created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let mut result = Vec::new();
@@ -230,7 +229,7 @@ impl Database {
         }).map_err(|e| e.to_string())?;
 
         for note_data in note_iter {
-            let (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at): (String, String, String, String, String, String, i64, i64) = note_data.map_err(|e| e.to_string())?;
+            let (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, position): (String, String, String, String, String, String, i64, i32) = note_data.map_err(|e| e.to_string())?;
             let title = decrypt_from_base64(&title_encrypted, &title_nonce, &key)?;
             let content = decrypt_from_base64(&content_encrypted, &content_nonce, &key)?;
             result.push(Note {
@@ -239,7 +238,7 @@ impl Database {
                 title,
                 content,
                 created_at,
-                updated_at,
+                position,
             });
         }
         Ok(result)
@@ -267,5 +266,6 @@ fn vault_from_row(row: &Row, user_id: i32, key: &GenericArray<u8, U32>) -> Resul
         color: row.get(3)?,
         image: image_b64,
         created_at: row.get(6)?,
+        position: row.get(7)?,
     })
 }

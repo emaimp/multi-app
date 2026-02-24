@@ -52,7 +52,6 @@ impl Database {
                 title_nonce TEXT NOT NULL,
                 content_nonce TEXT NOT NULL,
                 created_at INTEGER NOT NULL,
-                updated_at INTEGER NOT NULL,
                 position INTEGER DEFAULT 0,
                 FOREIGN KEY (vault_id) REFERENCES vaults(id) ON DELETE CASCADE
             )",

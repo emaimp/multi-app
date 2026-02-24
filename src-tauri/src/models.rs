@@ -34,6 +34,7 @@ pub struct Vault {
     pub color: String,
     pub image: Option<String>,
     pub created_at: i64,
+    pub position: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -43,5 +44,5 @@ pub struct Note {
     pub title: String,
     pub content: String,
     pub created_at: i64,
-    pub updated_at: i64,
+    pub position: i32,
 }
