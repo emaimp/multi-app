@@ -18,6 +18,7 @@ export function SideDrawer({
       sx={{
         width,
         flexShrink: 0,
+        overflowX: 'hidden',
         '& .MuiDrawer-paper': {
           width,
           height: '100vh',
@@ -25,13 +26,14 @@ export function SideDrawer({
           display: 'flex',
           flexDirection: 'column',
           backgroundColor: 'background.paper',
+          overflowX: 'hidden',
         },
       }}
       variant="permanent"
     >
       {header}
 
-      <Box sx={{ flex: 1, overflow: 'auto', py: 1 }}>{children}</Box>
+      <Box sx={{ flex: 1, overflow: 'auto', overflowX: 'hidden', py: 1 }}>{children}</Box>
 
       {footer}
     </Drawer>

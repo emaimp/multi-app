@@ -11,7 +11,7 @@ impl Database {
     pub fn get_vaults(&self, user_id: i32) -> Result<Vec<Vault>, String> {
         let conn = self.conn.lock().unwrap();
         let mut stmt = conn.prepare(
-            "SELECT id, user_id, name_encrypted, color, image, name_nonce, created_at FROM vaults WHERE user_id = ? ORDER BY created_at ASC"
+            "SELECT id, user_id, name_encrypted, color, image, name_nonce, created_at FROM vaults WHERE user_id = ? ORDER BY position ASC, created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let key = self.get_encryption_key(user_id)?;
@@ -37,9 +37,15 @@ impl Database {
 
         let image_vec = image.map(|i| i.to_vec());
 
+        let max_position: i32 = conn.query_row(
+            "SELECT COALESCE(MAX(position), -1) + 1 FROM vaults WHERE user_id = ?",
+            [user_id],
+            |row| row.get(0)
+        ).unwrap_or(0);
+
         conn.execute(
-            "INSERT INTO vaults (id, user_id, name_encrypted, color, name_nonce, image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            rusqlite::params![&id, user_id, &name_encrypted, color, &name_nonce, image_vec, created_at],
+            "INSERT INTO vaults (id, user_id, name_encrypted, color, name_nonce, image, created_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            rusqlite::params![&id, user_id, &name_encrypted, color, &name_nonce, image_vec, created_at, max_position],
         ).map_err(|e| e.to_string())?;
 
         Ok(Vault {
@@ -50,6 +56,24 @@ impl Database {
             image: None,
             created_at,
         })
+    }
+
+    pub fn update_vault_position(&self, vault_id: &str, new_position: i32) -> Result<(), String> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE vaults SET position = ? WHERE id = ?",
+            rusqlite::params![new_position, vault_id],
+        ).map_err(|e| e.to_string())?;
+        Ok(())
+    }
+
+    pub fn update_note_position(&self, note_id: &str, new_position: i32) -> Result<(), String> {
+        let conn = self.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE notes SET position = ? WHERE id = ?",
+            rusqlite::params![new_position, note_id],
+        ).map_err(|e| e.to_string())?;
+        Ok(())
     }
 
     pub fn update_vault(&self, vault: &Vault, image: Option<&[u8]>) -> Result<(), String> {
@@ -104,9 +128,15 @@ impl Database {
         let (title_encrypted, title_nonce) = encrypt_to_base64(title, &key)?;
         let (content_encrypted, content_nonce) = encrypt_to_base64(content, &key)?;
 
+        let max_position: i32 = conn.query_row(
+            "SELECT COALESCE(MAX(position), -1) + 1 FROM notes WHERE vault_id = ?",
+            [vault_id],
+            |row| row.get(0)
+        ).unwrap_or(0);
+
         conn.execute(
-            "INSERT INTO notes (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-            [&id, vault_id, &title_encrypted, &content_encrypted, &title_nonce, &content_nonce, &created_at.to_string(), &updated_at.to_string()],
+            "INSERT INTO notes (id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            rusqlite::params![&id, vault_id, &title_encrypted, &content_encrypted, &title_nonce, &content_nonce, created_at, updated_at, max_position],
         ).map_err(|e| e.to_string())?;
 
         Ok(Note {
@@ -182,7 +212,7 @@ impl Database {
         let key = self.get_encryption_key(user_id)?;
 
         let mut stmt = conn.prepare(
-            "SELECT id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at FROM notes WHERE vault_id = ? ORDER BY created_at ASC"
+            "SELECT id, vault_id, title_encrypted, content_encrypted, title_nonce, content_nonce, created_at, updated_at FROM notes WHERE vault_id = ? ORDER BY position ASC, created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let mut result = Vec::new();

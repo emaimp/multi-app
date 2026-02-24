@@ -15,11 +15,13 @@ interface VaultContextType {
   addVault: (name: string, color: string, image?: string) => Promise<void>;
   updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
+  reorderVaults: (vaults: Vault[]) => Promise<void>;
   selectVault: (vaultId: string) => Promise<void>;
   loadNotes: (vaultId: string) => Promise<void>;
   addNote: (vaultId: string, title: string, content: string) => Promise<void>;
   updateNote: (noteId: string, title: string, content: string) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
+  reorderNotes: (notes: Note[]) => Promise<void>;
 }
 
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
@@ -104,6 +106,13 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const reorderVaults = async (reorderedVaults: Vault[]) => {
+    setVaults(reorderedVaults);
+    for (let i = 0; i < reorderedVaults.length; i++) {
+      await invoke('update_vault_position', { vaultId: reorderedVaults[i].id, newPosition: i });
+    }
+  };
+
   const selectVault = async (vaultId: string) => {
     setSelectedVaultId(vaultId);
     await loadNotes(vaultId);
@@ -157,6 +166,13 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     setNotes((prev) => prev.filter((n) => n.id !== noteId));
   };
 
+  const reorderNotes = async (reorderedNotes: Note[]) => {
+    setNotes(reorderedNotes);
+    for (let i = 0; i < reorderedNotes.length; i++) {
+      await invoke('update_note_position', { noteId: reorderedNotes[i].id, newPosition: i });
+    }
+  };
+
   return (
     <VaultContext.Provider
       value={{
@@ -170,11 +186,13 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         addVault,
         updateVault,
         deleteVault,
+        reorderVaults,
         selectVault,
         loadNotes,
         addNote,
         updateNote,
         deleteNote,
+        reorderNotes,
       }}
     >
       {children}

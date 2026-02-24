@@ -38,6 +38,7 @@ impl Database {
                 color TEXT NOT NULL,
                 image BLOB,
                 created_at INTEGER NOT NULL,
+                position INTEGER DEFAULT 0,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )",
             [],
@@ -52,6 +53,7 @@ impl Database {
                 content_nonce TEXT NOT NULL,
                 created_at INTEGER NOT NULL,
                 updated_at INTEGER NOT NULL,
+                position INTEGER DEFAULT 0,
                 FOREIGN KEY (vault_id) REFERENCES vaults(id) ON DELETE CASCADE
             )",
             [],

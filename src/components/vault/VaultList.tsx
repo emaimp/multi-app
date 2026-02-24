@@ -1,4 +1,6 @@
 import { Box, List, Typography } from '@mui/material';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Vault } from '../../types/vault';
 import { VaultCard } from './VaultCard';
 
@@ -9,24 +11,59 @@ interface VaultListProps {
   selectedVaultId: string | null;
 }
 
+interface SortableVaultItemProps {
+  vault: Vault;
+  onEditVault: (vault: Vault) => void;
+  onVaultClick: (vaultId: string) => void;
+  selectedVaultId: string | null;
+}
+
+function SortableVaultItem({ vault, onEditVault, onVaultClick, selectedVaultId }: SortableVaultItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: vault.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Box
+      ref={setNodeRef}
+      style={style}
+      sx={{ cursor: isDragging ? 'grabbing' : 'default' }}
+    >
+      <VaultCard
+        vault={vault}
+        onEdit={onEditVault}
+        onClick={() => onVaultClick(vault.id)}
+        isSelected={selectedVaultId === vault.id}
+        dragAttributes={attributes as any}
+        dragListeners={listeners as any}
+      />
+    </Box>
+  );
+}
+
 export function VaultList({ vaults, onEditVault, onVaultClick, selectedVaultId }: VaultListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       <List>
         {vaults.map((vault) => (
-          <Box
+          <SortableVaultItem
             key={vault.id}
-            onClick={() => onVaultClick(vault.id)}
-            sx={{
-              cursor: 'pointer',
-              bgcolor: selectedVaultId === vault.id ? 'action.selected' : 'transparent',
-              '&:hover': {
-                bgcolor: 'action.hover',
-              },
-            }}
-          >
-            <VaultCard vault={vault} onEdit={onEditVault} />
-          </Box>
+            vault={vault}
+            onEditVault={onEditVault}
+            onVaultClick={onVaultClick}
+            selectedVaultId={selectedVaultId}
+          />
         ))}
       </List>
       {vaults.length === 0 && (

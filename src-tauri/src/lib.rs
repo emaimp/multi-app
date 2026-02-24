@@ -83,6 +83,11 @@ fn delete_vault(vault_id: String, state: tauri::State<Database>) -> Result<(), S
 }
 
 #[tauri::command]
+fn update_vault_position(vault_id: String, new_position: i32, state: tauri::State<Database>) -> Result<(), String> {
+    state.update_vault_position(&vault_id, new_position)
+}
+
+#[tauri::command]
 fn get_vault(vault_id: String, state: tauri::State<Database>) -> Result<Option<Vault>, String> {
     state.get_vault(&vault_id)
 }
@@ -106,6 +111,11 @@ fn update_note(note_id: String, title: String, content: String, user_id: i32, st
 #[tauri::command]
 fn delete_note(note_id: String, state: tauri::State<Database>) -> Result<(), String> {
     state.delete_note(&note_id)
+}
+
+#[tauri::command]
+fn update_note_position(note_id: String, new_position: i32, state: tauri::State<Database>) -> Result<(), String> {
+    state.update_note_position(&note_id, new_position)
 }
 
 #[tauri::command]
@@ -133,11 +143,13 @@ pub fn run() {
             create_vault,
             update_vault,
             delete_vault,
+            update_vault_position,
             get_vault,
             get_notes_decrypted,
             create_note,
             update_note,
             delete_note,
+            update_note_position,
             get_note_with_content
         ])
         .run(tauri::generate_context!())

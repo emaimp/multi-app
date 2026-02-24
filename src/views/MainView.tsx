@@ -4,6 +4,17 @@ import { Box, Button, Divider, CircularProgress, IconButton } from '@mui/materia
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SideDrawer } from '../components/ui/SideDrawer';
 import { UserStatus } from '../components/ui/UserStatus';
 import { useUser } from '../context/AuthContext';
@@ -28,11 +39,34 @@ export function MainView() {
     addVault,
     updateVault,
     deleteVault,
+    reorderVaults,
     selectVault,
     addNote,
     updateNote,
     deleteNote,
+    reorderNotes,
   } = useVaults();
+
+  const vaultSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleVaultDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = vaults.findIndex((v) => v.id === active.id);
+      const newIndex = vaults.findIndex((v) => v.id === over.id);
+      const newVaults = arrayMove(vaults, oldIndex, newIndex);
+      reorderVaults(newVaults);
+    }
+  };
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createSimpleNoteDialogOpen, setCreateSimpleNoteDialogOpen] = useState(false);
@@ -148,12 +182,21 @@ export function MainView() {
                   <CircularProgress size={24} />
                 </Box>
               ) : (
-                <VaultList
-                  vaults={vaults}
-                  selectedVaultId={selectedVaultId}
-                  onVaultClick={handleVaultClick}
-                  onEditVault={(vault) => setEditingVault(vault)}
-                />
+                <DndContext
+                  sensors={vaultSensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleVaultDragEnd}
+                  modifiers={[restrictToVerticalAxis]}
+                >
+                  <SortableContext items={vaults.map((v) => v.id)} strategy={verticalListSortingStrategy}>
+                    <VaultList
+                      vaults={vaults}
+                      selectedVaultId={selectedVaultId}
+                      onVaultClick={handleVaultClick}
+                      onEditVault={(vault) => setEditingVault(vault)}
+                    />
+                  </SortableContext>
+                </DndContext>
               )}
             </SideDrawer>
 
@@ -166,6 +209,7 @@ export function MainView() {
               onAddAccessNote={handleAddAccessNote}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}
+              onReorderNotes={reorderNotes}
             />
 
             <CreateDialog

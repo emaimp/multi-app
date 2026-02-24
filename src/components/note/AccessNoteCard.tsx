@@ -8,6 +8,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Note } from '../../types/note';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
@@ -16,13 +17,15 @@ interface AccessNoteCardProps {
   note: Note;
   vault: Vault | undefined;
   isLockedByDefault?: boolean;
+  dragAttributes?: Record<string, unknown>;
+  dragListeners?: Record<string, unknown>;
   onUpdate: (noteId: string, title: string, content: string) => void;
   onDelete: (noteId: string) => void;
 }
 
 const ACCESS_NOTE_DELIMITER = '::';
 
-export function AccessNoteCard({ note, vault, isLockedByDefault = false, onUpdate, onDelete }: AccessNoteCardProps) {
+export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: AccessNoteCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [username, setUsername] = useState(() => {
@@ -213,6 +216,18 @@ export function AccessNoteCard({ note, vault, isLockedByDefault = false, onUpdat
           <IconButton size="small" onClick={handleDeleteClick} sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}>
             <DeleteOutlineIcon fontSize="small" />
           </IconButton>
+
+          {dragListeners && (
+            <DragIndicatorIcon
+              sx={{
+                color: 'action.active',
+                cursor: 'grab',
+                ml: 1,
+              }}
+              {...dragAttributes}
+              {...dragListeners}
+            />
+          )}
         </Box>
 
         <Box sx={{ p: 2 }}>

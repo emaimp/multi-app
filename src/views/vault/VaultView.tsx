@@ -2,6 +2,17 @@ import { useState } from 'react';
 import { Box, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import KeyIcon from '@mui/icons-material/Key';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { NoteList } from '../../components/note/NoteList';
 import { Note } from '../../types/note';
 import { Vault } from '../../types/vault';
@@ -15,6 +26,7 @@ interface VaultViewProps {
   onAddAccessNote: () => void;
   onUpdateNote: (noteId: string, title: string, content: string) => void;
   onDeleteNote: (noteId: string) => void;
+  onReorderNotes: (notes: Note[]) => void;
 }
 
 export function VaultView({
@@ -26,8 +38,30 @@ export function VaultView({
   onAddAccessNote,
   onUpdateNote,
   onDeleteNote,
+  onReorderNotes,
 }: VaultViewProps) {
   const [createType, setCreateType] = useState<string | null>('simpleNote');
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = vaultNotes.findIndex((n) => n.id === active.id);
+      const newIndex = vaultNotes.findIndex((n) => n.id === over.id);
+      const newNotes = arrayMove(vaultNotes, oldIndex, newIndex);
+      onReorderNotes(newNotes);
+    }
+  };
 
   const handleCreateType = (_: React.MouseEvent<HTMLElement>, newType: string | null) => {
     if (newType === 'simpleNote') {
@@ -67,13 +101,22 @@ export function VaultView({
           <Divider sx={{ my: 3 }} />
 
           <Box>
-            <NoteList
-              notes={vaultNotes}
-              vault={selectedVault}
-              lockedNoteIds={lockedNoteIds}
-              onUpdateNote={onUpdateNote}
-              onDeleteNote={onDeleteNote}
-            />
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext items={vaultNotes.map((n) => n.id)} strategy={verticalListSortingStrategy}>
+                <NoteList
+                  notes={vaultNotes}
+                  vault={selectedVault}
+                  lockedNoteIds={lockedNoteIds}
+                  onUpdateNote={onUpdateNote}
+                  onDeleteNote={onDeleteNote}
+                />
+              </SortableContext>
+            </DndContext>
           </Box>
         </>
       ) : (
