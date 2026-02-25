@@ -1,8 +1,7 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { useBackend } from '../../hooks/useBackend';
 
 interface SessionContextType {
-  hasSession: boolean;
   initSession: (userId: number, masterKey: string) => Promise<void>;
   clearSession: (userId: number) => Promise<void>;
 }
@@ -11,20 +10,17 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 export function SessionProvider({ children }: { children: ReactNode }) {
   const { invoke } = useBackend();
-  const [hasSession, setHasSession] = useState(false);
 
   const initSession = async (userId: number, masterKey: string) => {
     await invoke('init_session', { userId, masterKey });
-    setHasSession(true);
   };
 
   const clearSession = async (userId: number) => {
     await invoke('logout', { userId });
-    setHasSession(false);
   };
 
   return (
-    <SessionContext.Provider value={{ hasSession, initSession, clearSession }}>
+    <SessionContext.Provider value={{ initSession, clearSession }}>
       {children}
     </SessionContext.Provider>
   );

@@ -12,7 +12,6 @@ interface UserStatusProps {
 
 export function UserStatus({ username, avatar, size = 48, status = 'active' }: UserStatusProps) {
   const indicatorSize = Math.round(size * 0.2);
-
   const statusColor = status === 'active' ? 'success.main' : 'warning.main';
 
   return (

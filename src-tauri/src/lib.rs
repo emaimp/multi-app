@@ -30,6 +30,11 @@ fn init_session(user_id: i32, master_key: String, state: tauri::State<Database>)
 }
 
 #[tauri::command]
+fn get_user_avatar(user_id: i32, state: tauri::State<Database>) -> Result<Option<String>, String> {
+    state.get_user_avatar(user_id)
+}
+
+#[tauri::command]
 fn logout(user_id: i32, state: tauri::State<Database>) -> Result<(), String> {
     state.clear_session(user_id);
     Ok(())
@@ -139,6 +144,7 @@ pub fn run() {
             delete_user,
             init_session,
             logout,
+            get_user_avatar,
             get_vaults,
             create_vault,
             update_vault,

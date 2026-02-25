@@ -6,7 +6,7 @@ use base64::{Engine as _, engine::general_purpose::STANDARD};
 use generic_array::GenericArray;
 use typenum::U32;
 use crate::models::User;
-use crate::crypto::derive_encryption_key;
+use crate::crypto::{derive_encryption_key, encrypt_bytes_to_base64, decrypt_bytes_from_base64};
 
 pub struct Database {
     pub conn: Mutex<Connection>,
@@ -25,7 +25,8 @@ impl Database {
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 master_key_hash TEXT NOT NULL,
-                avatar BLOB
+                avatar BLOB,
+                avatar_nonce TEXT
             )",
             [],
         )?;
@@ -37,6 +38,7 @@ impl Database {
                 name_nonce TEXT NOT NULL,
                 color TEXT NOT NULL,
                 image BLOB,
+                image_nonce TEXT,
                 created_at INTEGER NOT NULL,
                 position INTEGER DEFAULT 0,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
@@ -100,30 +102,39 @@ impl Database {
     }
 
     pub fn login(&self, username: &str, password: &str, master_key: &str) -> Result<User, String> {
-        let conn = self.conn.lock().unwrap();
-        let mut stmt = conn.prepare("SELECT id, username, password_hash, master_key_hash, avatar FROM users WHERE username = ?").map_err(|e| e.to_string())?;
-        let user = stmt.query_row([username], |row| {
-            let avatar_bytes: Option<Vec<u8>> = row.get(4)?;
-            let avatar_base64 = avatar_bytes.map(|bytes| {
-                let b64 = STANDARD.encode(&bytes);
-                format!("data:image/webp;base64,{}", b64)
+        // First get user data without decryption
+        let (user_id, stored_username, password_hash, master_key_hash) = {
+            let conn = self.conn.lock().unwrap();
+            let mut stmt = conn.prepare("SELECT id, username, password_hash, master_key_hash FROM users WHERE username = ?").map_err(|e| e.to_string())?;
+            let user_result: Result<(i32, String, String, String), _> = stmt.query_row([username], |row| {
+                Ok((
+                    row.get(0)?,
+                    row.get(1)?,
+                    row.get(2)?,
+                    row.get(3)?,
+                ))
             });
-            Ok(User {
-                id: row.get(0)?,
-                username: row.get(1)?,
-                password_hash: row.get(2)?,
-                master_key_hash: row.get(3)?,
-                avatar: avatar_base64,
-            })
-        }).map_err(|_| "User not found".to_string())?;
+            
+            let result = user_result.map_err(|_| "User not found".to_string())?;
 
-        let parsed_hash = PasswordHash::new(&user.password_hash).map_err(|e| e.to_string())?;
-        Argon2::default().verify_password(password.as_bytes(), &parsed_hash).map_err(|_| "Invalid password".to_string())?;
+            // Verify password before releasing lock
+            let parsed_hash = PasswordHash::new(&result.2).map_err(|e| e.to_string())?;
+            Argon2::default().verify_password(password.as_bytes(), &parsed_hash).map_err(|_| "Invalid password".to_string())?;
 
-        let parsed_master_hash = PasswordHash::new(&user.master_key_hash).map_err(|e| e.to_string())?;
-        Argon2::default().verify_password(master_key.as_bytes(), &parsed_master_hash).map_err(|_| "Invalid master key".to_string())?;
+            // Verify master key before releasing lock
+            let parsed_master_hash = PasswordHash::new(&result.3).map_err(|e| e.to_string())?;
+            Argon2::default().verify_password(master_key.as_bytes(), &parsed_master_hash).map_err(|_| "Invalid master key".to_string())?;
 
-        Ok(user)
+            result
+        }; // conn lock released here
+
+        Ok(User {
+            id: user_id,
+            username: stored_username,
+            password_hash,
+            master_key_hash,
+            avatar: None,
+        })
     }
 
     pub fn register(&self, username: &str, password: &str, master_key: &str) -> Result<User, String> {
@@ -184,22 +195,62 @@ impl Database {
 
     pub fn update_avatar(&self, user_id: i32, avatar: Option<&[u8]>) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
+        let key = self.get_encryption_key(user_id)?;
+        
         match avatar {
             Some(data) => {
-                let avatar_vec = data.to_vec();
+                let (avatar_encrypted, avatar_nonce) = encrypt_bytes_to_base64(data, &key)?;
                 conn.execute(
-                    "UPDATE users SET avatar = ? WHERE id = ?",
-                    rusqlite::params![avatar_vec, user_id],
+                    "UPDATE users SET avatar = ?, avatar_nonce = ? WHERE id = ?",
+                    rusqlite::params![avatar_encrypted, avatar_nonce, user_id],
                 ).map_err(|e| e.to_string())?;
             }
             None => {
                 conn.execute(
-                    "UPDATE users SET avatar = NULL WHERE id = ?",
+                    "UPDATE users SET avatar = NULL, avatar_nonce = NULL WHERE id = ?",
                     rusqlite::params![user_id],
                 ).map_err(|e| e.to_string())?;
             }
         }
         Ok(())
+    }
+
+    pub fn get_user_avatar(&self, user_id: i32) -> Result<Option<String>, String> {
+        let key = self.get_encryption_key(user_id)?;
+        
+        let conn = self.conn.lock().unwrap();
+        let result: Result<(Option<String>, Option<String>), _> = conn.query_row(
+            "SELECT avatar, avatar_nonce FROM users WHERE id = ?",
+            [user_id],
+            |row| Ok((row.get(0)?, row.get(1)?))
+        );
+
+        let (avatar_encrypted, avatar_nonce) = match result {
+            Ok(r) => r,
+            Err(_) => return Ok(None),
+        };
+
+        let avatar_base64 = match (avatar_encrypted, avatar_nonce) {
+            (Some(enc), Some(nonce)) => {
+                match decrypt_bytes_from_base64(&enc, &nonce, &key) {
+                    Ok(decrypted) => {
+                        let b64 = STANDARD.encode(&decrypted);
+                        Some(format!("data:image/webp;base64,{}", b64))
+                    }
+                    Err(_) => {
+                        // Fallback: treat as unencrypted (legacy data)
+                        let fallback = STANDARD.decode(&enc).ok();
+                        fallback.map(|bytes| {
+                            let b64 = STANDARD.encode(&bytes);
+                            format!("data:image/webp;base64,{}", b64)
+                        })
+                    }
+                }
+            }
+            _ => None,
+        };
+
+        Ok(avatar_base64)
     }
 
     pub fn delete_user(&self, user_id: i32) -> Result<(), String> {

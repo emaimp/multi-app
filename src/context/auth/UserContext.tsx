@@ -6,6 +6,7 @@ import { useSession } from './SessionContext';
 interface UserContextType {
   user: User | null;
   isAuthenticated: boolean;
+  isLoadingContent: boolean;
   login: (username: string, password: string, remember?: boolean, masterKey?: string) => Promise<void>;
   register: (username: string, password: string, masterKey: string) => Promise<void>;
   recoverPassword: (username: string, masterKey: string, newPassword: string) => Promise<void>;
@@ -13,22 +14,29 @@ interface UserContextType {
   deleteAccount: () => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
+  setIsLoadingContent: (loading: boolean) => void;
+  setUser: (user: User | null) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoadingContent, setIsLoadingContent] = useState(false);
   const { invoke } = useBackend();
-  const { initSession, clearSession } = useSession();
+  const { clearSession } = useSession();
 
   useEffect(() => {
     const remembered = localStorage.getItem('rememberedUser');
+    const masterKey = localStorage.getItem('masterKey');
     if (remembered) {
       try {
         const { user: savedUser, expiry } = JSON.parse(remembered);
         if (Date.now() < expiry) {
           setUser(savedUser);
+          if (masterKey) {
+            setIsLoadingContent(true);
+          }
         } else {
           localStorage.removeItem('rememberedUser');
           localStorage.removeItem('masterKey');
@@ -51,23 +59,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
           localStorage.setItem('rememberedUser', JSON.stringify({ user, expiry: Date.now() + 7 * 24 * 60 * 60 * 1000 }));
         }
       }
-      const masterKey = localStorage.getItem('masterKey');
-      if (masterKey) {
-        initSession(user.id, masterKey).catch(console.error);
-      }
     }
   }, [user]);
 
   const login = async (username: string, password: string, remember?: boolean, masterKey?: string) => {
-    const user = await invoke<User>('login', { username, password, masterKey: masterKey || '' });
-    setUser(user);
+    const userWithoutAvatar = await invoke<User>('login', { username, password, masterKey: masterKey || '' });
+    
+    setUser(userWithoutAvatar);
+    
     if (masterKey) {
       localStorage.setItem('masterKey', masterKey);
-      await initSession(user.id, masterKey);
+      setIsLoadingContent(true);
     }
+    
     if (remember) {
       const expiry = Date.now() + 7 * 24 * 60 * 60 * 1000;
-      localStorage.setItem('rememberedUser', JSON.stringify({ user, expiry }));
+      const userToSave = { ...userWithoutAvatar, avatar: null };
+      localStorage.setItem('rememberedUser', JSON.stringify({ user: userToSave, expiry }));
     }
   };
 
@@ -75,7 +83,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const user = await invoke<User>('register', { username, password, masterKey });
     setUser(user);
     localStorage.setItem('masterKey', masterKey);
-    await initSession(user.id, masterKey);
+    setIsLoadingContent(true);
   };
 
   const recoverPassword = async (username: string, masterKey: string, newPassword: string) => {
@@ -100,6 +108,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       clearSession(user.id);
     }
     setUser(null);
+    setIsLoadingContent(false);
     localStorage.removeItem('rememberedUser');
     localStorage.removeItem('masterKey');
   };
@@ -126,7 +135,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, isAuthenticated: !!user, login, register, recoverPassword, changePassword, deleteAccount, logout, updateUser }}>
+    <UserContext.Provider value={{ user, isAuthenticated: !!user, isLoadingContent, login, register, recoverPassword, changePassword, deleteAccount, logout, updateUser, setIsLoadingContent, setUser }}>
       {children}
     </UserContext.Provider>
   );

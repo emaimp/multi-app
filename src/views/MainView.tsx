@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Box, Button, Divider, CircularProgress, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -17,9 +17,11 @@ import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSo
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SideDrawer } from '../components/ui/SideDrawer';
 import { UserStatus } from '../components/ui/UserStatus';
+import { LoadingDialog } from '../components/ui/LoadingDialog';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useUserActivity } from '../hooks/useUserActivity';
+import { useBackend } from '../hooks/useBackend';
 import { VaultList, EditVaultDialog } from '../components/vault';
 import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
@@ -28,8 +30,10 @@ import { SettingsView } from './user/SettingsView';
 
 export function MainView() {
   const navigate = useNavigate();
-  const { user, logout } = useUser();
+  const { user, logout, isLoadingContent, setIsLoadingContent, setUser } = useUser();
+  const { invoke } = useBackend();
   const { status: userStatus } = useUserActivity();
+  const { loadVaults } = useVaults();
   const {
     vaults,
     notes,
@@ -46,6 +50,27 @@ export function MainView() {
     deleteNote,
     reorderNotes,
   } = useVaults();
+
+  useEffect(() => {
+    if (user && isLoadingContent) {
+      const masterKey = localStorage.getItem('masterKey');
+      if (masterKey) {
+        Promise.all([
+          invoke('init_session', { userId: user.id, masterKey }),
+          loadVaults(),
+        ]).then(() => {
+          invoke<string | null>('get_user_avatar', { userId: user.id }).then((avatar) => {
+            if (avatar) {
+              setUser({ ...user, avatar });
+            }
+            setIsLoadingContent(false);
+          }).catch(() => setIsLoadingContent(false));
+        }).catch(() => setIsLoadingContent(false));
+      } else {
+        setIsLoadingContent(false);
+      }
+    }
+  }, []);
 
   const vaultSensors = useSensors(
     useSensor(PointerSensor, {
@@ -109,6 +134,7 @@ export function MainView() {
   };
 
   return (
+    <>
     <Routes>
       <Route
         path="/"
@@ -251,6 +277,8 @@ export function MainView() {
       />
       <Route path="/settings" element={<SettingsView />} />
     </Routes>
+    <LoadingDialog open={isLoadingContent} />
+    </>
   );
 }
 

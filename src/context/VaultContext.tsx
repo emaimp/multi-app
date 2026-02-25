@@ -49,10 +49,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const prevUser = prevUserRef.current;
-    if (user && !prevUser) {
-      loadVaults();
-    } else if (!user && prevUser) {
+    if (!user) {
       setVaults([]);
       setNotes([]);
       setSelectedVaultId(null);
