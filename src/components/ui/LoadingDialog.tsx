@@ -18,7 +18,7 @@ export function LoadingDialog({ open, title = 'Decrypting Content...' }: Loading
       }}
       BackdropProps={{
         sx: {
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          backgroundColor: 'rgba(0, 0, 0, 0.4)',
         }
       }}
     >

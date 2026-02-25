@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Button, Divider, CircularProgress, IconButton } from '@mui/material';
+import { Box, Button, Divider, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -22,7 +22,7 @@ import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useUserActivity } from '../hooks/useUserActivity';
 import { useBackend } from '../hooks/useBackend';
-import { VaultList, EditVaultDialog } from '../components/vault';
+import { VaultList, VaultListSkeleton, EditVaultDialog } from '../components/vault';
 import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
 import { VaultView } from './vault/VaultView';
@@ -34,6 +34,7 @@ export function MainView() {
   const { invoke } = useBackend();
   const { status: userStatus } = useUserActivity();
   const { loadVaults } = useVaults();
+  const [avatarLoading, setAvatarLoading] = useState(false);
   const {
     vaults,
     notes,
@@ -55,6 +56,7 @@ export function MainView() {
     if (user && isLoadingContent) {
       const masterKey = localStorage.getItem('masterKey');
       if (masterKey) {
+        setAvatarLoading(true);
         Promise.all([
           invoke('init_session', { userId: user.id, masterKey }),
           loadVaults(),
@@ -63,9 +65,16 @@ export function MainView() {
             if (avatar) {
               setUser({ ...user, avatar });
             }
+            setAvatarLoading(false);
             setIsLoadingContent(false);
-          }).catch(() => setIsLoadingContent(false));
-        }).catch(() => setIsLoadingContent(false));
+          }).catch(() => {
+            setAvatarLoading(false);
+            setIsLoadingContent(false);
+          });
+        }).catch(() => {
+          setAvatarLoading(false);
+          setIsLoadingContent(false);
+        });
       } else {
         setIsLoadingContent(false);
       }
@@ -155,6 +164,7 @@ export function MainView() {
                     <UserStatus
                       username={user?.username}
                       avatar={user?.avatar}
+                      avatarLoading={avatarLoading}
                       status={userStatus}
                     />
                     <IconButton
@@ -197,16 +207,7 @@ export function MainView() {
               }
             >
               {vaultsLoading ? (
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: '100%',
-                  }}
-                >
-                  <CircularProgress size={24} />
-                </Box>
+                <VaultListSkeleton />
               ) : (
                 <DndContext
                   sensors={vaultSensors}
