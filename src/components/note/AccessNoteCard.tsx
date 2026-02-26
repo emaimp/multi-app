@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, TextField, IconButton, Typography, InputAdornment, Tooltip } from '@mui/material';
+import { Box, TextField, IconButton, Typography, InputAdornment } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -113,7 +113,7 @@ export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAtt
           sx={{
             display: 'flex',
             alignItems: 'center',
-            px: 2,
+            px: 1,
             py: 1,
             bgcolor: vaultColor + '20',
             borderBottom: '2px solid',
@@ -173,34 +173,6 @@ export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAtt
             {isLocked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
           </IconButton>
 
-          <Tooltip title="Copy username">
-            <IconButton
-              size="small"
-              onClick={handleCopyUsername}
-              sx={{
-                color: copiedUsername ? 'success.main' : 'inherit',
-                opacity: copiedUsername ? 1 : 0.6,
-                '&:hover': { opacity: 1 },
-              }}
-            >
-              {copiedUsername ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
-            </IconButton>
-          </Tooltip>
-
-          <Tooltip title="Copy password">
-            <IconButton
-              size="small"
-              onClick={handleCopyPassword}
-              sx={{
-                color: copiedPassword ? 'success.main' : 'inherit',
-                opacity: copiedPassword ? 1 : 0.6,
-                '&:hover': { opacity: 1 },
-              }}
-            >
-              {copiedPassword ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
-            </IconButton>
-          </Tooltip>
-
           <IconButton
             size="small"
             onClick={handleSave}
@@ -246,17 +218,26 @@ export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAtt
                 mb: 1,
               },
               endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip title={showUsername ? 'Hide username' : 'Show username'}>
-                    <IconButton
-                      size="small"
-                      onClick={() => setShowUsername(!showUsername)}
-                      edge="end"
-                      sx={{ opacity: 0.6 }}
-                    >
-                      {showUsername ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                    </IconButton>
-                  </Tooltip>
+                <InputAdornment position="end" sx={{ ml: 1, mr: -1 }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setShowUsername(!showUsername)}
+                    edge="end"
+                    sx={{ opacity: 0.6 }}
+                  >
+                    {showUsername ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={handleCopyUsername}
+                    sx={{
+                      color: copiedUsername ? 'success.main' : 'inherit',
+                      opacity: copiedUsername ? 1 : 0.6,
+                      '&:hover': { opacity: 1 },
+                    }}
+                  >
+                    {copiedUsername ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+                  </IconButton>
                 </InputAdornment>
               ),
             }}
@@ -277,17 +258,26 @@ export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAtt
                 fontSize: '0.9rem',
               },
               endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip title={showPassword ? 'Hide password' : 'Show password'}>
-                    <IconButton
-                      size="small"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                      sx={{ opacity: 0.6 }}
-                    >
-                      {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
-                    </IconButton>
-                  </Tooltip>
+                <InputAdornment position="end" sx={{ ml: 1, mr: -1 }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setShowPassword(!showPassword)}
+                    edge="end"
+                    sx={{ opacity: 0.6 }}
+                  >
+                    {showPassword ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={handleCopyPassword}
+                    sx={{
+                      color: copiedPassword ? 'success.main' : 'inherit',
+                      opacity: copiedPassword ? 1 : 0.6,
+                      '&:hover': { opacity: 1 },
+                    }}
+                  >
+                    {copiedPassword ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+                  </IconButton>
                 </InputAdornment>
               ),
             }}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Box, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import KeyIcon from '@mui/icons-material/Key';
@@ -40,7 +40,16 @@ export function VaultView({
   onDeleteNote,
   onReorderNotes,
 }: VaultViewProps) {
-  const [createType, setCreateType] = useState<string | null>('simpleNote');
+  const [createType, setCreateType] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (createType) {
+      const timer = setTimeout(() => {
+        setCreateType(null);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [createType]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

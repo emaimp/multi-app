@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { Box, TextField, IconButton, Typography } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
+import ContentCutIcon from '@mui/icons-material/ContentCut';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import LockIcon from '@mui/icons-material/Lock';
@@ -25,6 +27,8 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
+  const [pasted, setPasted] = useState(false);
+  const [cut, setCut] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -55,9 +59,29 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
     setTimeout(() => setSaved(false), 3000);
   };
 
+  const handlePaste = async () => {
+    const text = await navigator.clipboard.readText();
+    if (text) {
+      setContent(text);
+      setPasted(true);
+      onUpdate(note.id, title, text);
+      setTimeout(() => setPasted(false), 3000);
+    }
+  };
+
+  const handleCut = async () => {
+    if (content) {
+      await navigator.clipboard.writeText(content);
+      setContent('');
+      setCut(true);
+      onUpdate(note.id, title, '');
+      setTimeout(() => setCut(false), 3000);
+    }
+  };
+
   const handleCopy = async () => {
-    if (note.content) {
-      await navigator.clipboard.writeText(note.content);
+    if (content) {
+      await navigator.clipboard.writeText(content);
       setCopied(true);
       setTimeout(() => setCopied(false), 3000);
     }
@@ -89,7 +113,7 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
           sx={{
             display: 'flex',
             alignItems: 'center',
-            px: 2,
+            px: 1,
             py: 1,
             bgcolor: vaultColor + '20',
             borderBottom: '2px solid',
@@ -151,18 +175,6 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
 
           <IconButton
             size="small"
-            onClick={handleCopy}
-            sx={{
-              color: copied ? 'success.main' : 'inherit',
-              opacity: copied ? 1 : 0.6,
-              '&:hover': { opacity: 1 },
-            }}
-          >
-            {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
-          </IconButton>
-
-          <IconButton
-            size="small"
             onClick={handleSave}
             sx={{
               color: saved ? 'success.main' : 'inherit',
@@ -188,6 +200,54 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
               {...dragListeners}
             />
           )}
+        </Box>
+
+        <Box sx={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 0.5,
+          px: 1,
+          py: 0.5,
+          bgcolor: vaultColor + '10',
+          borderBottom: '1px solid',
+          borderColor: 'divider'
+          }}>
+          <IconButton
+            size="small"
+            onClick={handlePaste}
+            disabled={isLocked}
+            sx={{
+              color: pasted ? 'success.main' : 'inherit',
+              opacity: pasted ? 1 : 0.6,
+              '&:hover': { opacity: 1 },
+            }}
+          >
+            {pasted ? <CheckIcon fontSize="small" /> : <ContentPasteIcon fontSize="small" />}
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={handleCut}
+            disabled={isLocked}
+            sx={{
+              color: cut ? 'success.main' : 'inherit',
+              opacity: cut ? 1 : 0.6,
+              '&:hover': { opacity: 1 },
+            }}
+          >
+            {cut ? <CheckIcon fontSize="small" /> : <ContentCutIcon fontSize="small" />}
+          </IconButton>
+          <IconButton
+            size="small"
+            onClick={handleCopy}
+            disabled={isLocked}
+            sx={{
+              color: copied ? 'success.main' : 'inherit',
+              opacity: copied ? 1 : 0.6,
+              '&:hover': { opacity: 1 },
+            }}
+          >
+            {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+          </IconButton>
         </Box>
 
         <Box sx={{ p: 2 }}>

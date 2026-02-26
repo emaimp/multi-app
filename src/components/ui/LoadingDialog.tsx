@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, Typography, CircularProgress } from '@mui/material';
+import { Dialog, DialogContent, Typography, LinearProgress } from '@mui/material';
 
 interface LoadingDialogProps {
   open: boolean;
@@ -23,10 +23,10 @@ export function LoadingDialog({ open, title = 'Decrypting Content...' }: Loading
       }}
     >
       <DialogContent sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <CircularProgress size={48} />
         <Typography variant="h6" fontWeight={500}>
           {title}
         </Typography>
+        <LinearProgress sx={{ width: '100%' }} />
       </DialogContent>
     </Dialog>
   );
