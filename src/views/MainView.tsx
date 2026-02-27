@@ -4,17 +4,6 @@ import { Box, Button, Divider, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SideDrawer } from '../components/ui/SideDrawer';
 import { UserStatus } from '../components/ui/UserStatus';
 import { LoadingDialog } from '../components/ui/LoadingDialog';
@@ -22,7 +11,7 @@ import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useUserActivity } from '../hooks/useUserActivity';
 import { useBackend } from '../hooks/useBackend';
-import { VaultList, VaultListSkeleton, EditVaultDialog } from '../components/vault';
+import { VaultList, VaultListSkeleton, EditVaultDialog, VaultCreateDialog } from '../components/vault';
 import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
 import { VaultView } from './vault/VaultView';
@@ -37,19 +26,20 @@ export function MainView() {
   const [avatarLoading, setAvatarLoading] = useState(false);
   const {
     vaults,
+    collections,
     notes,
     selectedVaultId,
     vaultsLoading,
     lockedNoteIds,
-    addVault,
     updateVault,
     deleteVault,
-    reorderVaults,
     selectVault,
     addNote,
     updateNote,
     deleteNote,
     reorderNotes,
+    reorderCollections,
+    reorderVaultsInCollection,
   } = useVaults();
 
   useEffect(() => {
@@ -80,27 +70,6 @@ export function MainView() {
       }
     }
   }, []);
-
-  const vaultSensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleVaultDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = vaults.findIndex((v) => v.id === active.id);
-      const newIndex = vaults.findIndex((v) => v.id === over.id);
-      const newVaults = arrayMove(vaults, oldIndex, newIndex);
-      reorderVaults(newVaults);
-    }
-  };
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createSimpleNoteDialogOpen, setCreateSimpleNoteDialogOpen] = useState(false);
@@ -209,21 +178,15 @@ export function MainView() {
               {vaultsLoading ? (
                 <VaultListSkeleton />
               ) : (
-                <DndContext
-                  sensors={vaultSensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleVaultDragEnd}
-                  modifiers={[restrictToVerticalAxis]}
-                >
-                  <SortableContext items={vaults.map((v) => v.id)} strategy={verticalListSortingStrategy}>
-                    <VaultList
-                      vaults={vaults}
-                      selectedVaultId={selectedVaultId}
-                      onVaultClick={handleVaultClick}
-                      onEditVault={(vault) => setEditingVault(vault)}
-                    />
-                  </SortableContext>
-                </DndContext>
+                <VaultList
+                  vaults={vaults}
+                  collections={collections}
+                  selectedVaultId={selectedVaultId}
+                  onVaultClick={handleVaultClick}
+                  onEditVault={(vault) => setEditingVault(vault)}
+                  onCollectionReorder={reorderCollections}
+                  onVaultReorderInCollection={reorderVaultsInCollection}
+                />
               )}
             </SideDrawer>
 
@@ -239,13 +202,12 @@ export function MainView() {
               onReorderNotes={reorderNotes}
             />
 
-            <CreateDialog
+            <VaultCreateDialog
               open={createDialogOpen}
               title="Create New Vault"
               label="Vault Name"
               placeholder="Enter vault name"
               onClose={() => setCreateDialogOpen(false)}
-              onCreate={(name) => addVault(name, 'blue')}
             />
 
             <CreateDialog

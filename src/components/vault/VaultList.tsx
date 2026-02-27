@@ -1,24 +1,101 @@
-import { Box, List, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import {
+  DndContext,
+  closestCenter,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { useSortableSensors } from '../../hooks/useSortableSensors';
 import { Vault } from '../../types/vault';
-import { VaultCard } from './VaultCard';
+import { Collection } from '../../types/collection';
+import { CollectionAccordion } from './CollectionAccordion';
 
 interface VaultListProps {
   vaults: Vault[];
+  collections: Collection[];
   onEditVault: (vault: Vault) => void;
   onVaultClick: (vaultId: string) => void;
   selectedVaultId: string | null;
+  onCollectionReorder: (collections: Collection[]) => void;
+  onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
 }
 
-interface SortableVaultItemProps {
-  vault: Vault;
-  onEditVault: (vault: Vault) => void;
+export function VaultList({ 
+  vaults, 
+  collections, 
+  onEditVault, 
+  onVaultClick, 
+  selectedVaultId,
+  onCollectionReorder,
+  onVaultReorderInCollection,
+}: VaultListProps) {
+  const sensors = useSortableSensors();
+
+  const handleCollectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = collections.findIndex((c) => c.id === active.id);
+      const newIndex = collections.findIndex((c) => c.id === over.id);
+      const newCollections = arrayMove(collections, oldIndex, newIndex);
+      onCollectionReorder(newCollections);
+    }
+  };
+
+  const allCollectionIds = collections.map(c => c.id);
+
+  return (
+    <Box sx={{ width: '100%' }}>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleCollectionDragEnd}
+        modifiers={[restrictToVerticalAxis]}
+      >
+        <SortableContext items={allCollectionIds} strategy={verticalListSortingStrategy}>
+          {collections.map((collection) => (
+            <SortableCollection
+              key={collection.id}
+              collection={collection}
+              vaults={vaults}
+              onVaultClick={onVaultClick}
+              onEditVault={onEditVault}
+              selectedVaultId={selectedVaultId}
+              onVaultReorderInCollection={onVaultReorderInCollection}
+            />
+          ))}
+        </SortableContext>
+      </DndContext>
+      {vaults.length === 0 && collections.length === 0 && (
+        <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
+          <Typography variant="body2">
+            No vaults yet. Click "New Vault" to create one.
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  );
+}
+
+interface SortableCollectionProps {
+  collection: Collection;
+  vaults: Vault[];
   onVaultClick: (vaultId: string) => void;
+  onEditVault: (vault: Vault) => void;
   selectedVaultId: string | null;
+  onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
 }
 
-function SortableVaultItem({ vault, onEditVault, onVaultClick, selectedVaultId }: SortableVaultItemProps) {
+function SortableCollection({
+  collection,
+  vaults,
+  onVaultClick,
+  onEditVault,
+  selectedVaultId,
+  onVaultReorderInCollection,
+}: SortableCollectionProps) {
   const {
     attributes,
     listeners,
@@ -26,7 +103,7 @@ function SortableVaultItem({ vault, onEditVault, onVaultClick, selectedVaultId }
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: vault.id });
+  } = useSortable({ id: collection.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -34,51 +111,20 @@ function SortableVaultItem({ vault, onEditVault, onVaultClick, selectedVaultId }
     opacity: isDragging ? 0.5 : 1,
   };
 
-  return (
-    <Box
-      ref={setNodeRef}
-      style={style}
-      sx={{ cursor: isDragging ? 'grabbing' : 'default' }}
-    >
-      <VaultCard
-        vault={vault}
-        onEdit={onEditVault}
-        onClick={() => onVaultClick(vault.id)}
-        isSelected={selectedVaultId === vault.id}
-        dragAttributes={attributes as any}
-        dragListeners={listeners as any}
-      />
-    </Box>
-  );
-}
+  const collectionVaults = vaults.filter(v => collection.vaultIds.includes(v.id));
 
-export function VaultList({ vaults, onEditVault, onVaultClick, selectedVaultId }: VaultListProps) {
   return (
-    <Box sx={{ width: '100%' }}>
-      <List>
-        {vaults.map((vault) => (
-          <SortableVaultItem
-            key={vault.id}
-            vault={vault}
-            onEditVault={onEditVault}
-            onVaultClick={onVaultClick}
-            selectedVaultId={selectedVaultId}
-          />
-        ))}
-      </List>
-      {vaults.length === 0 && (
-        <Box
-          sx={{
-            textAlign: 'center',
-            py: 4,
-            color: 'text.secondary',
-          }}
-        >
-          <Typography variant="body2">
-            No vaults yet. Click "New Vault" to create one.
-          </Typography>
-        </Box>
-      )}
+    <Box ref={setNodeRef} style={style}>
+      <CollectionAccordion
+        collection={collection}
+        vaults={collectionVaults}
+        onVaultClick={onVaultClick}
+        onEditVault={onEditVault}
+        selectedVaultId={selectedVaultId}
+        dragAttributes={attributes}
+        dragListeners={listeners}
+        onVaultReorder={onVaultReorderInCollection}
+      />
     </Box>
   );
 }
