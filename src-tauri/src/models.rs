@@ -46,3 +46,13 @@ pub struct Note {
     pub created_at: i64,
     pub position: i32,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Collection {
+    pub id: String,
+    pub user_id: i32,
+    pub name: String,
+    pub vault_ids: Vec<String>,
+    pub position: i32,
+    pub created_at: i64,
+}

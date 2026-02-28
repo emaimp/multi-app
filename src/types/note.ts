@@ -4,5 +4,5 @@ export interface Note {
   title: string;
   content: string;
   created_at: number;
-  updated_at: number;
+  position: number;
 }

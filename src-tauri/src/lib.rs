@@ -5,7 +5,7 @@ mod db;
 mod models;
 
 use auth::Database;
-use models::{UserResponse, Vault, Note};
+use models::{UserResponse, Vault, Note, Collection};
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -118,6 +118,38 @@ fn delete_note(note_id: String, state: tauri::State<Database>) -> Result<(), Str
     state.delete_note(&note_id)
 }
 
+// Collection commands
+#[tauri::command]
+fn get_collections(user_id: i32, state: tauri::State<Database>) -> Result<Vec<Collection>, String> {
+    state.get_collections(user_id)
+}
+
+#[tauri::command]
+fn create_collection(user_id: i32, name: String, state: tauri::State<Database>) -> Result<Collection, String> {
+    state.create_collection(user_id, &name)
+}
+
+#[tauri::command]
+fn update_collection(collection: String, state: tauri::State<Database>) -> Result<(), String> {
+    let collection_model: Collection = serde_json::from_str(&collection).map_err(|e| e.to_string())?;
+    state.update_collection(&collection_model)
+}
+
+#[tauri::command]
+fn delete_collection(collection_id: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.delete_collection(&collection_id)
+}
+
+#[tauri::command]
+fn add_vault_to_collection(collection_id: String, vault_id: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.add_vault_to_collection(&collection_id, &vault_id)
+}
+
+#[tauri::command]
+fn remove_vault_from_collection(collection_id: String, vault_id: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.remove_vault_from_collection(&collection_id, &vault_id)
+}
+
 #[tauri::command]
 fn update_note_position(note_id: String, new_position: i32, state: tauri::State<Database>) -> Result<(), String> {
     state.update_note_position(&note_id, new_position)
@@ -156,7 +188,13 @@ pub fn run() {
             update_note,
             delete_note,
             update_note_position,
-            get_note_with_content
+            get_note_with_content,
+            get_collections,
+            create_collection,
+            update_collection,
+            delete_collection,
+            add_vault_to_collection,
+            remove_vault_from_collection
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

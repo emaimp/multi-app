@@ -24,7 +24,7 @@ interface VaultContextType {
   deleteNote: (noteId: string) => Promise<void>;
   reorderNotes: (notes: Note[]) => Promise<void>;
   reorderCollections: (collections: Collection[]) => void;
-  reorderVaultsInCollection: (collectionId: string, vaultIds: string[]) => void;
+  reorderVaultsInCollection: (collectionId: string, vault_ids: string[]) => void;
 }
 
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
@@ -45,8 +45,12 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     setVaultsLoading(true);
     try {
-      const vaultsData = await invoke<Vault[]>('get_vaults', { userId: user.id });
+      const [vaultsData, collectionsData] = await Promise.all([
+        invoke<Vault[]>('get_vaults', { userId: user.id }),
+        invoke<Collection[]>('get_collections', { userId: user.id }),
+      ]);
       setVaults(vaultsData);
+      setCollections(collectionsData);
     } finally {
       setVaultsLoading(false);
     }
@@ -73,15 +77,23 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     if (collectionName) {
       let collection = collections.find(c => c.name === collectionName);
       if (collection) {
-        collection.vaultIds.push(newVault.id);
-        setCollections([...collections]);
+        const updatedVaultIds = [...collection.vault_ids, newVault.id];
+        await invoke('update_collection', {
+          collection: JSON.stringify({ ...collection, vault_ids: updatedVaultIds }),
+        });
+        setCollections(prev => prev.map(c => 
+          c.id === collection.id ? { ...c, vault_ids: updatedVaultIds } : c
+        ));
       } else {
-        const newCollection: Collection = {
-          id: crypto.randomUUID(),
+        const newCollection = await invoke<Collection>('create_collection', {
+          userId: user.id,
           name: collectionName,
-          vaultIds: [newVault.id]
-        };
-        setCollections([...collections, newCollection]);
+        });
+        const updatedCollection = { ...newCollection, vault_ids: [newVault.id] };
+        await invoke('update_collection', {
+          collection: JSON.stringify(updatedCollection),
+        });
+        setCollections(prev => [...prev, updatedCollection]);
       }
     }
     
@@ -109,10 +121,20 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const deleteVault = async (vaultId: string) => {
     await invoke('delete_vault', { vaultId });
+    
+    // Find and update the collection this vault belonged to
+    const collectionWithVault = collections.find(c => c.vault_ids.includes(vaultId));
+    if (collectionWithVault) {
+      const updatedVaultIds = collectionWithVault.vault_ids.filter(id => id !== vaultId);
+      await invoke('update_collection', {
+        collection: JSON.stringify({ ...collectionWithVault, vault_ids: updatedVaultIds }),
+      });
+    }
+    
     setVaults((prev) => prev.filter((v) => v.id !== vaultId));
     setCollections(prev => prev.map(c => ({
       ...c,
-      vaultIds: c.vaultIds.filter(id => id !== vaultId)
+      vault_ids: c.vault_ids.filter(id => id !== vaultId)
     })));
     setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
     if (selectedVaultId === vaultId) {
@@ -181,14 +203,26 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const reorderCollections = (reorderedCollections: Collection[]) => {
+  const reorderCollections = async (reorderedCollections: Collection[]) => {
     setCollections(reorderedCollections);
+    for (let i = 0; i < reorderedCollections.length; i++) {
+      const collection = reorderedCollections[i];
+      await invoke('update_collection', {
+        collection: JSON.stringify({ ...collection, position: i }),
+      });
+    }
   };
 
-  const reorderVaultsInCollection = (collectionId: string, newVaultIds: string[]) => {
+  const reorderVaultsInCollection = async (collectionId: string, newVaultIds: string[]) => {
     setCollections(prev => prev.map(c => 
-      c.id === collectionId ? { ...c, vaultIds: newVaultIds } : c
+      c.id === collectionId ? { ...c, vault_ids: newVaultIds } : c
     ));
+    const collection = collections.find(c => c.id === collectionId);
+    if (collection) {
+      await invoke('update_collection', {
+        collection: JSON.stringify({ ...collection, vault_ids: newVaultIds }),
+      });
+    }
   };
 
   return (

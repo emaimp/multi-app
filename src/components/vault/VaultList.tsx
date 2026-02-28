@@ -111,7 +111,7 @@ function SortableCollection({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const collectionVaults = vaults.filter(v => collection.vaultIds.includes(v.id));
+  const collectionVaults = vaults.filter(v => collection.vault_ids.includes(v.id));
 
   return (
     <Box ref={setNodeRef} style={style}>

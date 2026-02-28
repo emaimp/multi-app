@@ -5,6 +5,7 @@ export interface Vault {
   color: string;
   image?: string;
   created_at: number;
+  position: number;
 }
 
 export type VaultColor = 'blue' | 'cyan' | 'green' | 'yellow' | 'orange' | 'red' | 'pink' | 'purple';

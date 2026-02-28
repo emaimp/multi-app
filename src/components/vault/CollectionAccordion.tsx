@@ -29,7 +29,7 @@ interface CollectionAccordionProps {
   selectedVaultId: string | null;
   dragAttributes?: any;
   dragListeners?: any;
-  onVaultReorder?: (collectionId: string, vaultIds: string[]) => void;
+  onVaultReorder?: (collectionId: string, vault_ids: string[]) => void;
 }
 
 export function CollectionAccordion({
@@ -49,17 +49,17 @@ export function CollectionAccordion({
   const handleVaultDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id && onVaultReorder) {
-      const oldIndex = collection.vaultIds.indexOf(active.id as string);
-      const newIndex = collection.vaultIds.indexOf(over.id as string);
+      const oldIndex = collection.vault_ids.indexOf(active.id as string);
+      const newIndex = collection.vault_ids.indexOf(over.id as string);
       
       if (oldIndex !== -1 && newIndex !== -1) {
-        const newVaultIds = arrayMove(collection.vaultIds, oldIndex, newIndex);
+        const newVaultIds = arrayMove(collection.vault_ids, oldIndex, newIndex);
         onVaultReorder(collection.id, newVaultIds);
       }
     }
   };
 
-  const vaultIds = collection.vaultIds;
+  const vault_ids = collection.vault_ids;
 
   return (
     <Accordion
@@ -87,20 +87,20 @@ export function CollectionAccordion({
             {collection.name}
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            ({vaultIds.length})
+            ({vault_ids.length})
           </Typography>
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ py: 1, px: 0 }}>
-        {vaultIds.length > 0 ? (
+        {vault_ids.length > 0 ? (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
             onDragEnd={handleVaultDragEnd}
             modifiers={[restrictToVerticalAxis]}
           >
-            <SortableContext items={vaultIds} strategy={verticalListSortingStrategy}>
-              {vaultIds.map((vaultId) => {
+            <SortableContext items={vault_ids} strategy={verticalListSortingStrategy}>
+              {vault_ids.map((vaultId) => {
                 const vault = vaults.find(v => v.id === vaultId);
                 if (!vault) return null;
                 return (

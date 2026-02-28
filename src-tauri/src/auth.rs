@@ -59,6 +59,19 @@ impl Database {
             )",
             [],
         )?;
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS collections (
+                id TEXT PRIMARY KEY,
+                user_id INTEGER NOT NULL,
+                name_encrypted TEXT NOT NULL,
+                name_nonce TEXT NOT NULL,
+                vault_ids TEXT NOT NULL,
+                created_at INTEGER NOT NULL,
+                position INTEGER DEFAULT 0,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            )",
+            [],
+        )?;
 
         Ok(Database {
             conn: Mutex::new(conn),
