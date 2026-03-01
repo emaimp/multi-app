@@ -11,7 +11,7 @@ import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useUserActivity } from '../hooks/useUserActivity';
 import { useBackend } from '../hooks/useBackend';
-import { VaultList, VaultListSkeleton, EditVaultDialog, VaultCreateDialog } from '../components/vault';
+import { VaultList, VaultListSkeleton, VaultEditDialog, VaultCreateDialog } from '../components/vault';
 import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
 import { VaultView } from './vault/VaultView';
@@ -228,7 +228,7 @@ export function MainView() {
               onCreate={handleCreateAccessNote}
             />
 
-            <EditVaultDialog
+            <VaultEditDialog
               open={!!editingVault}
               vault={editingVault}
               onClose={() => setEditingVault(null)}

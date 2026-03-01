@@ -109,7 +109,6 @@ export function SettingsView() {
 
   const deleteAccountButton = (
     <Button
-      variant="outlined"
       color="error"
       size="small"
       startIcon={<DeleteIcon />}
@@ -123,7 +122,6 @@ export function SettingsView() {
     <>
       <TopBar
         onBack={handleBack}
-        title="Settings"
         transparent={true}
         actions={[deleteAccountButton]}
       />

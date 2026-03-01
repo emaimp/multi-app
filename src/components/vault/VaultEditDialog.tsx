@@ -15,7 +15,7 @@ import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../types/vault';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { AvatarPicker } from '../ui/AvatarPicker';
 
-interface EditVaultDialogProps {
+interface VaultEditDialogProps {
   open: boolean;
   vault: Vault | null;
   onClose: () => void;
@@ -23,7 +23,7 @@ interface EditVaultDialogProps {
   onDelete: (vaultId: string) => void;
 }
 
-export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: EditVaultDialogProps) {
+export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: VaultEditDialogProps) {
   const [name, setName] = useState(vault?.name || '');
   const [color, setColor] = useState(vault?.color || 'blue');
   const [image, setImage] = useState<string | null>(vault?.image || null);
@@ -115,7 +115,7 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteClick} color="error" startIcon={<DeleteIcon />}>
-            Delete
+            Delete Vault
           </Button>
           <Box sx={{ flexGrow: 1 }} />
           <Button onClick={onClose}>Cancel</Button>
@@ -136,4 +136,4 @@ export function EditVaultDialog({ open, vault, onClose, onSave, onDelete }: Edit
   );
 }
 
-export default EditVaultDialog;
+export default VaultEditDialog;

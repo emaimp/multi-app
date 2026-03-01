@@ -239,7 +239,6 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
           <IconButton
             size="small"
             onClick={handleCopy}
-            disabled={isLocked}
             sx={{
               color: copied ? 'success.main' : 'inherit',
               opacity: copied ? 1 : 0.6,

@@ -11,7 +11,7 @@ export function SideDrawer({
   children,
   header,
   footer,
-  width = 240,
+  width = 270,
 }: SideDrawerProps) {
   return (
     <Drawer

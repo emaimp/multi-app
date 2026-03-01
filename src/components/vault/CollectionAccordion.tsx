@@ -42,7 +42,7 @@ export function CollectionAccordion({
   dragListeners,
   onVaultReorder,
 }: CollectionAccordionProps) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(false);
   
   const sensors = useSortableSensors();
 

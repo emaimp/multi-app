@@ -437,7 +437,7 @@ fn collection_from_row(row: &rusqlite::Row, user_id: i32, key: &GenericArray<u8,
         user_id,
         name,
         vault_ids,
-        position: row.get(5)?,
-        created_at: row.get(6)?,
+        created_at: row.get(5)?,
+        position: row.get(6)?,
     })
 }
