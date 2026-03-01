@@ -115,7 +115,7 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteClick} color="error" startIcon={<DeleteIcon />}>
-            Delete Vault
+            Delete
           </Button>
           <Box sx={{ flexGrow: 1 }} />
           <Button onClick={onClose}>Cancel</Button>

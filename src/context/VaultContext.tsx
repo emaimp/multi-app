@@ -17,6 +17,7 @@ interface VaultContextType {
   addVault: (name: string, color: string, collection?: string) => Promise<void>;
   updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
+  reorderVaults: (vaults: Vault[]) => Promise<void>;
   selectVault: (vaultId: string) => Promise<void>;
   loadNotes: (vaultId: string) => Promise<void>;
   addNote: (vaultId: string, title: string, content: string) => Promise<void>;
@@ -25,6 +26,8 @@ interface VaultContextType {
   reorderNotes: (notes: Note[]) => Promise<void>;
   reorderCollections: (collections: Collection[]) => void;
   reorderVaultsInCollection: (collectionId: string, vault_ids: string[]) => void;
+  updateCollection: (collection: Collection) => Promise<void>;
+  deleteCollection: (collectionId: string) => Promise<void>;
 }
 
 const VaultContext = createContext<VaultContextType | undefined>(undefined);
@@ -143,6 +146,13 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const reorderVaults = async (reorderedVaults: Vault[]) => {
+    setVaults(reorderedVaults);
+    for (let i = 0; i < reorderedVaults.length; i++) {
+      await invoke('update_vault_position', { vaultId: reorderedVaults[i].id, newPosition: i });
+    }
+  };
+
   const selectVault = async (vaultId: string) => {
     setSelectedVaultId(vaultId);
     await loadNotes(vaultId);
@@ -225,6 +235,20 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateCollection = async (collection: Collection) => {
+    await invoke('update_collection', {
+      collection: JSON.stringify(collection),
+    });
+    setCollections(prev => prev.map(c => 
+      c.id === collection.id ? collection : c
+    ));
+  };
+
+  const deleteCollection = async (collectionId: string) => {
+    await invoke('delete_collection', { collectionId });
+    setCollections(prev => prev.filter(c => c.id !== collectionId));
+  };
+
   return (
     <VaultContext.Provider
       value={{
@@ -239,6 +263,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         addVault,
         updateVault,
         deleteVault,
+        reorderVaults,
         selectVault,
         loadNotes,
         addNote,
@@ -247,6 +272,8 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         reorderNotes,
         reorderCollections,
         reorderVaultsInCollection,
+        updateCollection,
+        deleteCollection,
       }}
     >
       {children}

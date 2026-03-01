@@ -11,9 +11,16 @@ import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useUserActivity } from '../hooks/useUserActivity';
 import { useBackend } from '../hooks/useBackend';
-import { VaultList, VaultListSkeleton, VaultEditDialog, VaultCreateDialog } from '../components/vault';
+import {
+  VaultList,
+  VaultListSkeleton,
+  VaultEditDialog,
+  VaultCreateDialog,
+  CollectionEditDialog,
+} from '../components/vault';
 import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
+import { Collection } from '../types/collection';
 import { VaultView } from './vault/VaultView';
 import { SettingsView } from './user/SettingsView';
 
@@ -33,6 +40,7 @@ export function MainView() {
     lockedNoteIds,
     updateVault,
     deleteVault,
+    reorderVaults,
     selectVault,
     addNote,
     updateNote,
@@ -40,6 +48,8 @@ export function MainView() {
     reorderNotes,
     reorderCollections,
     reorderVaultsInCollection,
+    updateCollection,
+    deleteCollection,
   } = useVaults();
 
   useEffect(() => {
@@ -75,6 +85,7 @@ export function MainView() {
   const [createSimpleNoteDialogOpen, setCreateSimpleNoteDialogOpen] = useState(false);
   const [createAccessNoteDialogOpen, setCreateAccessNoteDialogOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
 
   const selectedVault = vaults.find((v) => v.id === selectedVaultId);
   const vaultNotes = selectedVaultId ? notes.filter((n) => n.vault_id === selectedVaultId) : [];
@@ -184,8 +195,10 @@ export function MainView() {
                   selectedVaultId={selectedVaultId}
                   onVaultClick={handleVaultClick}
                   onEditVault={(vault) => setEditingVault(vault)}
+                  onEditCollection={(collection) => setEditingCollection(collection)}
                   onCollectionReorder={reorderCollections}
                   onVaultReorderInCollection={reorderVaultsInCollection}
+                  onVaultReorder={reorderVaults}
                 />
               )}
             </SideDrawer>
@@ -234,6 +247,14 @@ export function MainView() {
               onClose={() => setEditingVault(null)}
               onSave={updateVault}
               onDelete={deleteVault}
+            />
+
+            <CollectionEditDialog
+              open={!!editingCollection}
+              collection={editingCollection}
+              onClose={() => setEditingCollection(null)}
+              onSave={updateCollection}
+              onDelete={deleteCollection}
             />
           </Box>
         }

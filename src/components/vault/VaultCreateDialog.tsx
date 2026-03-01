@@ -26,8 +26,8 @@ export function VaultCreateDialog({ open, title, label, placeholder, onClose }: 
   const [collection, setCollection] = useState<string>('');
 
   const handleSubmit = () => {
-    if (name.trim() && collection.trim()) {
-      addVault(name.trim(), color, collection.trim());
+    if (name.trim()) {
+      addVault(name.trim(), color, collection.trim() || undefined);
       handleClose();
     }
   };
@@ -94,7 +94,7 @@ export function VaultCreateDialog({ open, title, label, placeholder, onClose }: 
         <Button 
           onClick={handleSubmit} 
           variant="contained" 
-          disabled={!name.trim() || !collection.trim()}
+          disabled={!name.trim()}
         >
           Create
         </Button>

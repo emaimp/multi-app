@@ -5,8 +5,10 @@ import {
   AccordionDetails,
   Typography,
   Box,
+  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import {
   DndContext,
   closestCenter,
@@ -26,6 +28,7 @@ interface CollectionAccordionProps {
   vaults?: Vault[];
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
+  onEditCollection?: (collection: Collection) => void;
   selectedVaultId: string | null;
   dragAttributes?: any;
   dragListeners?: any;
@@ -37,6 +40,7 @@ export function CollectionAccordion({
   vaults = [],
   onVaultClick,
   onEditVault,
+  onEditCollection,
   selectedVaultId,
   dragAttributes,
   dragListeners,
@@ -80,9 +84,22 @@ export function CollectionAccordion({
         sx={{
           cursor: 'grab',
           '&:hover': { bgcolor: 'action.hover' },
+          pl: 1,
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {onEditCollection && (
+          <IconButton
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEditCollection(collection);
+            }}
+            sx={{ mr: 1 }}
+          >
+            <MoreVertIcon fontSize="small" />
+          </IconButton>
+        )}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
           <Typography variant="subtitle1" fontWeight="medium">
             {collection.name}
           </Typography>

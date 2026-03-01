@@ -1,5 +1,5 @@
 import { Box, Avatar, Typography, IconButton } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+import EditSquareIcon from '@mui/icons-material/EditSquare';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 
@@ -65,7 +65,7 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, dragAttributes, 
         }}
         sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
       >
-        <EditIcon fontSize="small" />
+        <EditSquareIcon fontSize="small" />
       </IconButton>
 
       {dragListeners && (
