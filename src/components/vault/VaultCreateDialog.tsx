@@ -39,15 +39,7 @@ export function VaultCreateDialog({ open, title, label, placeholder, onClose }: 
   };
 
   const handleCollectionChange = (_: any, newValue: string | null) => {
-    if (newValue) {
-      setCollection(newValue);
-    }
-  };
-
-  const handleInputChange = (_: any, newValue: string, reason: string) => {
-    if (reason === 'input') {
-      setCollection(newValue);
-    }
+    setCollection(newValue || '');
   };
 
   return (
@@ -67,17 +59,16 @@ export function VaultCreateDialog({ open, title, label, placeholder, onClose }: 
         />
         
         <Autocomplete
-          freeSolo
+          freeSolo={false}
           options={collections.map(c => c.name)}
-          value={collection}
+          value={collection || null}
           onChange={handleCollectionChange}
-          onInputChange={handleInputChange}
           renderInput={(params) => (
             <TextField
               {...params}
               margin="dense"
-              label="Collection"
-              placeholder="Select or create a collection"
+              label="Collection (opcional)"
+              placeholder="Select a collection"
             />
           )}
           selectOnFocus
@@ -85,8 +76,8 @@ export function VaultCreateDialog({ open, title, label, placeholder, onClose }: 
           handleHomeEndKeys
         />
 
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-          Collections help you organize your vaults into groups.
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1, mb: 2 }}>
+          Collections allow you to organize your vaults into groups. If collections exist, you can assign the vault to one.
         </Typography>
       </DialogContent>
       <DialogActions>

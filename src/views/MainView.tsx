@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Box, Button, Divider, IconButton } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import { SideDrawer } from '../components/ui/SideDrawer';
 import { UserStatus } from '../components/ui/UserStatus';
 import { LoadingDialog } from '../components/ui/LoadingDialog';
@@ -48,6 +49,7 @@ export function MainView() {
     reorderNotes,
     reorderCollections,
     reorderVaultsInCollection,
+    createCollection,
     updateCollection,
     deleteCollection,
   } = useVaults();
@@ -82,6 +84,7 @@ export function MainView() {
   }, []);
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [createCollectionDialogOpen, setCreateCollectionDialogOpen] = useState(false);
   const [createSimpleNoteDialogOpen, setCreateSimpleNoteDialogOpen] = useState(false);
   const [createAccessNoteDialogOpen, setCreateAccessNoteDialogOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
@@ -160,14 +163,30 @@ export function MainView() {
                   <Box sx={{ p: 2 }}>
                     <Button
                       fullWidth
-                      variant="outlined"
                       onClick={() => setCreateDialogOpen(true)}
-                      startIcon={<AddIcon />}
+                      startIcon={<InventoryIcon />}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        textTransform: 'none',
+                        '& .MuiButton-startIcon': { mr: 2, ml: 0.5 },
+                      }}
                     >
                       New Vault
                     </Button>
+                    <Button
+                      fullWidth
+                      onClick={() => setCreateCollectionDialogOpen(true)}
+                      startIcon={<ViewModuleIcon />}
+                      sx={{
+                        justifyContent: 'flex-start',
+                        textTransform: 'none',
+                        '& .MuiButton-startIcon': { mr: 2, ml: 0.5 },
+                      }}
+                    >
+                      New Collection
+                    </Button>
                   </Box>
-                  <Divider sx={{ mx: 2 }} />
+                  <Divider />
                 </>
               }
               footer={
@@ -221,6 +240,15 @@ export function MainView() {
               label="Vault Name"
               placeholder="Enter vault name"
               onClose={() => setCreateDialogOpen(false)}
+            />
+
+            <CreateDialog
+              open={createCollectionDialogOpen}
+              title="Create New Collection"
+              label="Collection Name"
+              placeholder="Enter collection name"
+              onClose={() => setCreateCollectionDialogOpen(false)}
+              onCreate={createCollection}
             />
 
             <CreateDialog

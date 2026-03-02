@@ -26,6 +26,7 @@ interface VaultContextType {
   reorderNotes: (notes: Note[]) => Promise<void>;
   reorderCollections: (collections: Collection[]) => void;
   reorderVaultsInCollection: (collectionId: string, vault_ids: string[]) => void;
+  createCollection: (name: string) => Promise<void>;
   updateCollection: (collection: Collection) => Promise<void>;
   deleteCollection: (collectionId: string) => Promise<void>;
 }
@@ -235,13 +236,35 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const createCollection = async (name: string) => {
+    if (!user) return;
+    const newCollection = await invoke<Collection>('create_collection', {
+      userId: user.id,
+      name,
+    });
+    setCollections(prev => [...prev, newCollection]);
+  };
+
   const updateCollection = async (collection: Collection) => {
     await invoke('update_collection', {
       collection: JSON.stringify(collection),
     });
-    setCollections(prev => prev.map(c => 
-      c.id === collection.id ? collection : c
-    ));
+    
+    const newVaultIds = collection.vault_ids;
+    
+    setCollections(prev => prev.map(c => {
+      if (c.id === collection.id) {
+        return collection;
+      }
+      const updatedVaultIds = c.vault_ids.filter(id => !newVaultIds.includes(id));
+      if (updatedVaultIds !== c.vault_ids) {
+        invoke('update_collection', {
+          collection: JSON.stringify({ ...c, vault_ids: updatedVaultIds }),
+        });
+        return { ...c, vault_ids: updatedVaultIds };
+      }
+      return c;
+    }));
   };
 
   const deleteCollection = async (collectionId: string) => {
@@ -272,6 +295,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         reorderNotes,
         reorderCollections,
         reorderVaultsInCollection,
+        createCollection,
         updateCollection,
         deleteCollection,
       }}
