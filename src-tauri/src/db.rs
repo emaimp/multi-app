@@ -43,7 +43,7 @@ impl Database {
             None => (None, None),
         };
 
-        let max_position: i32 = conn.query_row(
+        let vault_position: i32 = conn.query_row(
             "SELECT COALESCE(MAX(position), -1) + 1 FROM vaults WHERE user_id = ?",
             [user_id],
             |row| row.get(0)
@@ -51,7 +51,7 @@ impl Database {
 
         conn.execute(
             "INSERT INTO vaults (id, user_id, name_encrypted, color, name_nonce, image, image_nonce, created_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            rusqlite::params![&id, user_id, &name_encrypted, color, &name_nonce, image_encrypted, image_nonce, created_at, max_position],
+            rusqlite::params![&id, user_id, &name_encrypted, color, &name_nonce, image_encrypted, image_nonce, created_at, vault_position],
         ).map_err(|e| e.to_string())?;
 
         Ok(Vault {
@@ -61,7 +61,7 @@ impl Database {
             color: color.to_string(),
             image: None,
             created_at,
-            position: max_position,
+            position: vault_position,
         })
     }
 

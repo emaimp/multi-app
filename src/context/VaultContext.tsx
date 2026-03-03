@@ -72,6 +72,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const addVault = async (name: string, color: string, collectionName?: string) => {
     if (!user) return;
+    
     const newVault = await invoke<Vault>('create_vault', {
       userId: user.id,
       name,
@@ -82,6 +83,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
       let collection = collections.find(c => c.name === collectionName);
       if (collection) {
         const updatedVaultIds = [...collection.vault_ids, newVault.id];
+        
         await invoke('update_collection', {
           collection: JSON.stringify({ ...collection, vault_ids: updatedVaultIds }),
         });
@@ -126,7 +128,6 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   const deleteVault = async (vaultId: string) => {
     await invoke('delete_vault', { vaultId });
     
-    // Find and update the collection this vault belonged to
     const collectionWithVault = collections.find(c => c.vault_ids.includes(vaultId));
     if (collectionWithVault) {
       const updatedVaultIds = collectionWithVault.vault_ids.filter(id => id !== vaultId);
@@ -135,7 +136,25 @@ export function VaultProvider({ children }: { children: ReactNode }) {
       });
     }
     
-    setVaults((prev) => prev.filter((v) => v.id !== vaultId));
+    const remainingUnassignedVaults = vaults
+      .filter(v => !collections.some(c => c.vault_ids.includes(v.id)) && v.id !== vaultId)
+      .sort((a, b) => a.position - b.position);
+    
+    for (let i = 0; i < remainingUnassignedVaults.length; i++) {
+      await invoke('update_vault_position', { vaultId: remainingUnassignedVaults[i].id, newPosition: i });
+    }
+    
+    setVaults(prev => {
+      const filtered = prev.filter((v) => v.id !== vaultId);
+      return filtered.map(v => {
+        const newIndex = remainingUnassignedVaults.findIndex(uv => uv.id === v.id);
+        if (newIndex !== -1) {
+          return { ...v, position: newIndex };
+        }
+        return v;
+      });
+    });
+    
     setCollections(prev => prev.map(c => ({
       ...c,
       vault_ids: c.vault_ids.filter(id => id !== vaultId)
@@ -148,9 +167,10 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   const reorderVaults = async (reorderedVaults: Vault[]) => {
-    setVaults(reorderedVaults);
-    for (let i = 0; i < reorderedVaults.length; i++) {
-      await invoke('update_vault_position', { vaultId: reorderedVaults[i].id, newPosition: i });
+    const updatedVaults = reorderedVaults.map((v, i) => ({ ...v, position: i }));
+    setVaults(updatedVaults);
+    for (let i = 0; i < updatedVaults.length; i++) {
+      await invoke('update_vault_position', { vaultId: updatedVaults[i].id, newPosition: i });
     }
   };
 
@@ -204,13 +224,23 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const deleteNote = async (noteId: string) => {
     await invoke('delete_note', { noteId });
+    
+    const remainingNotes = notes
+      .filter(n => n.id !== noteId)
+      .sort((a, b) => a.position - b.position);
+    
+    for (let i = 0; i < remainingNotes.length; i++) {
+      await invoke('update_note_position', { noteId: remainingNotes[i].id, newPosition: i });
+    }
+    
     setNotes((prev) => prev.filter((n) => n.id !== noteId));
   };
 
   const reorderNotes = async (reorderedNotes: Note[]) => {
-    setNotes(reorderedNotes);
-    for (let i = 0; i < reorderedNotes.length; i++) {
-      await invoke('update_note_position', { noteId: reorderedNotes[i].id, newPosition: i });
+    const updatedNotes = reorderedNotes.map((n, i) => ({ ...n, position: i }));
+    setNotes(updatedNotes);
+    for (let i = 0; i < updatedNotes.length; i++) {
+      await invoke('update_note_position', { noteId: updatedNotes[i].id, newPosition: i });
     }
   };
 
@@ -228,6 +258,19 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     setCollections(prev => prev.map(c => 
       c.id === collectionId ? { ...c, vault_ids: newVaultIds } : c
     ));
+    
+    for (let i = 0; i < newVaultIds.length; i++) {
+      await invoke('update_vault_position', { vaultId: newVaultIds[i], newPosition: i });
+    }
+    
+    setVaults(prev => prev.map(v => {
+      const newIndex = newVaultIds.indexOf(v.id);
+      if (newIndex !== -1) {
+        return { ...v, position: newIndex };
+      }
+      return v;
+    }));
+    
     const collection = collections.find(c => c.id === collectionId);
     if (collection) {
       await invoke('update_collection', {
@@ -246,11 +289,35 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   const updateCollection = async (collection: Collection) => {
+    const oldCollection = collections.find(c => c.id === collection.id);
+    const oldVaultIds = oldCollection?.vault_ids || [];
+    const newVaultIds = collection.vault_ids;
+    
+    const addedVaultIds = newVaultIds.filter(id => !oldVaultIds.includes(id));
+    const removedVaultIds = oldVaultIds.filter(id => !newVaultIds.includes(id));
+    
+    const unassignedVaults = vaults.filter(
+      v => !collections.some(c => c.vault_ids.includes(v.id)) && !addedVaultIds.includes(v.id)
+    );
+    const nextUnassignedPosition = unassignedVaults.length;
+    
+    for (let i = 0; i < removedVaultIds.length; i++) {
+      await invoke('update_vault_position', { 
+        vaultId: removedVaultIds[i], 
+        newPosition: nextUnassignedPosition + i 
+      });
+    }
+    
+    for (let i = 0; i < newVaultIds.length; i++) {
+      await invoke('update_vault_position', { 
+        vaultId: newVaultIds[i], 
+        newPosition: i 
+      });
+    }
+    
     await invoke('update_collection', {
       collection: JSON.stringify(collection),
     });
-    
-    const newVaultIds = collection.vault_ids;
     
     setCollections(prev => prev.map(c => {
       if (c.id === collection.id) {
@@ -265,11 +332,48 @@ export function VaultProvider({ children }: { children: ReactNode }) {
       }
       return c;
     }));
+    
+    setVaults(prev => prev.map(v => {
+      if (addedVaultIds.includes(v.id)) {
+        const newIndex = newVaultIds.indexOf(v.id);
+        return { ...v, position: newIndex };
+      }
+      if (removedVaultIds.includes(v.id)) {
+        const newIndex = nextUnassignedPosition + removedVaultIds.indexOf(v.id);
+        return { ...v, position: newIndex };
+      }
+      return v;
+    }));
   };
 
   const deleteCollection = async (collectionId: string) => {
+    const deletedCollection = collections.find(c => c.id === collectionId);
+    const vaultIdsInDeletedCollection = deletedCollection?.vault_ids || [];
+    
+    for (const vaultId of vaultIdsInDeletedCollection) {
+      await invoke('delete_vault', { vaultId });
+    }
+    
     await invoke('delete_collection', { collectionId });
-    setCollections(prev => prev.filter(c => c.id !== collectionId));
+    
+    const remainingCollections = collections
+      .filter(c => c.id !== collectionId)
+      .sort((a, b) => a.position - b.position);
+    
+    for (let i = 0; i < remainingCollections.length; i++) {
+      const collection = remainingCollections[i];
+      await invoke('update_collection', {
+        collection: JSON.stringify({ ...collection, position: i }),
+      });
+    }
+    
+    setCollections(prev => {
+      const filtered = prev.filter(c => c.id !== collectionId);
+      return filtered.map((c, i) => ({ ...c, position: i }));
+    });
+    
+    setVaults(prev => prev.filter(v => !vaultIdsInDeletedCollection.includes(v.id)));
+    setNotes(prev => prev.filter(n => !vaultIdsInDeletedCollection.includes(n.vault_id)));
   };
 
   return (

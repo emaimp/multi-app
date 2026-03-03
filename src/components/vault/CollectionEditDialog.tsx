@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -30,6 +30,14 @@ export function CollectionEditDialog({ open, collection, onClose, onSave, onDele
   const [name, setName] = useState('');
   const [selectedVaults, setSelectedVaults] = useState<Vault[]>([]);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [collectionNameToDelete, setCollectionNameToDelete] = useState('');
+
+  useEffect(() => {
+    if (!open) {
+      setConfirmDeleteOpen(false);
+      setCollectionNameToDelete('');
+    }
+  }, [open]);
 
   const unassignedVaults = vaults.filter(vault => 
     !collections.some(c => c.vault_ids.includes(vault.id))
@@ -118,7 +126,10 @@ export function CollectionEditDialog({ open, collection, onClose, onSave, onDele
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfirmDeleteOpen(true)} color="error" startIcon={<DeleteIcon />}>
+          <Button onClick={() => {
+            setCollectionNameToDelete(collection?.name || '');
+            setConfirmDeleteOpen(true);
+          }} color="error" startIcon={<DeleteIcon />}>
             Delete
           </Button>
           <Box sx={{ flexGrow: 1 }} />
@@ -132,7 +143,7 @@ export function CollectionEditDialog({ open, collection, onClose, onSave, onDele
       <ConfirmDialog
         open={confirmDeleteOpen}
         title="Delete Collection"
-        message={`Are you sure you want to delete "${collection?.name}"? The vaults in this collection will become unassigned.`}
+        message={`Are you sure you want to delete "${collectionNameToDelete}" and all its vaults? This action cannot be undone.`}
         onConfirm={handleDelete}
         onCancel={() => setConfirmDeleteOpen(false)}
       />

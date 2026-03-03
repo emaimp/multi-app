@@ -5,7 +5,6 @@ import {
   AccordionDetails,
   Typography,
   Box,
-  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -88,16 +87,23 @@ export function CollectionAccordion({
         }}
       >
         {onEditCollection && (
-          <IconButton
-            size="small"
+          <Box
+            component="span"
             onClick={(e) => {
               e.stopPropagation();
               onEditCollection(collection);
             }}
-            sx={{ mr: 1 }}
+            sx={{ 
+              mr: 1, 
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              '&:hover': { bgcolor: 'action.hover', borderRadius: 1 },
+              p: 0.5,
+            }}
           >
             <MoreVertIcon fontSize="small" />
-          </IconButton>
+          </Box>
         )}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
           <Typography variant="subtitle1" fontWeight="medium">
