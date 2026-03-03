@@ -9,11 +9,14 @@ import {
   Box,
   Typography,
   Stack,
+  Autocomplete,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../types/vault';
+import { Collection } from '../../types/collection';
 import { ConfirmDialog } from '../ui/ConfirmDialog';
 import { AvatarPicker } from '../ui/AvatarPicker';
+import { useVaults } from '../../context/VaultContext';
 
 interface VaultEditDialogProps {
   open: boolean;
@@ -24,22 +27,27 @@ interface VaultEditDialogProps {
 }
 
 export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: VaultEditDialogProps) {
+  const { collections, updateCollection } = useVaults();
   const [name, setName] = useState(vault?.name || '');
   const [color, setColor] = useState(vault?.color || 'blue');
   const [image, setImage] = useState<string | null>(vault?.image || null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
 
   useEffect(() => {
     if (vault) {
       setName(vault.name);
       setColor(vault.color);
       setImage(vault.image || null);
+      
+      const currentCollection = collections.find(c => c.vault_ids.includes(vault.id)) || null;
+      setSelectedCollection(currentCollection);
     }
-  }, [vault]);
+  }, [vault, collections]);
 
   if (!vault) return null;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (name.trim()) {
       onSave({
         ...vault,
@@ -48,6 +56,21 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
         },
       image
       );
+
+      const currentCollection = collections.find(c => c.vault_ids.includes(vault.id)) || null;
+      
+      if (selectedCollection !== currentCollection) {
+        if (currentCollection) {
+          const updatedVaultIds = currentCollection.vault_ids.filter(id => id !== vault.id);
+          await updateCollection({ ...currentCollection, vault_ids: updatedVaultIds });
+        }
+        
+        if (selectedCollection) {
+          const updatedVaultIds = [...selectedCollection.vault_ids, vault.id];
+          await updateCollection({ ...selectedCollection, vault_ids: updatedVaultIds });
+        }
+      }
+      
       onClose();
     }
   };
@@ -84,6 +107,26 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+
+            <Autocomplete
+              options={collections}
+              value={selectedCollection}
+              onChange={(_, newValue) => setSelectedCollection(newValue)}
+              getOptionLabel={(option) => option.name}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Collection (optional)"
+                  placeholder="Select a collection"
+                />
+              )}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              clearOnBlur
+            />
+
+            <Typography variant="caption" color="text.secondary">
+              Assign this vault to a collection or leave unassigned.
+            </Typography>
 
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>

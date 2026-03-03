@@ -16,7 +16,6 @@ import {
   VaultList,
   VaultListSkeleton,
   VaultEditDialog,
-  VaultCreateDialog,
   CollectionEditDialog,
 } from '../components/vault';
 import { CreateDialog } from '../components/ui/CreateDialog';
@@ -34,15 +33,16 @@ export function MainView() {
   const [avatarLoading, setAvatarLoading] = useState(false);
   const {
     vaults,
-    collections,
     notes,
+    collections,
+    selectVault,
     selectedVaultId,
     vaultsLoading,
     lockedNoteIds,
+    addVault,
     updateVault,
     deleteVault,
     reorderVaults,
-    selectVault,
     addNote,
     updateNote,
     deleteNote,
@@ -234,12 +234,13 @@ export function MainView() {
               onReorderNotes={reorderNotes}
             />
 
-            <VaultCreateDialog
+            <CreateDialog
               open={createDialogOpen}
               title="Create New Vault"
               label="Vault Name"
               placeholder="Enter vault name"
               onClose={() => setCreateDialogOpen(false)}
+              onCreate={(name) => addVault(name, 'blue')}
             />
 
             <CreateDialog
