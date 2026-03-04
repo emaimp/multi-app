@@ -28,7 +28,7 @@ interface CollectionAccordionProps {
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
   onEditCollection?: (collection: Collection) => void;
-  selectedVaultId: string | null;
+  activeVault: string | null;
   dragAttributes?: any;
   dragListeners?: any;
   onVaultReorder?: (collectionId: string, vault_ids: string[]) => void;
@@ -40,7 +40,7 @@ export function CollectionAccordion({
   onVaultClick,
   onEditVault,
   onEditCollection,
-  selectedVaultId,
+  activeVault,
   dragAttributes,
   dragListeners,
   onVaultReorder,
@@ -132,7 +132,7 @@ export function CollectionAccordion({
                     vault={vault}
                     onVaultClick={onVaultClick}
                     onEditVault={onEditVault}
-                    selectedVaultId={selectedVaultId}
+                    activeVault={activeVault}
                   />
                 );
               })}
@@ -152,10 +152,10 @@ interface SortableVaultItemProps {
   vault: Vault;
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
-  selectedVaultId: string | null;
+  activeVault: string | null;
 }
 
-function SortableVaultItem({ vault, onVaultClick, onEditVault, selectedVaultId }: SortableVaultItemProps) {
+function SortableVaultItem({ vault, onVaultClick, onEditVault, activeVault }: SortableVaultItemProps) {
   const {
     attributes,
     listeners,
@@ -177,7 +177,7 @@ function SortableVaultItem({ vault, onVaultClick, onEditVault, selectedVaultId }
         vault={vault}
         onClick={() => onVaultClick(vault.id)}
         onEdit={onEditVault}
-        isSelected={selectedVaultId === vault.id}
+        isSelected={activeVault === vault.id}
         dragAttributes={attributes as any}
         dragListeners={listeners as any}
       />

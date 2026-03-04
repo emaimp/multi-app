@@ -20,7 +20,7 @@ import { Vault } from '../../types/vault';
 interface VaultViewProps {
   selectedVault: Vault | undefined;
   vaultNotes: Note[];
-  lockedNoteIds?: Set<string>;
+  lockedNotes?: Set<string>;
   username?: string;
   onAddSimpleNote: () => void;
   onAddAccessNote: () => void;
@@ -32,7 +32,7 @@ interface VaultViewProps {
 export function VaultView({
   selectedVault,
   vaultNotes,
-  lockedNoteIds,
+  lockedNotes,
   username,
   onAddSimpleNote,
   onAddAccessNote,
@@ -120,7 +120,7 @@ export function VaultView({
                 <NoteList
                   notes={vaultNotes}
                   vault={selectedVault}
-                  lockedNoteIds={lockedNoteIds}
+                  lockedNotes={lockedNotes}
                   onUpdateNote={onUpdateNote}
                   onDeleteNote={onDeleteNote}
                 />

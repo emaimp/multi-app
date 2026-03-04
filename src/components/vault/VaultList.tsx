@@ -20,7 +20,7 @@ interface VaultListProps {
   onEditVault: (vault: Vault) => void;
   onEditCollection: (collection: Collection) => void;
   onVaultClick: (vaultId: string) => void;
-  selectedVaultId: string | null;
+  activeVault: string | null;
   onCollectionReorder: (collections: Collection[]) => void;
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
   onVaultReorder: (vaults: Vault[]) => void;
@@ -32,7 +32,7 @@ export function VaultList({
   onEditVault, 
   onEditCollection,
   onVaultClick, 
-  selectedVaultId,
+  activeVault,
   onCollectionReorder,
   onVaultReorderInCollection,
   onVaultReorder,
@@ -86,7 +86,7 @@ export function VaultList({
               onVaultClick={onVaultClick}
               onEditVault={onEditVault}
               onEditCollection={onEditCollection}
-              selectedVaultId={selectedVaultId}
+              activeVault={activeVault}
               onVaultReorderInCollection={onVaultReorderInCollection}
             />
           ))}
@@ -108,7 +108,7 @@ export function VaultList({
                   vault={vault}
                   onVaultClick={onVaultClick}
                   onEditVault={onEditVault}
-                  selectedVaultId={selectedVaultId}
+                  activeVault={activeVault}
                 />
               ))}
             </List>
@@ -133,7 +133,7 @@ interface SortableCollectionProps {
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
   onEditCollection: (collection: Collection) => void;
-  selectedVaultId: string | null;
+  activeVault: string | null;
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
 }
 
@@ -143,7 +143,7 @@ function SortableCollection({
   onVaultClick,
   onEditVault,
   onEditCollection,
-  selectedVaultId,
+  activeVault,
   onVaultReorderInCollection,
 }: SortableCollectionProps) {
   const {
@@ -171,7 +171,7 @@ function SortableCollection({
         onVaultClick={onVaultClick}
         onEditVault={onEditVault}
         onEditCollection={onEditCollection}
-        selectedVaultId={selectedVaultId}
+        activeVault={activeVault}
         dragAttributes={attributes}
         dragListeners={listeners}
         onVaultReorder={onVaultReorderInCollection}
@@ -184,10 +184,10 @@ interface SortableVaultItemProps {
   vault: Vault;
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
-  selectedVaultId: string | null;
+  activeVault: string | null;
 }
 
-function SortableVaultItem({ vault, onVaultClick, onEditVault, selectedVaultId }: SortableVaultItemProps) {
+function SortableVaultItem({ vault, onVaultClick, onEditVault, activeVault }: SortableVaultItemProps) {
   const {
     attributes,
     listeners,
@@ -209,7 +209,7 @@ function SortableVaultItem({ vault, onVaultClick, onEditVault, selectedVaultId }
         vault={vault}
         onClick={() => onVaultClick(vault.id)}
         onEdit={onEditVault}
-        isSelected={selectedVaultId === vault.id}
+        isSelected={activeVault === vault.id}
         dragAttributes={attributes as any}
         dragListeners={listeners as any}
       />

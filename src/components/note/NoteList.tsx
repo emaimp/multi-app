@@ -11,7 +11,7 @@ const ACCESS_NOTE_DELIMITER = '::';
 interface NoteListProps {
   notes: Note[];
   vault: Vault | undefined;
-  lockedNoteIds?: Set<string>;
+  lockedNotes?: Set<string>;
   onUpdateNote: (noteId: string, title: string, content: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
@@ -19,12 +19,12 @@ interface NoteListProps {
 interface SortableNoteItemProps {
   note: Note;
   vault: Vault | undefined;
-  lockedNoteIds?: Set<string>;
+  lockedNotes?: Set<string>;
   onUpdateNote: (noteId: string, title: string, content: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 
-function SortableNoteItem({ note, vault, lockedNoteIds, onUpdateNote, onDeleteNote }: SortableNoteItemProps) {
+function SortableNoteItem({ note, vault, lockedNotes, onUpdateNote, onDeleteNote }: SortableNoteItemProps) {
   const isAccessNote = note.content.includes(ACCESS_NOTE_DELIMITER);
 
   const {
@@ -53,7 +53,7 @@ function SortableNoteItem({ note, vault, lockedNoteIds, onUpdateNote, onDeleteNo
       <CardComponent
         note={note}
         vault={vault}
-        isLockedByDefault={lockedNoteIds?.has(note.id) ?? false}
+        isLockedByDefault={lockedNotes?.has(note.id) ?? false}
         onUpdate={onUpdateNote}
         onDelete={onDeleteNote}
         dragAttributes={attributes as any}
@@ -63,7 +63,7 @@ function SortableNoteItem({ note, vault, lockedNoteIds, onUpdateNote, onDeleteNo
   );
 }
 
-export function NoteList({ notes, vault, lockedNoteIds, onUpdateNote, onDeleteNote }: NoteListProps) {
+export function NoteList({ notes, vault, lockedNotes, onUpdateNote, onDeleteNote }: NoteListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {notes.map((note) => (
@@ -71,7 +71,7 @@ export function NoteList({ notes, vault, lockedNoteIds, onUpdateNote, onDeleteNo
           key={note.id}
           note={note}
           vault={vault}
-          lockedNoteIds={lockedNoteIds}
+          lockedNotes={lockedNotes}
           onUpdateNote={onUpdateNote}
           onDeleteNote={onDeleteNote}
         />

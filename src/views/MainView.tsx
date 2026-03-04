@@ -29,29 +29,29 @@ export function MainView() {
   const { user, logout, isLoadingContent, setIsLoadingContent, setUser } = useUser();
   const { invoke } = useBackend();
   const { status: userStatus } = useUserActivity();
-  const { loadVaults } = useVaults();
   const [avatarLoading, setAvatarLoading] = useState(false);
   const {
     vaults,
     notes,
     collections,
+    activeVault,
     selectVault,
-    selectedVaultId,
-    vaultsLoading,
-    lockedNoteIds,
-    addVault,
+    loadingVaults,
+    loadVaults,
+    createVault,
     updateVault,
     deleteVault,
     reorderVaults,
-    addNote,
+    reorderVaultsInCollection,
+    lockedNotes,
+    createNote,
     updateNote,
     deleteNote,
     reorderNotes,
-    reorderCollections,
-    reorderVaultsInCollection,
     createCollection,
     updateCollection,
     deleteCollection,
+    reorderCollections,
   } = useVaults();
 
   useEffect(() => {
@@ -90,34 +90,34 @@ export function MainView() {
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
 
-  const selectedVault = vaults.find((v) => v.id === selectedVaultId);
-  const vaultNotes = selectedVaultId ? notes.filter((n) => n.vault_id === selectedVaultId) : [];
+  const selectedVault = vaults.find((v) => v.id === activeVault);
+  const vaultNotes = activeVault ? notes.filter((n) => n.vault_id === activeVault) : [];
 
   const handleVaultClick = (vaultId: string) => {
     selectVault(vaultId);
   };
 
   const handleAddSimpleNote = () => {
-    if (selectedVaultId) {
+    if (activeVault) {
       setCreateSimpleNoteDialogOpen(true);
     }
   };
 
   const handleAddAccessNote = () => {
-    if (selectedVaultId) {
+    if (activeVault) {
       setCreateAccessNoteDialogOpen(true);
     }
   };
 
   const handleCreateSimpleNote = (title: string) => {
-    if (selectedVaultId) {
-      addNote(selectedVaultId, title, '');
+    if (activeVault) {
+      createNote(activeVault, title, '');
     }
   };
 
   const handleCreateAccessNote = (title: string) => {
-    if (selectedVaultId) {
-      addNote(selectedVaultId, title, '::');
+    if (activeVault) {
+      createNote(activeVault, title, '::');
     }
   };
 
@@ -205,13 +205,13 @@ export function MainView() {
                 </>
               }
             >
-              {vaultsLoading ? (
+              {loadingVaults ? (
                 <VaultListSkeleton />
               ) : (
                 <VaultList
                   vaults={vaults}
                   collections={collections}
-                  selectedVaultId={selectedVaultId}
+                  activeVault={activeVault}
                   onVaultClick={handleVaultClick}
                   onEditVault={(vault) => setEditingVault(vault)}
                   onEditCollection={(collection) => setEditingCollection(collection)}
@@ -225,7 +225,7 @@ export function MainView() {
             <VaultView
               selectedVault={selectedVault}
               vaultNotes={vaultNotes}
-              lockedNoteIds={lockedNoteIds}
+              lockedNotes={lockedNotes}
               username={user?.username}
               onAddSimpleNote={handleAddSimpleNote}
               onAddAccessNote={handleAddAccessNote}
@@ -240,7 +240,7 @@ export function MainView() {
               label="Vault Name"
               placeholder="Enter vault name"
               onClose={() => setCreateDialogOpen(false)}
-              onCreate={(name) => addVault(name, 'blue')}
+              onCreate={(name) => createVault(name, 'blue')}
             />
 
             <CreateDialog
