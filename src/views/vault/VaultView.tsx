@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Box, Typography, Divider, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import DescriptionIcon from '@mui/icons-material/Description';
-import KeyIcon from '@mui/icons-material/Key';
+import { Box, Typography, Divider, Button } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import { NoteTypeSelector } from '../../components/note/NoteTypeSelector';
 import {
   DndContext,
   closestCenter,
@@ -41,6 +41,7 @@ export function VaultView({
   onReorderNotes,
 }: VaultViewProps) {
   const [createType, setCreateType] = useState<string | null>(null);
+  const [noteTypeSelectorOpen, setNoteTypeSelectorOpen] = useState(false);
 
   useEffect(() => {
     if (createType) {
@@ -72,13 +73,18 @@ export function VaultView({
     }
   };
 
-  const handleCreateType = (_: React.MouseEvent<HTMLElement>, newType: string | null) => {
-    if (newType === 'simpleNote') {
-      onAddSimpleNote();
-    } else if (newType === 'accessNote') {
-      onAddAccessNote();
-    }
-    setCreateType(newType);
+  const handleNewNoteClick = () => {
+    setNoteTypeSelectorOpen(true);
+  };
+
+  const handleSelectSimpleNote = () => {
+    setCreateType('simpleNote');
+    onAddSimpleNote();
+  };
+
+  const handleSelectAccessNote = () => {
+    setCreateType('accessNote');
+    onAddAccessNote();
   };
 
   return (
@@ -87,24 +93,13 @@ export function VaultView({
         <>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h4">{selectedVault.name}</Typography>
-            <ToggleButtonGroup
-              value={createType}
-              exclusive
-              onChange={handleCreateType}
-              size="small"
-              sx={{
-                '& .MuiToggleButton-root': {
-                  minWidth: 150,
-                },
-              }}
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleNewNoteClick}
             >
-              <ToggleButton value="simpleNote">
-                <DescriptionIcon sx={{ mr: 1 }} /> Simple Note
-              </ToggleButton>
-              <ToggleButton value="accessNote">
-                <KeyIcon sx={{ mr: 1 }} /> Access Note
-              </ToggleButton>
-            </ToggleButtonGroup>
+              New Note
+            </Button>
           </Box>
 
           <Divider sx={{ my: 3 }} />
@@ -138,6 +133,13 @@ export function VaultView({
           </Typography>
         </>
       )}
+
+      <NoteTypeSelector
+        open={noteTypeSelectorOpen}
+        onClose={() => setNoteTypeSelectorOpen(false)}
+        onSelectSimpleNote={handleSelectSimpleNote}
+        onSelectAccessNote={handleSelectAccessNote}
+      />
     </Box>
   );
 }
