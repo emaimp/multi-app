@@ -97,6 +97,24 @@ pub fn decrypt_from_base64(encrypted_b64: &str, nonce_b64: &str, key: &GenericAr
     decrypt(&encrypted, key, &nonce)
 }
 
+fn encrypt_bytes(content: &[u8], key: &GenericArray<u8, U32>, nonce: &[u8; NONCE_LENGTH]) -> Result<Vec<u8>, CryptoError> {
+    let cipher = Aes256Gcm::new(key);
+    let ciphertext = cipher.encrypt(
+        aes_gcm::Nonce::from_slice(nonce),
+        content
+    ).map_err(|e| CryptoError::EncryptionFailed(e.to_string()))?;
+    Ok(ciphertext)
+}
+
+fn decrypt_bytes(encrypted: &[u8], key: &GenericArray<u8, U32>, nonce: &[u8; NONCE_LENGTH]) -> Result<Vec<u8>, CryptoError> {
+    let cipher = Aes256Gcm::new(key);
+    let plaintext = cipher.decrypt(
+        aes_gcm::Nonce::from_slice(nonce),
+        encrypted
+    ).map_err(|e| CryptoError::DecryptionFailed(e.to_string()))?;
+    Ok(plaintext)
+}
+
 pub fn encrypt_bytes_to_base64(content: &[u8], key: &GenericArray<u8, U32>) -> Result<(String, String), CryptoError> {
     let nonce = generate_nonce();
     let encrypted = encrypt_bytes(content, key, &nonce)?;
@@ -117,22 +135,4 @@ pub fn decrypt_bytes_from_base64(encrypted_b64: &str, nonce_b64: &str, key: &Gen
     nonce.copy_from_slice(&nonce_bytes[..NONCE_LENGTH]);
     
     decrypt_bytes(&encrypted, key, &nonce)
-}
-
-fn encrypt_bytes(content: &[u8], key: &GenericArray<u8, U32>, nonce: &[u8; NONCE_LENGTH]) -> Result<Vec<u8>, CryptoError> {
-    let cipher = Aes256Gcm::new(key);
-    let ciphertext = cipher.encrypt(
-        aes_gcm::Nonce::from_slice(nonce),
-        content
-    ).map_err(|e| CryptoError::EncryptionFailed(e.to_string()))?;
-    Ok(ciphertext)
-}
-
-fn decrypt_bytes(encrypted: &[u8], key: &GenericArray<u8, U32>, nonce: &[u8; NONCE_LENGTH]) -> Result<Vec<u8>, CryptoError> {
-    let cipher = Aes256Gcm::new(key);
-    let plaintext = cipher.decrypt(
-        aes_gcm::Nonce::from_slice(nonce),
-        encrypted
-    ).map_err(|e| CryptoError::DecryptionFailed(e.to_string()))?;
-    Ok(plaintext)
 }
