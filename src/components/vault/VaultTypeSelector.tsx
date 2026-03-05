@@ -1,22 +1,22 @@
 import { Box, Dialog, DialogTitle, Typography } from '@mui/material';
-import EventNoteIcon from '@mui/icons-material/EventNote';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
+import InventoryIcon from '@mui/icons-material/Inventory';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 
-interface NoteTypeSelectorProps {
+interface VaultTypeSelectorProps {
   open: boolean;
   onClose: () => void;
-  onSelectSimpleNote: () => void;
-  onSelectAccessNote: () => void;
+  onSelectVault: () => void;
+  onSelectCollection: () => void;
 }
 
-interface NoteTypeCardProps {
+interface VaultTypeCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
   onClick: () => void;
 }
 
-function NoteTypeCard({ icon, title, description, onClick }: NoteTypeCardProps) {
+function VaultTypeCard({ icon, title, description, onClick }: VaultTypeCardProps) {
   return (
     <Box
       onClick={onClick}
@@ -51,20 +51,20 @@ function NoteTypeCard({ icon, title, description, onClick }: NoteTypeCardProps) 
   );
 }
 
-export function NoteTypeSelector({
+export function VaultTypeSelector({
   open,
   onClose,
-  onSelectSimpleNote,
-  onSelectAccessNote,
-}: NoteTypeSelectorProps) {
-  const handleSimpleNoteClick = () => {
+  onSelectVault,
+  onSelectCollection,
+}: VaultTypeSelectorProps) {
+  const handleVaultClick = () => {
     onClose();
-    onSelectSimpleNote();
+    onSelectVault();
   };
 
-  const handleAccessNoteClick = () => {
+  const handleCollectionClick = () => {
     onClose();
-    onSelectAccessNote();
+    onSelectCollection();
   };
 
   return (
@@ -93,21 +93,21 @@ export function NoteTypeSelector({
           pt: 1,
         }}
       >
-        <NoteTypeCard
-          icon={<EventNoteIcon sx={{ fontSize: 32 }} />}
-          title="Simple Note"
-          description="Free-form text note for general information storage"
-          onClick={handleSimpleNoteClick}
+        <VaultTypeCard
+          icon={<InventoryIcon sx={{ fontSize: 32 }} />}
+          title="Vault"
+          description="Container to organize your notes"
+          onClick={handleVaultClick}
         />
-        <NoteTypeCard
-          icon={<LockOpenIcon sx={{ fontSize: 32 }} />}
-          title="Access Note"
-          description="Store credentials with username and password"
-          onClick={handleAccessNoteClick}
+        <VaultTypeCard
+          icon={<ViewModuleIcon sx={{ fontSize: 32 }} />}
+          title="Collection"
+          description="Group related vaults together"
+          onClick={handleCollectionClick}
         />
       </Box>
     </Dialog>
   );
 }
 
-export default NoteTypeSelector;
+export default VaultTypeSelector;

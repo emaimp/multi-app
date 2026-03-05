@@ -13,11 +13,20 @@ interface CreateDialogProps {
   title: string;
   label: string;
   placeholder?: string;
+  titleIcon?: React.ReactNode;
   onClose: () => void;
   onCreate: (value: string) => void;
 }
 
-export function CreateDialog({ open, title, label, placeholder, onClose, onCreate }: CreateDialogProps) {
+export function CreateDialog({
+  open,
+  title,
+  label,
+  placeholder,
+  titleIcon,
+  onClose,
+  onCreate,
+}: CreateDialogProps) {
   const [value, setValue] = useState('');
 
   const handleSubmit = () => {
@@ -35,7 +44,10 @@ export function CreateDialog({ open, title, label, placeholder, onClose, onCreat
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>{title}</DialogTitle>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {titleIcon}
+        {title}
+      </DialogTitle>
       <DialogContent>
         <TextField
           autoFocus

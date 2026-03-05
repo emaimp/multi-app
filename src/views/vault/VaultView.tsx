@@ -94,7 +94,7 @@ export function VaultView({
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h4">{selectedVault.name}</Typography>
             <Button
-              variant="contained"
+              variant="outlined"
               startIcon={<AddIcon />}
               onClick={handleNewNoteClick}
             >

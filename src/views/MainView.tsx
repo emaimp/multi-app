@@ -3,8 +3,11 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Box, Button, Divider, IconButton } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import AddIcon from '@mui/icons-material/Add';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { SideDrawer } from '../components/ui/SideDrawer';
 import { UserStatus } from '../components/ui/UserStatus';
 import { LoadingDialog } from '../components/ui/LoadingDialog';
@@ -17,6 +20,7 @@ import {
   VaultListSkeleton,
   VaultEditDialog,
   CollectionEditDialog,
+  VaultTypeSelector,
 } from '../components/vault';
 import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
@@ -87,6 +91,7 @@ export function MainView() {
   const [createCollectionDialogOpen, setCreateCollectionDialogOpen] = useState(false);
   const [createSimpleNoteDialogOpen, setCreateSimpleNoteDialogOpen] = useState(false);
   const [createAccessNoteDialogOpen, setCreateAccessNoteDialogOpen] = useState(false);
+  const [vaultTypeSelectorOpen, setVaultTypeSelectorOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
 
@@ -123,6 +128,14 @@ export function MainView() {
 
   const handleSettingsClick = () => {
     navigate('/settings');
+  };
+
+  const handleSelectVault = () => {
+    setCreateDialogOpen(true);
+  };
+
+  const handleSelectCollection = () => {
+    setCreateCollectionDialogOpen(true);
   };
 
   return (
@@ -163,27 +176,12 @@ export function MainView() {
                   <Box sx={{ p: 2 }}>
                     <Button
                       fullWidth
-                      onClick={() => setCreateDialogOpen(true)}
-                      startIcon={<InventoryIcon />}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        textTransform: 'none',
-                        '& .MuiButton-startIcon': { mr: 2, ml: 0.5 },
-                      }}
+                      variant="outlined"
+                      onClick={() => setVaultTypeSelectorOpen(true)}
+                      startIcon={<AddIcon />}
+
                     >
-                      New Vault
-                    </Button>
-                    <Button
-                      fullWidth
-                      onClick={() => setCreateCollectionDialogOpen(true)}
-                      startIcon={<ViewModuleIcon />}
-                      sx={{
-                        justifyContent: 'flex-start',
-                        textTransform: 'none',
-                        '& .MuiButton-startIcon': { mr: 2, ml: 0.5 },
-                      }}
-                    >
-                      New Collection
+                      New
                     </Button>
                   </Box>
                   <Divider />
@@ -236,36 +234,40 @@ export function MainView() {
 
             <CreateDialog
               open={createDialogOpen}
-              title="Create New Vault"
+              title="Create Vault"
               label="Vault Name"
               placeholder="Enter vault name"
+              titleIcon={<InventoryIcon />}
               onClose={() => setCreateDialogOpen(false)}
               onCreate={(name) => createVault(name, 'blue')}
             />
 
             <CreateDialog
               open={createCollectionDialogOpen}
-              title="Create New Collection"
+              title="Create Collection"
               label="Collection Name"
               placeholder="Enter collection name"
+              titleIcon={<ViewModuleIcon />}
               onClose={() => setCreateCollectionDialogOpen(false)}
               onCreate={createCollection}
             />
 
             <CreateDialog
               open={createSimpleNoteDialogOpen}
-              title="Create New Simple Note"
+              title="Create Simple Note"
               label="Simple Note Title"
-              placeholder="Enter a title for your simple note"
+              placeholder="Enter simple note title"
+              titleIcon={<EventNoteIcon />}
               onClose={() => setCreateSimpleNoteDialogOpen(false)}
               onCreate={handleCreateSimpleNote}
             />
 
             <CreateDialog
               open={createAccessNoteDialogOpen}
-              title="Create New Access Note"
+              title="Create Access Note"
               label="Access Note Title"
-              placeholder="Enter a title for your access note"
+              placeholder="Enter access note title"
+              titleIcon={<LockOpenIcon />}
               onClose={() => setCreateAccessNoteDialogOpen(false)}
               onCreate={handleCreateAccessNote}
             />
@@ -284,6 +286,13 @@ export function MainView() {
               onClose={() => setEditingCollection(null)}
               onSave={updateCollection}
               onDelete={deleteCollection}
+            />
+
+            <VaultTypeSelector
+              open={vaultTypeSelectorOpen}
+              onClose={() => setVaultTypeSelectorOpen(false)}
+              onSelectVault={handleSelectVault}
+              onSelectCollection={handleSelectCollection}
             />
           </Box>
         }
