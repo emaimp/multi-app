@@ -124,15 +124,19 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
               clearOnBlur
             />
 
-            <Typography variant="caption" color="text.secondary">
-              Assign this vault to a collection or leave unassigned.
-            </Typography>
-
             <Box>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>
                 Color
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: 2,
+                p: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1,
+              }}>
                 {VAULT_COLORS.map((c) => (
                   <Box
                     key={c}
