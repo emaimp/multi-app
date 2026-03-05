@@ -16,6 +16,7 @@ interface VaultContextType {
   // Active states
   activeVault: string | null;
   selectVault: (vaultId: string) => Promise<void>;
+  clearVaultSelect: () => void;
   
   // Load functions
   loadingVaults: boolean;
@@ -58,6 +59,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     reorderVaults: reorderVaultsHook,
     selectVault: selectVaultHook,
     setVaults,
+    clearVaultSelect,
   } = useVaultsHook();
 
   const {
@@ -251,6 +253,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         collections,
         activeVault,
         selectVault,
+        clearVaultSelect,
         loadingVaults,
         loadVaults,
         createVault,

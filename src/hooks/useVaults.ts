@@ -19,11 +19,12 @@ interface UseVaultsReturn {
   createVault: (name: string, color: string) => Promise<Vault | undefined>;
   updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
-  selectVault: (vaultId: string) => Promise<void>;
   reorderVaults: (vaults: Vault[]) => Promise<void>;
+  selectVault: (vaultId: string) => Promise<void>;
   
   // Internal
   setVaults: React.Dispatch<React.SetStateAction<Vault[]>>;
+  clearVaultSelect: () => void;
 }
 
 export function useVaults(): UseVaultsReturn {
@@ -91,16 +92,20 @@ export function useVaults(): UseVaultsReturn {
     }
   };
 
-  const selectVault = async (vaultId: string) => {
-    setActiveVault(vaultId);
-  };
-
   const reorderVaults = async (reorderedVaults: Vault[]) => {
     const updatedVaults = reorderItems(reorderedVaults);
     setVaults(updatedVaults);
     for (let i = 0; i < updatedVaults.length; i++) {
       await invoke('update_vault_position', { vaultId: updatedVaults[i].id, newPosition: i });
     }
+  };
+
+  const selectVault = async (vaultId: string) => {
+    setActiveVault(vaultId);
+  };
+
+  const clearVaultSelect = () => {
+    setActiveVault(null);
   };
 
   return {
@@ -111,8 +116,9 @@ export function useVaults(): UseVaultsReturn {
     createVault,
     updateVault,
     deleteVault,
-    selectVault,
     reorderVaults,
+    selectVault,
     setVaults,
+    clearVaultSelect,
   };
 }

@@ -5,13 +5,15 @@ interface SideDrawerProps {
   header?: React.ReactNode;
   footer?: React.ReactNode;
   width?: number;
+  onContentClick?: () => void;
 }
 
 export function SideDrawer({
   children,
   header,
   footer,
-  width = 270,
+  width = 250,
+  onContentClick,
 }: SideDrawerProps) {
   return (
     <Drawer
@@ -33,7 +35,16 @@ export function SideDrawer({
     >
       {header}
 
-      <Box sx={{ flex: 1, overflow: 'auto', overflowX: 'hidden', py: 1 }}>{children}</Box>
+      <Box 
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onContentClick?.();
+          }
+        }}
+        sx={{ flex: 1, overflow: 'auto', overflowX: 'hidden', py: 1 }}
+      >
+        {children}
+      </Box>
 
       {footer}
     </Drawer>

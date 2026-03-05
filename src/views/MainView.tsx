@@ -40,6 +40,7 @@ export function MainView() {
     collections,
     activeVault,
     selectVault,
+    clearVaultSelect,
     loadingVaults,
     loadVaults,
     createVault,
@@ -146,6 +147,7 @@ export function MainView() {
         element={
           <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
             <SideDrawer
+              onContentClick={clearVaultSelect}
               header={
                 <>
                   <Box

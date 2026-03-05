@@ -104,7 +104,23 @@ export function VaultView({
 
           <Divider sx={{ my: 3 }} />
 
-          <Box>
+          {vaultNotes.length === 0 ? (
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              minHeight: '50vh',
+            }}>
+              <Typography color="text.secondary" gutterBottom>
+                No notes yet in this vault
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Click "New Note" to create your first note
+              </Typography>
+            </Box>
+          ) : (
+            <Box>
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -120,18 +136,25 @@ export function VaultView({
                   onDeleteNote={onDeleteNote}
                 />
               </SortableContext>
-            </DndContext>
-          </Box>
+              </DndContext>
+            </Box>
+          )}
         </>
       ) : (
-        <>
+        <Box sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '70vh',
+        }}>
           <Typography variant="h4" gutterBottom>
-            Welcome, {username}
+            Welcome! {username} 🙂
           </Typography>
           <Typography color="text.secondary">
-            Select a vault from the list to view details.
+            Select a vault from the list to view details
           </Typography>
-        </>
+        </Box>
       )}
 
       <NoteTypeSelector
