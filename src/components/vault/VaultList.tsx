@@ -185,6 +185,7 @@ interface SortableVaultItemProps {
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
   activeVault: string | null;
+  isDragging?: boolean;
 }
 
 function SortableVaultItem({ vault, onVaultClick, onEditVault, activeVault }: SortableVaultItemProps) {
@@ -210,6 +211,7 @@ function SortableVaultItem({ vault, onVaultClick, onEditVault, activeVault }: So
         onClick={() => onVaultClick(vault.id)}
         onEdit={onEditVault}
         isSelected={activeVault === vault.id}
+        isDragging={isDragging}
         dragAttributes={attributes as any}
         dragListeners={listeners as any}
       />

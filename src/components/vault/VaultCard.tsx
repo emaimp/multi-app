@@ -1,6 +1,5 @@
 import { Box, Avatar, Typography, IconButton } from '@mui/material';
-import EditSquareIcon from '@mui/icons-material/EditSquare';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
 
 interface VaultCardProps {
@@ -8,11 +7,12 @@ interface VaultCardProps {
   onEdit: (vault: Vault) => void;
   onClick?: () => void;
   isSelected?: boolean;
+  isDragging?: boolean;
   dragAttributes?: Record<string, unknown>;
   dragListeners?: Record<string, unknown>;
 }
 
-export function VaultCard({ vault, onEdit, onClick, isSelected, dragAttributes, dragListeners }: VaultCardProps) {
+export function VaultCard({ vault, onEdit, onClick, isSelected, isDragging, dragAttributes, dragListeners }: VaultCardProps) {
   const colorHex = VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary;
 
   return (
@@ -26,11 +26,13 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, dragAttributes, 
         borderLeft: '4px solid',
         borderLeftColor: colorHex,
         bgcolor: isSelected ? 'action.selected' : 'transparent',
-        cursor: 'pointer',
+        cursor: isDragging ? 'grabbing' : 'pointer',
         '&:hover': {
           bgcolor: 'action.hover',
         },
       }}
+      {...dragAttributes}
+      {...dragListeners}
     >
       <Avatar
         sx={{
@@ -65,20 +67,8 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, dragAttributes, 
         }}
         sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
       >
-        <EditSquareIcon fontSize="small" />
+        <MoreVertIcon fontSize="small" />
       </IconButton>
-
-      {dragListeners && (
-        <DragIndicatorIcon
-          sx={{
-            color: 'action.active',
-            cursor: 'grab',
-            ml: 1,
-          }}
-          {...dragAttributes}
-          {...dragListeners}
-        />
-      )}
     </Box>
   );
 }

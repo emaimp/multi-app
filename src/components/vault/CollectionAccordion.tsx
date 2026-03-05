@@ -178,9 +178,12 @@ function SortableVaultItem({ vault, onVaultClick, onEditVault, activeVault }: So
         onClick={() => onVaultClick(vault.id)}
         onEdit={onEditVault}
         isSelected={activeVault === vault.id}
+        isDragging={isDragging}
         dragAttributes={attributes as any}
         dragListeners={listeners as any}
       />
     </Box>
   );
 }
+
+export default CollectionAccordion;
