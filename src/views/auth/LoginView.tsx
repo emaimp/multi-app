@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Divider from '@mui/material/Divider';
@@ -27,6 +28,7 @@ function LoginView() {
   const [masterKeyError, setMasterKeyError] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showMasterKey, setShowMasterKey] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,9 +61,12 @@ function LoginView() {
     }
     
     try {
+      setIsLoading(true);
       await login(username, password, rememberMe, masterKey);
     } catch (err) {
       setError(err as string);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -148,8 +153,13 @@ function LoginView() {
             }
             label="Remember me"
           />
-          <Button type="submit" fullWidth variant="contained">
-            Sign In
+          <Button
+            type="submit"
+            fullWidth variant="contained"
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+          >
+            {isLoading ? 'Signing In...' : 'Sign In'}
           </Button>
           <Link
             component="button"

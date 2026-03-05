@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
@@ -22,6 +23,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showMasterKey, setShowMasterKey] = useState(false);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   // Validation states
   const [usernameError, setUsernameError] = useState(false);
@@ -101,9 +103,12 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     }
     
     try {
+      setIsLoading(true);
       await onRegister(username, password, masterKey);
     } catch (err) {
       setError(err as string);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -196,8 +201,14 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
           />
           
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
-            Register
+          <Button
+            type="submit"
+            fullWidth variant="contained"
+            sx={{ mt: 2 }}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+          >
+            {isLoading ? 'Registering...' : 'Register'}
           </Button>
         </Box>
         

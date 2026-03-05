@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
@@ -24,6 +25,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   
   // Validation states
   const [usernameError, setUsernameError] = useState(false);
@@ -103,12 +105,15 @@ function RecoverView({ onBack }: RecoverViewProps) {
     }
     
     try {
+      setIsLoading(true);
       await recoverPassword(username, masterKey, newPassword);
-      setSuccess('Password recovered successfully. You can now log in.');
+      setSuccess('Password recovered. You can now log in.');
       setError('');
     } catch (err) {
       setError(err as string);
       setSuccess('');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -201,8 +206,14 @@ function RecoverView({ onBack }: RecoverViewProps) {
             onToggleVisibility={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
           />
           
-          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3 }}>
-            Recover Password
+          <Button
+            type="submit"
+            fullWidth variant="contained"
+            sx={{ mt: 2 }}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+          >
+            {isLoading ? 'Recovering...' : 'Recover Password'}
           </Button>
         </Box>
         

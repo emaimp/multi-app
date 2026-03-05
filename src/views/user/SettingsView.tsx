@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Stack } from '@mui/material';
-import CheckIcon from '@mui/icons-material/Check';
+import { Box, Typography, Button, Stack, CircularProgress } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
@@ -38,7 +37,8 @@ export function SettingsView() {
     general?: string;
   }>({});
 
-  const [saved, setSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -68,6 +68,7 @@ export function SettingsView() {
       return;
     }
 
+    setIsLoading(true);
     try {
       if (avatarPreview !== user?.avatar) {
         await updateUser({ avatar: avatarPreview || null });
@@ -85,8 +86,7 @@ export function SettingsView() {
       setConfirmPassword('');
       setMasterKey('');
 
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setSuccessMessage('Settings saved successfully.');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       
@@ -95,6 +95,8 @@ export function SettingsView() {
       } else {
         setErrors({ general: 'Failed to save settings.' });
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -200,17 +202,17 @@ export function SettingsView() {
             variant="contained"
             fullWidth
             onClick={handleSave}
-            color={saved ? 'success' : 'primary'}
-            endIcon={saved ? <CheckIcon /> : null}
-            sx={{
-              transition: 'all 0.3s ease',
-              ...(saved && {
-                animation: 'pulse 0.3s ease-in-out',
-              }),
-            }}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
           >
-            {saved ? 'Saved' : 'Save Changes'}
+            {isLoading ? 'Saving...' : 'Save Changes'}
           </Button>
+          
+          {successMessage && (
+            <Typography color="success" sx={{ textAlign: 'center', mt: 2 }}>
+              {successMessage}
+            </Typography>
+          )}
         </Box>
       </CenteredCard>
 
