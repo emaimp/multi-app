@@ -6,4 +6,3 @@ export { default as PasswordInput } from './PasswordInput';
 export { default as SideDrawer } from './SideDrawer';
 export { default as TextInput } from './TextInput';
 export { default as TopBar } from './TopBar';
-export { default as UserStatus } from './UserStatus';

@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Button, Divider, IconButton } from '@mui/material';
-import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
+import { Box, Button, Divider } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { SideDrawer } from '../components/ui/SideDrawer';
-import { UserStatus } from '../components/ui/UserStatus';
+import { UserHeader } from '../components/ui/UserHeader';
 import { LoadingDialog } from '../components/ui/LoadingDialog';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
-import { useUserActivity } from '../hooks/useUserActivity';
 import { useBackend } from '../hooks/useBackend';
 import {
   VaultList,
@@ -32,7 +29,6 @@ export function MainView() {
   const navigate = useNavigate();
   const { user, logout, isLoadingContent, setIsLoadingContent, setUser } = useUser();
   const { invoke } = useBackend();
-  const { status: userStatus } = useUserActivity();
   const [avatarLoading, setAvatarLoading] = useState(false);
   const {
     vaults,
@@ -159,20 +155,13 @@ export function MainView() {
                       bgcolor: 'action.hover',
                     }}
                   >
-                    <UserStatus
-                      username={user?.username}
+                    <UserHeader
                       avatar={user?.avatar}
                       avatarLoading={avatarLoading}
-                      status={userStatus}
+                      onSettingsClick={handleSettingsClick}
+                      onHelpClick={() => {}}
+                      onLogoutClick={logout}
                     />
-                    <IconButton
-                      onClick={logout}
-                      color="error"
-                      size="small"
-                      sx={{ borderRadius: 1 }}
-                    >
-                      <LogoutIcon />
-                    </IconButton>
                   </Box>
                   <Divider />
                   <Box sx={{ p: 2 }}>
@@ -187,21 +176,6 @@ export function MainView() {
                     </Button>
                   </Box>
                   <Divider />
-                </>
-              }
-              footer={
-                <>
-                  <Divider />
-                  <Box sx={{ p: 2 }}>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      onClick={handleSettingsClick}
-                      startIcon={<SettingsIcon />}
-                    >
-                      Settings
-                    </Button>
-                  </Box>
                 </>
               }
             >
