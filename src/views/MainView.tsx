@@ -200,7 +200,7 @@ export function MainView() {
               selectedVault={selectedVault}
               vaultNotes={vaultNotes}
               lockedNotes={lockedNotes}
-              username={user?.username}
+              isLoading={isLoadingContent}
               onAddSimpleNote={handleAddSimpleNote}
               onAddAccessNote={handleAddAccessNote}
               onUpdateNote={updateNote}

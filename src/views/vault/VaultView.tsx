@@ -21,7 +21,7 @@ interface VaultViewProps {
   selectedVault: Vault | undefined;
   vaultNotes: Note[];
   lockedNotes?: Set<string>;
-  username?: string;
+  isLoading?: boolean;
   onAddSimpleNote: () => void;
   onAddAccessNote: () => void;
   onUpdateNote: (noteId: string, title: string, content: string) => void;
@@ -33,7 +33,7 @@ export function VaultView({
   selectedVault,
   vaultNotes,
   lockedNotes,
-  username,
+  isLoading,
   onAddSimpleNote,
   onAddAccessNote,
   onUpdateNote,
@@ -110,7 +110,7 @@ export function VaultView({
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              minHeight: '50vh',
+              minHeight: '70vh',
             }}>
               <Typography color="text.secondary" gutterBottom>
                 No notes yet in this vault
@@ -140,19 +140,21 @@ export function VaultView({
             </Box>
           )}
         </>
+      ) : isLoading ? (
+        null
       ) : (
         <Box sx={{
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
-          minHeight: '70vh',
+          minHeight: '90vh',
         }}>
           <Typography variant="h4" gutterBottom>
-            Welcome! {username} 🙂
+            Welcome! 🙂
           </Typography>
           <Typography color="text.secondary">
-            Select a vault from the list to view details
+            Select a vault to view its details or create one using the "New" button
           </Typography>
         </Box>
       )}
