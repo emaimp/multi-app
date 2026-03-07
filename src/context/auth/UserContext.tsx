@@ -11,7 +11,7 @@ interface UserContextType {
   register: (username: string, password: string, masterKey: string) => Promise<void>;
   recoverPassword: (username: string, masterKey: string, newPassword: string) => Promise<void>;
   changePassword: (masterKey: string, newPassword: string) => Promise<void>;
-  deleteAccount: () => Promise<void>;
+  deleteAccount: (masterKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
   setIsLoadingContent: (loading: boolean) => void;
@@ -96,9 +96,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const deleteAccount = async () => {
+  const deleteAccount = async (masterKey: string) => {
     if (user) {
-      await invoke('delete_user', { userId: user.id });
+      await invoke('delete_user', { userId: user.id, masterKey });
       logout();
     }
   };

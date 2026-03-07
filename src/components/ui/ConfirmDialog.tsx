@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -5,27 +6,100 @@ import {
   DialogActions,
   Button,
   Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
 } from '@mui/material';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
   message: string;
-  onConfirm: () => void;
+  onConfirm: (masterKey?: string) => void;
   onCancel: () => void;
+  showMasterKey?: boolean;
+  label?: string;
+  placeholder?: string;
+  error?: string;
 }
 
-export function ConfirmDialog({ open, title, message, onConfirm, onCancel }: ConfirmDialogProps) {
+export function ConfirmDialog({
+  open,
+  title,
+  message,
+  onConfirm,
+  onCancel,
+  showMasterKey = false,
+  label = 'Master Key',
+  placeholder,
+  error,
+}: ConfirmDialogProps) {
+  const [value, setValue] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [localError, setLocalError] = useState('');
+
+  const displayError = localError || error || '';
+
+  const handleSubmit = () => {
+    if (showMasterKey && !value.trim()) {
+      setLocalError('Master key is required');
+      return;
+    }
+    onConfirm(value);
+  };
+
+  const handleClose = () => {
+    setValue('');
+    setLocalError('');
+    setShowPassword(false);
+    onCancel();
+  };
+
   return (
-    <Dialog open={open} onClose={onCancel} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>
-        <Typography>{message}</Typography>
+        <Typography sx={{ mb: 3 }}>{message}</Typography>
+        {showMasterKey && (
+          <TextField
+            autoFocus
+            margin="dense"
+            label={label}
+            placeholder={placeholder}
+            fullWidth
+            variant="outlined"
+            type={showPassword ? 'text' : 'password'}
+            value={value}
+            onChange={(e) => {
+              setValue(e.target.value);
+              setLocalError('');
+            }}
+            error={!!displayError}
+            helperText={displayError}
+            slotProps={{
+              input: {
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+        )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel}>Cancel</Button>
-        <Button onClick={onConfirm} color="error" variant="contained">
-          Delete
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleSubmit} color="error" variant="contained">
+          Confirm
         </Button>
       </DialogActions>
     </Dialog>

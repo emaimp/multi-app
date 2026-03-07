@@ -4,6 +4,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import TextInput from './TextInput';
+import { SxProps, Theme } from '@mui/material';
 
 interface PasswordInputProps {
   id: string;
@@ -13,12 +14,14 @@ interface PasswordInputProps {
   autoComplete?: string;
   required?: boolean;
   value: string;
-  onChange: (value: string) => void;
   error?: boolean;
   helperText?: string;
-  icon: ReactNode;
+  onChange: (value: string) => void;
+  icon?: ReactNode;
   showPassword: boolean;
   onToggleVisibility: () => void;
+  sx?: SxProps<Theme>;
+  fullWidth?: boolean;
 }
 
 function PasswordInput({
@@ -29,12 +32,14 @@ function PasswordInput({
   autoComplete,
   required = true,
   value,
-  onChange,
   error = false,
   helperText = '',
+  onChange,
   icon,
   showPassword,
   onToggleVisibility,
+  sx,
+  fullWidth = true,
 }: PasswordInputProps) {
   return (
     <TextInput
@@ -46,9 +51,9 @@ function PasswordInput({
       autoComplete={autoComplete}
       required={required}
       value={value}
-      onChange={onChange}
       error={error}
       helperText={helperText}
+      onChange={onChange}
       icon={icon}
       endAdornment={
         <InputAdornment position="end">
@@ -61,6 +66,8 @@ function PasswordInput({
           </IconButton>
         </InputAdornment>
       }
+      sx={sx}
+      fullWidth={fullWidth}
     />
   );
 }

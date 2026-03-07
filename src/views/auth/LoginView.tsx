@@ -127,12 +127,12 @@ function LoginView() {
             showPassword={showPassword}
             onToggleVisibility={() => setShowPassword(!showPassword)}
           />
-
+          
           <PasswordInput
             id="masterKey"
             name="masterKey"
             label="Master Key"
-            placeholder="Enter your master key"
+            placeholder="Enter master key"
             value={masterKey}
             onChange={setMasterKey}
             error={masterKeyError}

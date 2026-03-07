@@ -95,7 +95,7 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
               <AvatarPicker
                 value={image}
                 onChange={setImage}
-                size={80}
+                size={100}
                 label={name.charAt(0).toUpperCase()}
               />
             </Box>

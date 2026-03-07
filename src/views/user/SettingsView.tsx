@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Stack, CircularProgress } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Box, Typography, Button, Stack, CircularProgress, FormControlLabel, Checkbox } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
-import KeyIcon from '@mui/icons-material/Key';
 import { useUser } from '../../context/AuthContext';
 import { TopBar } from '../../components/ui/TopBar';
 import { AvatarPicker } from '../../components/ui/AvatarPicker';
@@ -20,20 +18,21 @@ export function SettingsView() {
   const [username, setUsername] = useState(user?.username || '');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [masterKey, setMasterKey] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
+  const [deleteAccountChecked, setDeleteAccountChecked] = useState(false);
 
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showMasterKey, setShowMasterKey] = useState(false);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [deleteDialogError, setDeleteDialogError] = useState('');
+  const [passwordDialogError, setPasswordDialogError] = useState('');
 
   const [errors, setErrors] = useState<{
     username?: string;
     newPassword?: string;
     confirmPassword?: string;
-    masterKey?: string;
     general?: string;
   }>({});
 
@@ -47,15 +46,12 @@ export function SettingsView() {
       newErrors.username = 'Username must be at least 3 characters.';
     }
 
-    if (masterKey || newPassword || confirmPassword) {
-      if (newPassword && newPassword.length < 6) {
+    if (newPassword) {
+      if (newPassword.length < 6) {
         newErrors.newPassword = 'Password must be at least 6 characters.';
       }
       if (newPassword !== confirmPassword) {
         newErrors.confirmPassword = 'Passwords do not match.';
-      }
-      if (!masterKey) {
-        newErrors.masterKey = 'Master key is required.';
       }
     }
 
@@ -68,6 +64,20 @@ export function SettingsView() {
       return;
     }
 
+    if (deleteAccountChecked) {
+      setDeleteDialogOpen(true);
+      return;
+    }
+
+    if (newPassword) {
+      setPasswordDialogOpen(true);
+      return;
+    }
+
+    await saveSettings();
+  };
+
+  const saveSettings = async (masterKey?: string) => {
     setIsLoading(true);
     try {
       if (avatarPreview !== user?.avatar) {
@@ -84,14 +94,18 @@ export function SettingsView() {
 
       setNewPassword('');
       setConfirmPassword('');
-      setMasterKey('');
+      setDeleteAccountChecked(false);
+      setPasswordDialogOpen(false);
 
       setSuccessMessage('Settings saved successfully.');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      
-      if (errorMessage.includes('Invalid master key')) {
-        setErrors({ masterKey: 'Invalid master key' });
+      if (masterKey) {
+        if (errorMessage.includes('Invalid master key')) {
+          setPasswordDialogError('Invalid master key');
+        } else {
+          setPasswordDialogError('Failed to save settings.');
+        }
       } else {
         setErrors({ general: 'Failed to save settings.' });
       }
@@ -104,29 +118,28 @@ export function SettingsView() {
     navigate(-1);
   };
 
-  const handleDeleteAccount = async () => {
-    await deleteAccount();
-    navigate('/');
+  const confirmDeleteAccount = async (masterKey: string) => {
+    try {
+      await deleteAccount(masterKey);
+      setDeleteDialogOpen(false);
+      navigate('/');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage.includes('Invalid master key')) {
+        setDeleteDialogError('Invalid master key');
+      } else {
+        setDeleteDialogError('Failed to delete account.');
+      }
+    }
   };
 
-  const deleteAccountButton = (
-    <Button
-      color="error"
-      size="small"
-      startIcon={<DeleteIcon />}
-      onClick={() => setDeleteDialogOpen(true)}
-    >
-      Delete Account
-    </Button>
-  );
+  const confirmPasswordChange = (masterKey: string) => {
+    saveSettings(masterKey);
+  };
 
   return (
     <>
-      <TopBar
-        onBack={handleBack}
-        transparent={true}
-        actions={[deleteAccountButton]}
-      />
+      <TopBar onBack={handleBack} transparent={true} />
       <CenteredCard>
         <Box sx={{ textAlign: 'center', mb: 1 }}>
           <AvatarPicker
@@ -177,17 +190,19 @@ export function SettingsView() {
             onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
           />
 
-          <PasswordInput
-            id="masterKey"
-            name="masterKey"
-            label="Master Key"
-            value={masterKey}
-            onChange={setMasterKey}
-            error={!!errors.masterKey}
-            helperText={errors.masterKey || ''}
-            icon={<KeyIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showMasterKey}
-            onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={deleteAccountChecked}
+                onChange={(e) => setDeleteAccountChecked(e.target.checked)}
+                color={deleteAccountChecked ? 'error' : 'primary'}
+              />
+            }
+            label={
+              <Box sx={{ display: 'flex', alignItems: 'center', color: deleteAccountChecked ? 'error.main' : 'text.secondary' }}>
+                Delete account
+              </Box>
+            }
           />
 
           {errors.general && (
@@ -197,7 +212,7 @@ export function SettingsView() {
           )}
         </Stack>
 
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 1 }}>
           <Button
             variant="contained"
             fullWidth
@@ -217,11 +232,27 @@ export function SettingsView() {
       </CenteredCard>
 
       <ConfirmDialog
+        open={passwordDialogOpen}
+        title="Password Change"
+        message="Please enter your master key to confirm the password change."
+        onConfirm={(masterKey) => masterKey && confirmPasswordChange(masterKey)}
+        onCancel={() => { setPasswordDialogOpen(false); setPasswordDialogError(''); }}
+        showMasterKey={true}
+        label="Master Key"
+        placeholder="Enter master key"
+        error={passwordDialogError}
+      />
+
+      <ConfirmDialog
         open={deleteDialogOpen}
         title="Delete Account"
-        message="Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently lost."
-        onConfirm={handleDeleteAccount}
-        onCancel={() => setDeleteDialogOpen(false)}
+        message="This action cannot be undone and all your data will be permanently lost. Enter your master key to confirm the delete account."
+        onConfirm={(masterKey) => masterKey && confirmDeleteAccount(masterKey)}
+        onCancel={() => { setDeleteDialogOpen(false); setDeleteDialogError(''); }}
+        showMasterKey={true}
+        label="Master Key"
+        placeholder="Enter master key"
+        error={deleteDialogError}
       />
     </>
   );

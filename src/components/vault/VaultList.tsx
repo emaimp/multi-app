@@ -119,7 +119,7 @@ export function VaultList({
       {vaults.length === 0 && collections.length === 0 && (
         <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
           <Typography variant="body2">
-            No vaults yet. Click "New Vault" to create one.
+            There are no vaults yet.
           </Typography>
         </Box>
       )}
