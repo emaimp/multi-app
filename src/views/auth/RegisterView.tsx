@@ -2,11 +2,16 @@ import { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import PersonIcon from '@mui/icons-material/Person';
-import LockIcon from '@mui/icons-material/Lock';
 import KeyIcon from '@mui/icons-material/Key';
-import { CenteredCard, TextInput, PasswordInput, TopBar } from '../../components/ui';
+import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { CenteredCard, TopBar } from '../../components/ui';
 
 interface RegisterViewProps {
   onRegister: (username: string, password: string, masterKey: string) => Promise<void>;
@@ -18,13 +23,11 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [masterKey, setMasterKey] = useState('');
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showMasterKey, setShowMasterKey] = useState(false);
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Validation states
+
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
   const [passwordError, setPasswordError] = useState(false);
@@ -34,17 +37,18 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [masterKeyError, setMasterKeyError] = useState(false);
   const [masterKeyErrorMessage, setMasterKeyErrorMessage] = useState('');
 
-  // Real-time validation functions
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const validateUsername = (value: string) => {
     if (!value || value.length < 3) {
       setUsernameError(true);
       setUsernameErrorMessage('Username must be at least 3 characters.');
       return false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorMessage('');
-      return true;
     }
+    setUsernameError(false);
+    setUsernameErrorMessage('');
+    return true;
   };
 
   const validatePassword = (value: string) => {
@@ -52,11 +56,10 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
       setPasswordError(true);
       setPasswordErrorMessage('Password must be at least 6 characters.');
       return false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-      return true;
     }
+    setPasswordError(false);
+    setPasswordErrorMessage('');
+    return true;
   };
 
   const validateConfirmPassword = (value: string) => {
@@ -64,11 +67,10 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
       setConfirmPasswordError(true);
       setConfirmPasswordErrorMessage('Passwords do not match.');
       return false;
-    } else {
-      setConfirmPasswordError(false);
-      setConfirmPasswordErrorMessage('');
-      return true;
     }
+    setConfirmPasswordError(false);
+    setConfirmPasswordErrorMessage('');
+    return true;
   };
 
   const validateMasterKey = (value: string) => {
@@ -76,31 +78,29 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
       setMasterKeyError(true);
       setMasterKeyErrorMessage('Master key is required.');
       return false;
-    } else {
-      setMasterKeyError(false);
-      setMasterKeyErrorMessage('');
-      return true;
     }
+    setMasterKeyError(false);
+    setMasterKeyErrorMessage('');
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate all fields before submission
+
     const isUsernameValid = validateUsername(username);
     const isPasswordValid = validatePassword(password);
     const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
     const isMasterKeyValid = validateMasterKey(masterKey);
-    
+
     if (!isUsernameValid || !isPasswordValid || !isConfirmPasswordValid || !isMasterKeyValid) {
       return;
     }
-    
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     try {
       setIsLoading(true);
       await onRegister(username, password, masterKey);
@@ -113,96 +113,162 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
 
   return (
     <>
-      <TopBar onBack={onBack} transparent={true} />
+      <TopBar onBack={onBack} transparent />
+
       <CenteredCard>
         <Typography
           component="h1"
           variant="h4"
-          sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
+          sx={{
+            width: '100%',
+            fontSize: 'clamp(2rem, 10vw, 2.15rem)',
+            textAlign: 'center',
+            mb: 2,
+          }}
         >
           Sign Up
         </Typography>
+
         <Box
           component="form"
           onSubmit={handleSubmit}
           sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
         >
-          <TextInput
+          <TextField
             id="username"
             name="username"
-            label="Username"
             type="text"
-            placeholder="Enter your username"
+            label="Username"
+            placeholder="Enter username"
             autoComplete="off"
+            fullWidth
+            variant="outlined"
             value={username}
-            onChange={(value) => {
-              setUsername(value);
-              validateUsername(value);
-            }}
             error={usernameError}
             helperText={usernameErrorMessage}
-            icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              validateUsername(e.target.value);
+            }}
+            slotProps={{
+              input: {
+                startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
-          <PasswordInput
+
+          <TextField
             id="password"
             name="password"
+            type={showPassword ? 'text' : 'password'}
             label="Password"
             placeholder="••••••"
             autoComplete="off"
+            fullWidth
+            variant="outlined"
             value={password}
-            onChange={(value) => {
-              setPassword(value);
-              validatePassword(value);
+            error={passwordError}
+            helperText={passwordErrorMessage}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              validatePassword(e.target.value);
               if (confirmPassword) {
                 validateConfirmPassword(confirmPassword);
               }
             }}
-            error={passwordError}
-            helperText={passwordErrorMessage}
-            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showPassword}
-            onToggleVisibility={() => setShowPassword(!showPassword)}
+            slotProps={{
+              input: {
+                startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
-          <PasswordInput
+
+          <TextField
             id="confirmPassword"
             name="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
             label="Confirm Password"
             placeholder="••••••"
             autoComplete="off"
+            fullWidth
+            variant="outlined"
             value={confirmPassword}
-            onChange={(value) => {
-              setConfirmPassword(value);
-              validateConfirmPassword(value);
-            }}
             error={confirmPasswordError}
             helperText={confirmPasswordErrorMessage}
-            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showConfirmPassword}
-            onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              validateConfirmPassword(e.target.value);
+            }}
+            slotProps={{
+              input: {
+                startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
-          <PasswordInput
+
+          <TextField
             id="masterKey"
             name="masterKey"
+            type={showMasterKey ? 'text' : 'password'}
             label="Master Key"
             placeholder="Enter master key"
+            fullWidth
+            variant="outlined"
             value={masterKey}
-            onChange={(value) => {
-              setMasterKey(value);
-              validateMasterKey(value);
-            }}
             error={masterKeyError}
             helperText={masterKeyErrorMessage || 'Required for password recovery and changes.'}
-            icon={<KeyIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showMasterKey}
-            onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
+            onChange={(e) => {
+              setMasterKey(e.target.value);
+              validateMasterKey(e.target.value);
+            }}
+            slotProps={{
+              input: {
+                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle master key visibility"
+                      onClick={() => setShowMasterKey(!showMasterKey)}
+                      edge="end"
+                    >
+                      {showMasterKey ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
+
           <Button
             type="submit"
-            fullWidth variant="contained"
+            fullWidth
+            variant="contained"
             sx={{ mt: 2 }}
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
@@ -210,9 +276,9 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             {isLoading ? 'Registering...' : 'Register'}
           </Button>
         </Box>
-        
+
         {error && (
-          <Typography color="error" sx={{ textAlign: 'center' }}>
+          <Typography color="error" sx={{ textAlign: 'center', mt: 2 }}>
             {error}
           </Typography>
         )}

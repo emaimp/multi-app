@@ -3,11 +3,16 @@ import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import PersonIcon from '@mui/icons-material/Person';
-import LockIcon from '@mui/icons-material/Lock';
 import KeyIcon from '@mui/icons-material/Key';
-import { CenteredCard, TextInput, PasswordInput, TopBar } from '../../components/ui';
+import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import { CenteredCard, TopBar } from '../../components/ui';
 
 interface RecoverViewProps {
   onBack: () => void;
@@ -15,18 +20,16 @@ interface RecoverViewProps {
 
 function RecoverView({ onBack }: RecoverViewProps) {
   const { recoverPassword } = useUser();
+
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+
   const [showMasterKey, setShowMasterKey] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  
-  // Validation states
+
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
   const [masterKeyError, setMasterKeyError] = useState(false);
@@ -36,17 +39,19 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const [confirmPasswordError, setConfirmPasswordError] = useState(false);
   const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
 
-  // Real-time validation functions
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const validateUsername = (value: string) => {
     if (!value || value.length < 3) {
       setUsernameError(true);
       setUsernameErrorMessage('Username must be at least 3 characters.');
       return false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorMessage('');
-      return true;
     }
+    setUsernameError(false);
+    setUsernameErrorMessage('');
+    return true;
   };
 
   const validateMasterKey = (value: string) => {
@@ -54,11 +59,10 @@ function RecoverView({ onBack }: RecoverViewProps) {
       setMasterKeyError(true);
       setMasterKeyErrorMessage('Master key is required.');
       return false;
-    } else {
-      setMasterKeyError(false);
-      setMasterKeyErrorMessage('');
-      return true;
     }
+    setMasterKeyError(false);
+    setMasterKeyErrorMessage('');
+    return true;
   };
 
   const validateNewPassword = (value: string) => {
@@ -66,11 +70,10 @@ function RecoverView({ onBack }: RecoverViewProps) {
       setNewPasswordError(true);
       setNewPasswordErrorMessage('Password must be at least 6 characters.');
       return false;
-    } else {
-      setNewPasswordError(false);
-      setNewPasswordErrorMessage('');
-      return true;
     }
+    setNewPasswordError(false);
+    setNewPasswordErrorMessage('');
+    return true;
   };
 
   const validateConfirmPassword = (value: string) => {
@@ -78,31 +81,29 @@ function RecoverView({ onBack }: RecoverViewProps) {
       setConfirmPasswordError(true);
       setConfirmPasswordErrorMessage('Passwords do not match.');
       return false;
-    } else {
-      setConfirmPasswordError(false);
-      setConfirmPasswordErrorMessage('');
-      return true;
     }
+    setConfirmPasswordError(false);
+    setConfirmPasswordErrorMessage('');
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validate all fields before submission
+
     const isUsernameValid = validateUsername(username);
     const isMasterKeyValid = validateMasterKey(masterKey);
     const isNewPasswordValid = validateNewPassword(newPassword);
     const isConfirmPasswordValid = validateConfirmPassword(confirmNewPassword);
-    
+
     if (!isUsernameValid || !isMasterKeyValid || !isNewPasswordValid || !isConfirmPasswordValid) {
       return;
     }
-    
+
     if (newPassword !== confirmNewPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     try {
       setIsLoading(true);
       await recoverPassword(username, masterKey, newPassword);
@@ -118,96 +119,162 @@ function RecoverView({ onBack }: RecoverViewProps) {
 
   return (
     <>
-      <TopBar onBack={onBack} transparent={true} />
+      <TopBar onBack={onBack} transparent />
+
       <CenteredCard>
         <Typography
           component="h1"
           variant="h4"
-          sx={{ width: '100%', fontSize: 'clamp(2rem, 10vw, 2.15rem)', textAlign: 'center' }}
+          sx={{
+            width: '100%',
+            fontSize: 'clamp(2rem, 10vw, 2.15rem)',
+            textAlign: 'center',
+            mb: 2,
+          }}
         >
           Recover Password
         </Typography>
+
         <Box
           component="form"
           onSubmit={handleSubmit}
           sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
         >
-          <TextInput
+          <TextField
             id="username"
             name="username"
-            label="Username"
             type="text"
-            placeholder="Enter your username"
+            label="Username"
+            placeholder="Enter username"
             autoComplete="off"
+            fullWidth
+            variant="outlined"
             value={username}
-            onChange={(value) => {
-              setUsername(value);
-              validateUsername(value);
-            }}
             error={usernameError}
             helperText={usernameErrorMessage}
-            icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              validateUsername(e.target.value);
+            }}
+            slotProps={{
+              input: {
+                startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
-          <PasswordInput
+
+          <TextField
             id="masterKey"
             name="masterKey"
+            type={showMasterKey ? 'text' : 'password'}
             label="Master Key"
-            placeholder="Enter your master key"
+            placeholder="Enter master key"
+            fullWidth
+            variant="outlined"
             value={masterKey}
-            onChange={(value) => {
-              setMasterKey(value);
-              validateMasterKey(value);
-            }}
             error={masterKeyError}
             helperText={masterKeyErrorMessage || 'Required for password recovery.'}
-            icon={<KeyIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showMasterKey}
-            onToggleVisibility={() => setShowMasterKey(!showMasterKey)}
+            onChange={(e) => {
+              setMasterKey(e.target.value);
+              validateMasterKey(e.target.value);
+            }}
+            slotProps={{
+              input: {
+                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle master key visibility"
+                      onClick={() => setShowMasterKey(!showMasterKey)}
+                      edge="end"
+                    >
+                      {showMasterKey ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
-          <PasswordInput
+
+          <TextField
             id="newPassword"
             name="newPassword"
+            type={showNewPassword ? 'text' : 'password'}
             label="New Password"
             placeholder="••••••"
             autoComplete="off"
+            fullWidth
+            variant="outlined"
             value={newPassword}
-            onChange={(value) => {
-              setNewPassword(value);
-              validateNewPassword(value);
+            error={newPasswordError}
+            helperText={newPasswordErrorMessage}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              validateNewPassword(e.target.value);
               if (confirmNewPassword) {
                 validateConfirmPassword(confirmNewPassword);
               }
             }}
-            error={newPasswordError}
-            helperText={newPasswordErrorMessage}
-            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showNewPassword}
-            onToggleVisibility={() => setShowNewPassword(!showNewPassword)}
+            slotProps={{
+              input: {
+                startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle new password visibility"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      edge="end"
+                    >
+                      {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
-          <PasswordInput
+
+          <TextField
             id="confirmNewPassword"
             name="confirmNewPassword"
+            type={showConfirmNewPassword ? 'text' : 'password'}
             label="Confirm New Password"
             placeholder="••••••"
             autoComplete="off"
+            fullWidth
+            variant="outlined"
             value={confirmNewPassword}
-            onChange={(value) => {
-              setConfirmNewPassword(value);
-              validateConfirmPassword(value);
-            }}
             error={confirmPasswordError}
             helperText={confirmPasswordErrorMessage}
-            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showConfirmNewPassword}
-            onToggleVisibility={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+            onChange={(e) => {
+              setConfirmNewPassword(e.target.value);
+              validateConfirmPassword(e.target.value);
+            }}
+            slotProps={{
+              input: {
+                startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm new password visibility"
+                      onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                      edge="end"
+                    >
+                      {showConfirmNewPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
-          
+
           <Button
             type="submit"
-            fullWidth variant="contained"
+            fullWidth
+            variant="contained"
             sx={{ mt: 2 }}
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
@@ -215,15 +282,15 @@ function RecoverView({ onBack }: RecoverViewProps) {
             {isLoading ? 'Recovering...' : 'Recover Password'}
           </Button>
         </Box>
-        
+
         {error && (
-          <Typography color="error" sx={{ textAlign: 'center' }}>
+          <Typography color="error" sx={{ textAlign: 'center', mt: 2 }}>
             {error}
           </Typography>
         )}
-        
+
         {success && (
-          <Typography color="success" sx={{ textAlign: 'center' }}>
+          <Typography color="success.main" sx={{ textAlign: 'center', mt: 2 }}>
             {success}
           </Typography>
         )}
