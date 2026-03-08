@@ -6,8 +6,7 @@ import Typography from '@mui/material/Typography';
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import KeyIcon from '@mui/icons-material/Key';
-import { CenteredCard, TextInput, PasswordInput } from '../../components/ui';
-import { TopBar } from '../../components/ui/TopBar';
+import { CenteredCard, TextInput, PasswordInput, TopBar } from '../../components/ui';
 
 interface RegisterViewProps {
   onRegister: (username: string, password: string, masterKey: string) => Promise<void>;

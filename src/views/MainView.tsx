@@ -6,9 +6,7 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { SideDrawer } from '../components/ui/SideDrawer';
-import { UserHeader } from '../components/ui/UserHeader';
-import { LoadingDialog } from '../components/ui/LoadingDialog';
+import { SideDrawer, UserHeader, LoadingDialog, CreateDialog } from '../components/ui';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useBackend } from '../hooks/useBackend';
@@ -19,7 +17,6 @@ import {
   CollectionEditDialog,
   VaultTypeSelector,
 } from '../components/vault';
-import { CreateDialog } from '../components/ui/CreateDialog';
 import { Vault } from '../types/vault';
 import { Collection } from '../types/collection';
 import { VaultView } from './vault/VaultView';

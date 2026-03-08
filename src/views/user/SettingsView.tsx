@@ -4,12 +4,7 @@ import { Box, Typography, Button, Stack, CircularProgress, FormControlLabel, Che
 import PersonIcon from '@mui/icons-material/Person';
 import LockIcon from '@mui/icons-material/Lock';
 import { useUser } from '../../context/AuthContext';
-import { TopBar } from '../../components/ui/TopBar';
-import { AvatarPicker } from '../../components/ui/AvatarPicker';
-import CenteredCard from '../../components/ui/CenteredCard';
-import TextInput from '../../components/ui/TextInput';
-import PasswordInput from '../../components/ui/PasswordInput';
-import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { TopBar, AvatarPicker, CenteredCard, TextInput, PasswordInput, ConfirmDialog } from '../../components/ui';
 
 export function SettingsView() {
   const navigate = useNavigate();

@@ -11,7 +11,7 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Note } from '../../types/note';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
-import { ConfirmDialog } from '../ui/ConfirmDialog';
+import { ConfirmDialog } from '../ui';
 
 interface SimpleNoteCardProps {
   note: Note;
