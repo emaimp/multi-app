@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Box, Typography, Divider, Button } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { NoteTypeSelector } from '../../components/note/NoteTypeSelector';
+import { NoteTypeSelector, NoteList } from '../../components/note';
 import {
   DndContext,
   closestCenter,
@@ -13,7 +13,6 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { NoteList } from '../../components/note/NoteList';
 import { Note } from '../../types/note';
 import { Vault } from '../../types/vault';
 
