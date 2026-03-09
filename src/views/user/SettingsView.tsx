@@ -1,10 +1,20 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Stack, CircularProgress, FormControlLabel, Checkbox } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useUser } from '../../context/AuthContext';
-import { TopBar, AvatarPicker, CenteredCard, TextInput, PasswordInput, ConfirmDialog } from '../../components/ui';
+import { AvatarPicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/ui';
 
 export function SettingsView() {
   const navigate = useNavigate();
@@ -134,55 +144,110 @@ export function SettingsView() {
 
   return (
     <>
-      <TopBar onBack={handleBack} transparent={true} />
+      <TopBar onBack={handleBack} transparent />
+
       <CenteredCard>
-        <Box sx={{ textAlign: 'center', mb: 1 }}>
+        <Box
+          sx={{
+            textAlign: 'center',
+            mb: 1
+          }}
+        >
           <AvatarPicker
             value={avatarPreview}
             onChange={setAvatarPreview}
             size={100}
-            showUserIcon={true}
+            showUserIcon
           />
         </Box>
 
-        <Stack spacing={2}>
-          <TextInput
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}
+        >
+          <TextField
             id="username"
             name="username"
-            label="Username"
             type="text"
+            label="Username"
             placeholder="Enter username"
+            fullWidth
+            variant="outlined"
             value={username}
-            onChange={setUsername}
             error={!!errors.username}
             helperText={errors.username || ''}
-            icon={<PersonIcon sx={{ color: 'action.active', mr: 1 }} />}
+            onChange={(e) => setUsername(e.target.value)}
+            slotProps={{
+              input: {
+                startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
+              },
+            }}
+            sx={{ mt: 1 }}
           />
 
-          <PasswordInput
+          <TextField
             id="newPassword"
             name="newPassword"
+            type={showNewPassword ? 'text' : 'password'}
             label="New Password"
+            placeholder="••••••"
+            fullWidth
+            variant="outlined"
             value={newPassword}
-            onChange={setNewPassword}
             error={!!errors.newPassword}
             helperText={errors.newPassword || ''}
-            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showNewPassword}
-            onToggleVisibility={() => setShowNewPassword(!showNewPassword)}
+            onChange={(e) => setNewPassword(e.target.value)}
+            slotProps={{
+              input: {
+                startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle new password visibility"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      edge="end"
+                    >
+                      {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
 
-          <PasswordInput
+          <TextField
             id="confirmPassword"
             name="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
             label="Confirm Password"
+            placeholder="••••••"
+            fullWidth
+            variant="outlined"
             value={confirmPassword}
-            onChange={setConfirmPassword}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword || ''}
-            icon={<LockIcon sx={{ color: 'action.active', mr: 1 }} />}
-            showPassword={showConfirmPassword}
-            onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            slotProps={{
+              input: {
+                startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
           />
 
           <FormControlLabel
@@ -194,7 +259,13 @@ export function SettingsView() {
               />
             }
             label={
-              <Box sx={{ display: 'flex', alignItems: 'center', color: deleteAccountChecked ? 'error.main' : 'text.secondary' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  color: deleteAccountChecked ? 'error.main' : 'text.secondary'
+                }}
+              >
                 Delete account
               </Box>
             }
@@ -205,9 +276,9 @@ export function SettingsView() {
               {errors.general}
             </Typography>
           )}
-        </Stack>
+        </Box>
 
-        <Box sx={{ mt: 1 }}>
+        <Box >
           <Button
             variant="contained"
             fullWidth
@@ -217,9 +288,9 @@ export function SettingsView() {
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
           </Button>
-          
+
           {successMessage && (
-            <Typography color="success" sx={{ textAlign: 'center', mt: 2 }}>
+            <Typography color="success.main" sx={{ textAlign: 'center', mt: 2 }}>
               {successMessage}
             </Typography>
           )}
@@ -231,8 +302,11 @@ export function SettingsView() {
         title="Password Change"
         message="Please enter your master key to confirm the password change."
         onConfirm={(masterKey) => masterKey && confirmPasswordChange(masterKey)}
-        onCancel={() => { setPasswordDialogOpen(false); setPasswordDialogError(''); }}
-        showMasterKey={true}
+        onCancel={() => {
+          setPasswordDialogOpen(false);
+          setPasswordDialogError('');
+        }}
+        showMasterKey
         label="Master Key"
         placeholder="Enter master key"
         error={passwordDialogError}
@@ -243,8 +317,11 @@ export function SettingsView() {
         title="Delete Account"
         message="This action cannot be undone and all your data will be permanently lost. Enter your master key to confirm the delete account."
         onConfirm={(masterKey) => masterKey && confirmDeleteAccount(masterKey)}
-        onCancel={() => { setDeleteDialogOpen(false); setDeleteDialogError(''); }}
-        showMasterKey={true}
+        onCancel={() => {
+          setDeleteDialogOpen(false);
+          setDeleteDialogError('');
+        }}
+        showMasterKey
         label="Master Key"
         placeholder="Enter master key"
         error={deleteDialogError}
