@@ -45,8 +45,8 @@ function CenteredCard({ children }: CenteredCardProps) {
           alignItems: 'center',
           justifyContent: 'center',
           overflow: 'hidden',
-          pt: 8,
-          pb: 8,
+          pt: 7,
+          pb: 5,
         }}
       >
         <Card variant="outlined">{children}</Card>
