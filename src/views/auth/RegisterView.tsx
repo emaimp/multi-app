@@ -105,7 +105,15 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
       setIsLoading(true);
       await onRegister(username, password, masterKey);
     } catch (err) {
-      setError(err as string);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+
+      if (errorMessage.includes('User already exists')) {
+        setError('Username already taken. Please choose another.');
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
+        setError('Network error. Please check your connection.');
+      } else {
+        setError('Registration failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -115,7 +123,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     <>
       <TopBar onBack={onBack} transparent />
 
-      <CenteredCard>
+      <CenteredCard error={error} onErrorClose={() => setError('')}>
         <Typography
           component="h1"
           variant="h4"
@@ -148,7 +156,11 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             helperText={usernameErrorMessage}
             onChange={(e) => {
               setUsername(e.target.value);
-              validateUsername(e.target.value);
+              if (usernameError) {
+                validateUsername(e.target.value);
+                if (usernameError) setUsernameError(false);
+              }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -172,10 +184,13 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             helperText={passwordErrorMessage}
             onChange={(e) => {
               setPassword(e.target.value);
-              validatePassword(e.target.value);
-              if (confirmPassword) {
+              if (!passwordError) {
+                validatePassword(e.target.value);
+              }
+              if (confirmPassword && !confirmPasswordError) {
                 validateConfirmPassword(confirmPassword);
               }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -210,7 +225,10 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             helperText={confirmPasswordErrorMessage}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
-              validateConfirmPassword(e.target.value);
+              if (!confirmPasswordError) {
+                validateConfirmPassword(e.target.value);
+              }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -244,7 +262,10 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             helperText={masterKeyErrorMessage || 'Required for password recovery and changes.'}
             onChange={(e) => {
               setMasterKey(e.target.value);
-              validateMasterKey(e.target.value);
+              if (!masterKeyError) {
+                validateMasterKey(e.target.value);
+              }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -276,12 +297,6 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             {isLoading ? 'Registering...' : 'Register'}
           </Button>
         </Box>
-
-        {error && (
-          <Typography color="error" sx={{ textAlign: 'center', mt: 2 }}>
-            {error}
-          </Typography>
-        )}
       </CenteredCard>
     </>
   );

@@ -72,7 +72,19 @@ function LoginView() {
       setIsLoading(true);
       await login(username, password, rememberMe, masterKey);
     } catch (err) {
-      setError(err as string);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+
+      if (errorMessage.includes('User not found')) {
+        setError('User not found. Please check your username.');
+      } else if (errorMessage.includes('Invalid password')) {
+        setError('Invalid password. Please try again.');
+      } else if (errorMessage.includes('Invalid master key')) {
+        setError('Invalid master key. Please try again.');
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
+        setError('Network error. Please check your connection.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +99,8 @@ function LoginView() {
   }
 
   return (
-    <CenteredCard>
+    <>
+      <CenteredCard error={error} onErrorClose={() => setError('')}>
       <Typography
         component="h1"
         variant="h4"
@@ -125,7 +138,11 @@ function LoginView() {
           value={username}
           error={usernameError}
           helperText={usernameError ? 'Username must be at least 3 characters.' : ''}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            if (usernameError) setUsernameError(false);
+            if (error) setError('');
+          }}
           slotProps={{
             input: {
               startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
@@ -146,7 +163,11 @@ function LoginView() {
           value={password}
           error={passwordError}
           helperText={passwordError ? 'Password must be at least 6 characters.' : ''}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (passwordError) setPasswordError(false);
+            if (error) setError('');
+          }}
           slotProps={{
             input: {
               startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
@@ -177,7 +198,11 @@ function LoginView() {
           value={masterKey}
           error={masterKeyError}
           helperText={masterKeyError ? 'Master key is required.' : ''}
-          onChange={(e) => setMasterKey(e.target.value)}
+          onChange={(e) => {
+            setMasterKey(e.target.value);
+            if (masterKeyError) setMasterKeyError(false);
+            if (error) setError('');
+          }}
           slotProps={{
             input: {
               startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
@@ -244,13 +269,8 @@ function LoginView() {
           </Link>
         </Typography>
       </Box>
-
-      {error && (
-        <Typography color="error" sx={{ textAlign: 'center', mt: 1 }}>
-          {error}
-        </Typography>
-      )}
     </CenteredCard>
+    </>
   );
 }
 

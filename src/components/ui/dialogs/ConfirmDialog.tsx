@@ -5,8 +5,9 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  Typography,
+  CircularProgress,
   TextField,
+  Typography,
   InputAdornment,
   IconButton,
 } from '@mui/material';
@@ -23,6 +24,7 @@ interface ConfirmDialogProps {
   label?: string;
   placeholder?: string;
   error?: string;
+  isLoading?: boolean;
 }
 
 export function ConfirmDialog({
@@ -35,6 +37,7 @@ export function ConfirmDialog({
   label = 'Master Key',
   placeholder,
   error,
+  isLoading = false,
 }: ConfirmDialogProps) {
   const [value, setValue] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -97,8 +100,14 @@ export function ConfirmDialog({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleSubmit} color="error" variant="contained">
+        <Button onClick={handleClose} disabled={isLoading}>Cancel</Button>
+        <Button
+          onClick={handleSubmit}
+          color="error"
+          variant="contained"
+          disabled={isLoading}
+          startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+        >
           Confirm
         </Button>
       </DialogActions>

@@ -33,6 +33,7 @@ export function SettingsView() {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [deleteDialogError, setDeleteDialogError] = useState('');
   const [passwordDialogError, setPasswordDialogError] = useState('');
+  const [dialogLoading, setDialogLoading] = useState(false);
 
   const [errors, setErrors] = useState<{
     username?: string;
@@ -84,6 +85,7 @@ export function SettingsView() {
 
   const saveSettings = async (masterKey?: string) => {
     setIsLoading(true);
+    setDialogLoading(true);
     try {
       if (avatarPreview !== user?.avatar) {
         await updateUser({ avatar: avatarPreview || null });
@@ -116,6 +118,7 @@ export function SettingsView() {
       }
     } finally {
       setIsLoading(false);
+      setDialogLoading(false);
     }
   };
 
@@ -124,6 +127,7 @@ export function SettingsView() {
   };
 
   const confirmDeleteAccount = async (masterKey: string) => {
+    setDialogLoading(true);
     try {
       await deleteAccount(masterKey);
       setDeleteDialogOpen(false);
@@ -135,6 +139,8 @@ export function SettingsView() {
       } else {
         setDeleteDialogError('Failed to delete account.');
       }
+    } finally {
+      setDialogLoading(false);
     }
   };
 
@@ -146,7 +152,7 @@ export function SettingsView() {
     <>
       <TopBar onBack={handleBack} transparent />
 
-      <CenteredCard>
+      <CenteredCard success={successMessage} onSuccessClose={() => setSuccessMessage('')}>
         <Box
           sx={{
             textAlign: 'center',
@@ -278,7 +284,7 @@ export function SettingsView() {
           )}
         </Box>
 
-        <Box >
+        <Box sx={{ mt: 1 }}>
           <Button
             variant="contained"
             fullWidth
@@ -288,12 +294,6 @@ export function SettingsView() {
           >
             {isLoading ? 'Saving...' : 'Save Changes'}
           </Button>
-
-          {successMessage && (
-            <Typography color="success.main" sx={{ textAlign: 'center', mt: 2 }}>
-              {successMessage}
-            </Typography>
-          )}
         </Box>
       </CenteredCard>
 
@@ -310,6 +310,7 @@ export function SettingsView() {
         label="Master Key"
         placeholder="Enter master key"
         error={passwordDialogError}
+        isLoading={dialogLoading}
       />
 
       <ConfirmDialog
@@ -325,6 +326,7 @@ export function SettingsView() {
         label="Master Key"
         placeholder="Enter master key"
         error={deleteDialogError}
+        isLoading={dialogLoading}
       />
     </>
   );

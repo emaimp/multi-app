@@ -110,7 +110,17 @@ function RecoverView({ onBack }: RecoverViewProps) {
       setSuccess('Password recovered. You can now log in.');
       setError('');
     } catch (err) {
-      setError(err as string);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+
+      if (errorMessage.includes('User not found')) {
+        setError('User not found. Please check your username.');
+      } else if (errorMessage.includes('Invalid master key')) {
+        setError('Invalid master key. Please try again.');
+      } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
+        setError('Network error. Please check your connection.');
+      } else {
+        setError('Password recovery failed. Please try again.');
+      }
       setSuccess('');
     } finally {
       setIsLoading(false);
@@ -121,7 +131,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
     <>
       <TopBar onBack={onBack} transparent />
 
-      <CenteredCard>
+      <CenteredCard error={error} onErrorClose={() => setError('')}>
         <Typography
           component="h1"
           variant="h4"
@@ -154,7 +164,10 @@ function RecoverView({ onBack }: RecoverViewProps) {
             helperText={usernameErrorMessage}
             onChange={(e) => {
               setUsername(e.target.value);
-              validateUsername(e.target.value);
+              if (!usernameError) {
+                validateUsername(e.target.value);
+              }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -177,7 +190,10 @@ function RecoverView({ onBack }: RecoverViewProps) {
             helperText={masterKeyErrorMessage || 'Required for password recovery.'}
             onChange={(e) => {
               setMasterKey(e.target.value);
-              validateMasterKey(e.target.value);
+              if (!masterKeyError) {
+                validateMasterKey(e.target.value);
+              }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -212,10 +228,13 @@ function RecoverView({ onBack }: RecoverViewProps) {
             helperText={newPasswordErrorMessage}
             onChange={(e) => {
               setNewPassword(e.target.value);
-              validateNewPassword(e.target.value);
-              if (confirmNewPassword) {
+              if (!newPasswordError) {
+                validateNewPassword(e.target.value);
+              }
+              if (confirmNewPassword && !confirmPasswordError) {
                 validateConfirmPassword(confirmNewPassword);
               }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -250,7 +269,10 @@ function RecoverView({ onBack }: RecoverViewProps) {
             helperText={confirmPasswordErrorMessage}
             onChange={(e) => {
               setConfirmNewPassword(e.target.value);
-              validateConfirmPassword(e.target.value);
+              if (!confirmPasswordError) {
+                validateConfirmPassword(e.target.value);
+              }
+              if (error) setError('');
             }}
             slotProps={{
               input: {
@@ -282,12 +304,6 @@ function RecoverView({ onBack }: RecoverViewProps) {
             {isLoading ? 'Recovering...' : 'Recover Password'}
           </Button>
         </Box>
-
-        {error && (
-          <Typography color="error" sx={{ textAlign: 'center', mt: 2 }}>
-            {error}
-          </Typography>
-        )}
 
         {success && (
           <Typography color="success.main" sx={{ textAlign: 'center', mt: 2 }}>
