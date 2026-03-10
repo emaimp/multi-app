@@ -8,7 +8,6 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
@@ -44,11 +43,12 @@ export function SettingsView() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
 
-    if (username && username.length < 3) {
+    if (username.length < 3) {
       newErrors.username = 'Username must be at least 3 characters.';
     }
 
@@ -114,7 +114,7 @@ export function SettingsView() {
           setPasswordDialogError('Failed to save settings.');
         }
       } else {
-        setErrors({ general: 'Failed to save settings.' });
+        setErrorMessage('Failed to save settings.');
       }
     } finally {
       setIsLoading(false);
@@ -152,7 +152,12 @@ export function SettingsView() {
     <>
       <TopBar onBack={handleBack} transparent />
 
-      <CenteredCard success={successMessage} onSuccessClose={() => setSuccessMessage('')}>
+      <CenteredCard 
+        success={successMessage} 
+        onSuccessClose={() => setSuccessMessage('')}
+        error={errorMessage}
+        onErrorClose={() => setErrorMessage('')}
+      >
         <Box
           sx={{
             textAlign: 'center',
@@ -185,7 +190,10 @@ export function SettingsView() {
             value={username}
             error={!!errors.username}
             helperText={errors.username || ''}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => {
+              setUsername(e.target.value);
+              if (errors.username) setErrors(prev => ({ ...prev, username: undefined }));
+            }}
             slotProps={{
               input: {
                 startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
@@ -205,7 +213,11 @@ export function SettingsView() {
             value={newPassword}
             error={!!errors.newPassword}
             helperText={errors.newPassword || ''}
-            onChange={(e) => setNewPassword(e.target.value)}
+            onChange={(e) => {
+              setNewPassword(e.target.value);
+              if (errors.newPassword) setErrors(prev => ({ ...prev, newPassword: undefined }));
+              if (errorMessage) setErrorMessage('');
+            }}
             slotProps={{
               input: {
                 startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
@@ -236,7 +248,11 @@ export function SettingsView() {
             value={confirmPassword}
             error={!!errors.confirmPassword}
             helperText={errors.confirmPassword || ''}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (errors.confirmPassword) setErrors(prev => ({ ...prev, confirmPassword: undefined }));
+              if (errorMessage) setErrorMessage('');
+            }}
             slotProps={{
               input: {
                 startAdornment: <LockIcon sx={{ color: 'action.active', mr: 1 }} />,
@@ -260,7 +276,10 @@ export function SettingsView() {
             control={
               <Checkbox
                 checked={deleteAccountChecked}
-                onChange={(e) => setDeleteAccountChecked(e.target.checked)}
+                onChange={(e) => {
+                  setDeleteAccountChecked(e.target.checked);
+                  if (errorMessage) setErrorMessage('');
+                }}
                 color={deleteAccountChecked ? 'error' : 'primary'}
               />
             }
@@ -277,14 +296,6 @@ export function SettingsView() {
             }
           />
 
-          {errors.general && (
-            <Typography color="error" sx={{ textAlign: 'center' }}>
-              {errors.general}
-            </Typography>
-          )}
-        </Box>
-
-        <Box sx={{ mt: 1 }}>
           <Button
             variant="contained"
             fullWidth
