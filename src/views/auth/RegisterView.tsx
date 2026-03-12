@@ -5,7 +5,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import KeyIcon from '@mui/icons-material/Key';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
@@ -40,10 +42,44 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const getPasswordStrength = (pwd: string): { label: string; color: 'error' | 'warning' | 'success' } => {
+    const hasLower = /[a-z]/.test(pwd);
+    const hasUpper = /[A-Z]/.test(pwd);
+    const hasNumber = /[0-9]/.test(pwd);
+    const hasSymbol = /[^a-zA-Z0-9]/.test(pwd);
+
+    const score = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+
+    if (pwd.length < 6) return { label: 'It must have at least 6 characters.', color: 'error' };
+    if (score <= 1) return { label: 'Low security - Add more specific characters.', color: 'error' };
+    if (score <= 2) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
+    if (score <= 3) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
+    return { label: 'High security - Strong password.', color: 'success' };
+  };
+
+  const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
+
+  const getMasterKeyStrength = (value: string): { label: string; color: 'error' | 'warning' | 'success' } => {
+    const hasLower = /[a-z]/.test(value);
+    const hasUpper = /[A-Z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const hasSymbol = /[^a-zA-Z0-9]/.test(value);
+
+    const score = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+
+    if (value.length < 6) return { label: 'It must have at least 6 characters.', color: 'error' };
+    if (score <= 1) return { label: 'Low security - Add more specific characters.', color: 'error' };
+    if (score <= 2) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
+    if (score <= 3) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
+    return { label: 'High security - Strong master key.', color: 'success' };
+  };
+
+  const [masterKeyStrength, setMasterKeyStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
+
   const validateUsername = (value: string) => {
     if (!value || value.length < 3) {
       setUsernameError(true);
-      setUsernameErrorMessage('Username must be at least 3 characters.');
+      setUsernameErrorMessage('It must have at least 3 characters.');
       return false;
     }
     setUsernameError(false);
@@ -54,7 +90,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const validatePassword = (value: string) => {
     if (!value || value.length < 6) {
       setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters.');
+      setPasswordErrorMessage('It must have at least 6 characters.');
       return false;
     }
     setPasswordError(false);
@@ -74,9 +110,9 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   };
 
   const validateMasterKey = (value: string) => {
-    if (!value || value.length < 1) {
+    if (!value || value.length < 6) {
       setMasterKeyError(true);
-      setMasterKeyErrorMessage('Master key is required.');
+      setMasterKeyErrorMessage('It must have at least 6 characters.');
       return false;
     }
     setMasterKeyError(false);
@@ -153,12 +189,26 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             variant="outlined"
             value={username}
             error={usernameError}
-            helperText={usernameErrorMessage}
+            helperText={
+              usernameErrorMessage ? (
+                usernameErrorMessage
+              ) : username.length > 0 && username.length < 3 ? (
+                <span
+                  style={{
+                    color: '#d32f2f'
+                  }}
+                >
+                  It must have at least 3 characters.
+                </span>
+              ) : (
+                ''
+              )
+            }
             onChange={(e) => {
               setUsername(e.target.value);
-              if (usernameError) {
-                validateUsername(e.target.value);
-                if (usernameError) setUsernameError(false);
+              if (e.target.value.length >= 3) {
+                setUsernameError(false);
+                setUsernameErrorMessage('');
               }
               if (error) setError('');
             }}
@@ -181,12 +231,51 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             variant="outlined"
             value={password}
             error={passwordError}
-            helperText={passwordErrorMessage}
+            helperText={
+              passwordErrorMessage ? (
+                <span>
+                  {passwordErrorMessage}
+                </span>
+              ) : password.length === 0 ? (
+                <span>
+                  Key to access. It can be modified.
+                </span>
+              ) : password.length < 6 ? (
+                <span style={{ color: '#d32f2f' }}>
+                  {passwordStrength.label}
+                </span>
+              ) : (
+                <span style={{ color: passwordStrength.color === 'error' ? '#d32f2f' : passwordStrength.color === 'warning' ? '#ed6c02' : '#2e7d32' }}>
+                  {passwordStrength.label}
+                  <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
+                    <InfoOutlined
+                      sx={{
+                        fontSize: 14,
+                        ml: 1,
+                        verticalAlign: 'middle',
+                        cursor: 'help',
+                        color: 'action.active'
+                      }}
+                    />
+                  </Tooltip>
+                </span>
+              )
+            }
             onChange={(e) => {
               setPassword(e.target.value);
-              if (!passwordError) {
-                validatePassword(e.target.value);
+              
+              if (e.target.value.length === 0) {
+                setPasswordStrength({ label: '', color: 'error' });
+                setPasswordError(false);
+                setPasswordErrorMessage('');
+              } else {
+                setPasswordStrength(getPasswordStrength(e.target.value));
+                if (e.target.value.length >= 6) {
+                  setPasswordError(false);
+                  setPasswordErrorMessage('');
+                }
               }
+              
               if (confirmPassword && !confirmPasswordError) {
                 validateConfirmPassword(confirmPassword);
               }
@@ -259,12 +348,51 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             variant="outlined"
             value={masterKey}
             error={masterKeyError}
-            helperText={masterKeyErrorMessage || 'Required for password recovery and changes.'}
+            helperText={
+              masterKeyError ? (
+                <span>
+                  {masterKeyErrorMessage}
+                </span>
+              ) : masterKey.length === 0 ? (
+                <span>
+                  Key to confirm access. Cannot be modified.
+                </span>
+              ) : masterKey.length < 6 ? (
+                <span style={{ color: '#d32f2f' }}>
+                  {masterKeyStrength.label}
+                </span>
+              ) : (
+                <span style={{ color: masterKeyStrength.color === 'error' ? '#d32f2f' : masterKeyStrength.color === 'warning' ? '#ed6c02' : '#2e7d32' }}>
+                  {masterKeyStrength.label}
+                  <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
+                    <InfoOutlined
+                      sx={{
+                        fontSize: 14,
+                        ml: 1,
+                        verticalAlign: 'middle',
+                        cursor: 'help',
+                        color: 'action.active'
+                      }}
+                    />
+                  </Tooltip>
+                </span>
+              )
+            }
             onChange={(e) => {
               setMasterKey(e.target.value);
-              if (!masterKeyError) {
-                validateMasterKey(e.target.value);
+              
+              if (e.target.value.length === 0) {
+                setMasterKeyStrength({ label: '', color: 'error' });
+                setMasterKeyError(false);
+                setMasterKeyErrorMessage('');
+              } else {
+                setMasterKeyStrength(getMasterKeyStrength(e.target.value));
+                if (e.target.value.length >= 6) {
+                  setMasterKeyError(false);
+                  setMasterKeyErrorMessage('');
+                }
               }
+              
               if (error) setError('');
             }}
             slotProps={{

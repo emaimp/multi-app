@@ -20,7 +20,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   boxSizing: 'border-box',
   backgroundColor: theme.palette.background.paper,
   [theme.breakpoints.up('sm')]: {
-    maxWidth: '400px',
+    maxWidth: '410px',
   },
   boxShadow: SHADOW_LIGHT,
   ...theme.applyStyles('dark', {
