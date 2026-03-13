@@ -57,6 +57,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     return { label: `High security - Strong ${label}.`, color: 'success' };
   };
 
+  const getColor = (color: string) => `${color}.main`;
+
   const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
 
   const [masterKeyStrength, setMasterKeyStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
@@ -178,13 +180,14 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
               usernameErrorMessage ? (
                 usernameErrorMessage
               ) : username.length > 0 && username.length < 3 ? (
-                <span
-                  style={{
-                    color: '#d32f2f'
+                <Box
+                  component="span"
+                  sx={{
+                    color: 'error.main'
                   }}
                 >
                   It must have at least 3 characters.
-                </span>
+                </Box>
               ) : (
                 ''
               )
@@ -226,11 +229,21 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                   Key to access. It can be modified.
                 </span>
               ) : password.length < 6 ? (
-                <span style={{ color: '#d32f2f' }}>
+                <Box
+                  component="span"
+                  sx={{
+                    color: 'error.main'
+                  }}
+                >
                   {passwordStrength.label}
-                </span>
+                </Box>
               ) : (
-                <span style={{ color: passwordStrength.color === 'error' ? '#d32f2f' : passwordStrength.color === 'warning' ? '#ed6c02' : '#2e7d32' }}>
+                <Box
+                  component="span"
+                  sx={{
+                    color: getColor(passwordStrength.color)
+                  }}
+                >
                   {passwordStrength.label}
                   <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
                     <InfoOutlined
@@ -243,7 +256,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                       }}
                     />
                   </Tooltip>
-                </span>
+                </Box>
               )
             }
             onChange={(e) => {
@@ -347,11 +360,21 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                   Key to confirm access. Cannot be modified.
                 </span>
               ) : masterKey.length < 6 ? (
-                <span style={{ color: '#d32f2f' }}>
+                <Box
+                  component="span"
+                  sx={{
+                    color: 'error.main'
+                  }}
+                >
                   {masterKeyStrength.label}
-                </span>
+                </Box>
               ) : (
-                <span style={{ color: masterKeyStrength.color === 'error' ? '#d32f2f' : masterKeyStrength.color === 'warning' ? '#ed6c02' : '#2e7d32' }}>
+                <Box
+                  component="span"
+                  sx={{
+                    color: getColor(masterKeyStrength.color)
+                  }}
+                >
                   {masterKeyStrength.label}
                   <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
                     <InfoOutlined
@@ -364,7 +387,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                       }}
                     />
                   </Tooltip>
-                </span>
+                </Box>
               )
             }
             onChange={(e) => {
