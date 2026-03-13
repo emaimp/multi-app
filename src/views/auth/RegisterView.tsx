@@ -42,24 +42,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const getPasswordStrength = (pwd: string): { label: string; color: 'error' | 'warning' | 'success' } => {
-    const hasLower = /[a-z]/.test(pwd);
-    const hasUpper = /[A-Z]/.test(pwd);
-    const hasNumber = /[0-9]/.test(pwd);
-    const hasSymbol = /[^a-zA-Z0-9]/.test(pwd);
-
-    const score = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
-
-    if (pwd.length < 6) return { label: 'It must have at least 6 characters.', color: 'error' };
-    if (score <= 1) return { label: 'Low security - Add more specific characters.', color: 'error' };
-    if (score <= 2) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
-    if (score <= 3) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
-    return { label: 'High security - Strong password.', color: 'success' };
-  };
-
-  const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
-
-  const getMasterKeyStrength = (value: string): { label: string; color: 'error' | 'warning' | 'success' } => {
+  const getStrength = (value: string, label: string): { label: string; color: 'error' | 'warning' | 'success' } => {
     const hasLower = /[a-z]/.test(value);
     const hasUpper = /[A-Z]/.test(value);
     const hasNumber = /[0-9]/.test(value);
@@ -71,8 +54,10 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     if (score <= 1) return { label: 'Low security - Add more specific characters.', color: 'error' };
     if (score <= 2) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
     if (score <= 3) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
-    return { label: 'High security - Strong master key.', color: 'success' };
+    return { label: `High security - Strong ${label}.`, color: 'success' };
   };
+
+  const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
 
   const [masterKeyStrength, setMasterKeyStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
 
@@ -269,7 +254,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 setPasswordError(false);
                 setPasswordErrorMessage('');
               } else {
-                setPasswordStrength(getPasswordStrength(e.target.value));
+                setPasswordStrength(getStrength(e.target.value, 'password'));
                 if (e.target.value.length >= 6) {
                   setPasswordError(false);
                   setPasswordErrorMessage('');
@@ -314,8 +299,12 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             helperText={confirmPasswordErrorMessage}
             onChange={(e) => {
               setConfirmPassword(e.target.value);
-              if (!confirmPasswordError) {
-                validateConfirmPassword(e.target.value);
+              if (e.target.value.length === 0 || e.target.value === password) {
+                setConfirmPasswordError(false);
+                setConfirmPasswordErrorMessage('');
+              } else {
+                setConfirmPasswordError(true);
+                setConfirmPasswordErrorMessage('Passwords do not match.');
               }
               if (error) setError('');
             }}
@@ -386,7 +375,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 setMasterKeyError(false);
                 setMasterKeyErrorMessage('');
               } else {
-                setMasterKeyStrength(getMasterKeyStrength(e.target.value));
+                setMasterKeyStrength(getStrength(e.target.value, 'master key'));
                 if (e.target.value.length >= 6) {
                   setMasterKeyError(false);
                   setMasterKeyErrorMessage('');
