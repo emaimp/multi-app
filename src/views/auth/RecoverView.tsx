@@ -6,7 +6,9 @@ import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import KeyIcon from '@mui/icons-material/Key';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
@@ -31,7 +33,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
 
   const [usernameError, setUsernameError] = useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
+  const [usernameNotFoundError, setUsernameNotFoundError] = useState(false);
   const [masterKeyError, setMasterKeyError] = useState(false);
   const [masterKeyErrorMessage, setMasterKeyErrorMessage] = useState('');
   const [newPasswordError, setNewPasswordError] = useState(false);
@@ -43,14 +45,31 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const getStrength = (value: string, label: string): { label: string; color: 'error' | 'warning' | 'success' } => {
+    const hasLower = /[a-z]/.test(value);
+    const hasUpper = /[A-Z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const hasSymbol = /[^a-zA-Z0-9]/.test(value);
+
+    const score = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+
+    if (value.length < 6) return { label: 'It must have at least 6 characters.', color: 'error' };
+    if (score <= 1) return { label: 'Low security - Add more specific characters.', color: 'error' };
+    if (score <= 2) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
+    if (score <= 3) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
+    return { label: `High security - Strong ${label}.`, color: 'success' };
+  };
+
+  const getColor = (color: string) => `${color}.main`;
+
+  const [newPasswordStrength, setNewPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
+
   const validateUsername = (value: string) => {
     if (!value || value.length < 3) {
       setUsernameError(true);
-      setUsernameErrorMessage('Username must be at least 3 characters.');
       return false;
     }
     setUsernameError(false);
-    setUsernameErrorMessage('');
     return true;
   };
 
@@ -114,6 +133,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
 
       if (errorMessage.includes('User not found')) {
         setError('User not found. Please check your username.');
+        setUsernameNotFoundError(true);
       } else if (errorMessage.includes('Invalid master key')) {
         setError('Invalid master key. Please try again.');
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
@@ -160,13 +180,12 @@ function RecoverView({ onBack }: RecoverViewProps) {
             fullWidth
             variant="outlined"
             value={username}
-            error={usernameError}
-            helperText={usernameErrorMessage}
+            error={usernameError || usernameNotFoundError}
+            helperText={usernameError ? 'It must have at least 3 characters.' : usernameNotFoundError ? 'User not found.' : ''}
             onChange={(e) => {
               setUsername(e.target.value);
-              if (!usernameError) {
-                validateUsername(e.target.value);
-              }
+              if (usernameError) setUsernameError(false);
+              if (usernameNotFoundError) setUsernameNotFoundError(false);
               if (error) setError('');
             }}
             slotProps={{
@@ -225,12 +244,51 @@ function RecoverView({ onBack }: RecoverViewProps) {
             variant="outlined"
             value={newPassword}
             error={newPasswordError}
-            helperText={newPasswordErrorMessage}
+            helperText={
+              newPasswordErrorMessage ? (
+                <span>
+                  {newPasswordErrorMessage}
+                </span>
+              ) : newPassword.length === 0 ? (
+                <span>
+                  Key to access. It can be modified.
+                </span>
+              ) : newPassword.length < 6 ? (
+                <Box component="span" sx={{ color: 'error.main' }}>
+                  {newPasswordStrength.label}
+                </Box>
+              ) : (
+                <Box component="span" sx={{ color: getColor(newPasswordStrength.color) }}>
+                  {newPasswordStrength.label}
+                  <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
+                    <InfoOutlined
+                      sx={{
+                        fontSize: 14,
+                        ml: 1,
+                        verticalAlign: 'middle',
+                        cursor: 'help',
+                        color: 'action.active'
+                      }}
+                    />
+                  </Tooltip>
+                </Box>
+              )
+            }
             onChange={(e) => {
               setNewPassword(e.target.value);
-              if (!newPasswordError) {
-                validateNewPassword(e.target.value);
+              
+              if (e.target.value.length === 0) {
+                setNewPasswordStrength({ label: '', color: 'error' });
+                setNewPasswordError(false);
+                setNewPasswordErrorMessage('');
+              } else {
+                setNewPasswordStrength(getStrength(e.target.value, 'password'));
+                if (e.target.value.length >= 6) {
+                  setNewPasswordError(false);
+                  setNewPasswordErrorMessage('');
+                }
               }
+              
               if (confirmNewPassword && !confirmPasswordError) {
                 validateConfirmPassword(confirmNewPassword);
               }
@@ -269,8 +327,12 @@ function RecoverView({ onBack }: RecoverViewProps) {
             helperText={confirmPasswordErrorMessage}
             onChange={(e) => {
               setConfirmNewPassword(e.target.value);
-              if (!confirmPasswordError) {
-                validateConfirmPassword(e.target.value);
+              if (e.target.value.length === 0 || e.target.value === newPassword) {
+                setConfirmPasswordError(false);
+                setConfirmPasswordErrorMessage('');
+              } else {
+                setConfirmPasswordError(true);
+                setConfirmPasswordErrorMessage('Passwords do not match.');
               }
               if (error) setError('');
             }}

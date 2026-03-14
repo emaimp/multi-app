@@ -29,8 +29,11 @@ function LoginView() {
   const [masterKey, setMasterKey] = useState('');
 
   const [usernameError, setUsernameError] = useState(false);
+  const [usernameNotFoundError, setUsernameNotFoundError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
+  const [passwordInvalidError, setPasswordInvalidError] = useState(false);
   const [masterKeyError, setMasterKeyError] = useState(false);
+  const [masterKeyInvalidError, setMasterKeyInvalidError] = useState(false);
 
   const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -50,7 +53,7 @@ function LoginView() {
       setUsernameError(false);
     }
 
-    if (!password || password.length < 6) {
+    if (!password || password.length < 1) {
       setPasswordError(true);
       isValid = false;
     } else {
@@ -76,10 +79,13 @@ function LoginView() {
 
       if (errorMessage.includes('User not found')) {
         setError('User not found. Please check your username.');
+        setUsernameNotFoundError(true);
       } else if (errorMessage.includes('Invalid password')) {
         setError('Invalid password. Please try again.');
+        setPasswordInvalidError(true);
       } else if (errorMessage.includes('Invalid master key')) {
         setError('Invalid master key. Please try again.');
+        setMasterKeyInvalidError(true);
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
         setError('Network error. Please check your connection.');
       } else {
@@ -136,11 +142,12 @@ function LoginView() {
           fullWidth
           variant="outlined"
           value={username}
-          error={usernameError}
-          helperText={usernameError ? 'Username must be at least 3 characters.' : ''}
+          error={usernameError || usernameNotFoundError}
+          helperText={usernameError ? 'It must have at least 3 characters.' : usernameNotFoundError ? 'User not found.' : ''}
           onChange={(e) => {
             setUsername(e.target.value);
             if (usernameError) setUsernameError(false);
+            if (usernameNotFoundError) setUsernameNotFoundError(false);
             if (error) setError('');
           }}
           slotProps={{
@@ -161,11 +168,12 @@ function LoginView() {
           fullWidth
           variant="outlined"
           value={password}
-          error={passwordError}
-          helperText={passwordError ? 'Password must be at least 6 characters.' : ''}
+          error={passwordError || passwordInvalidError}
+          helperText={passwordError ? 'Password is required.' : passwordInvalidError ? 'Invalid password.' : ''}
           onChange={(e) => {
             setPassword(e.target.value);
             if (passwordError) setPasswordError(false);
+            if (passwordInvalidError) setPasswordInvalidError(false);
             if (error) setError('');
           }}
           slotProps={{
@@ -196,11 +204,12 @@ function LoginView() {
           fullWidth
           variant="outlined"
           value={masterKey}
-          error={masterKeyError}
-          helperText={masterKeyError ? 'Master key is required.' : ''}
+          error={masterKeyError || masterKeyInvalidError}
+          helperText={masterKeyError ? 'Master key is required.' : masterKeyInvalidError ? 'Invalid master key.' : ''}
           onChange={(e) => {
             setMasterKey(e.target.value);
             if (masterKeyError) setMasterKeyError(false);
+            if (masterKeyInvalidError) setMasterKeyInvalidError(false);
             if (error) setError('');
           }}
           slotProps={{
