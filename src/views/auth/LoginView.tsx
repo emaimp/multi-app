@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -40,6 +40,19 @@ function LoginView() {
   const [showMasterKey, setShowMasterKey] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setUsername('');
+    setPassword('');
+    setMasterKey('');
+    setUsernameError(false);
+    setUsernameNotFoundError(false);
+    setPasswordError(false);
+    setPasswordInvalidError(false);
+    setMasterKeyError(false);
+    setMasterKeyInvalidError(false);
+    setError('');
+  }, [view]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
