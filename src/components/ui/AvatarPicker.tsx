@@ -4,23 +4,23 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import PersonIcon from '@mui/icons-material/Person';
 import imageCompression from 'browser-image-compression';
-import { ImageDialog } from '../dialogs';
+import { AvatarDialog } from './dialogs';
 
-interface ImagePickerProps {
+interface AvatarPickerProps {
   value?: string | null;
-  onChange: (image: string | null) => void;
+  onChange: (avatar: string | null) => void;
   size?: number;
   label?: string;
   showUserIcon?: boolean;
 }
 
-export function ImagePicker({
+export function AvatarPicker({
   value,
   onChange,
   size = 120,
   label,
   showUserIcon = false,
-}: ImagePickerProps) {
+}: AvatarPickerProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -39,8 +39,8 @@ export function ImagePicker({
     setDialogOpen(false);
   };
 
-  const handleSelectFromDialog = (image: string | null) => {
-    onChange(image);
+  const handleSelectFromDialog = (avatar: string | null) => {
+    onChange(avatar);
     setDialogOpen(false);
   };
 
@@ -131,7 +131,7 @@ export function ImagePicker({
         />
       </Box>
 
-      <ImageDialog
+      <AvatarDialog
         open={dialogOpen}
         onClose={handleCloseDialog}
         onSelect={handleSelectFromDialog}
@@ -140,4 +140,4 @@ export function ImagePicker({
   );
 }
 
-export default ImagePicker;
+export default AvatarPicker;

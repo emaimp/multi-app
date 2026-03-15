@@ -13,13 +13,13 @@ import FolderIcon from '@mui/icons-material/Folder';
 import SearchIcon from '@mui/icons-material/Search';
 import * as simpleIcons from 'simple-icons';
 
-interface ImageDialogProps {
+interface AvatarDialogProps {
   open: boolean;
   onClose: () => void;
-  onSelect: (image: string | null) => void;
+  onSelect: (avatar: string | null) => void;
 }
 
-export function ImageDialog({ open, onClose, onSelect }: ImageDialogProps) {
+export function AvatarDialog({ open, onClose, onSelect }: AvatarDialogProps) {
   const [search, setSearch] = useState('');
 
   const icons = useMemo(() => {
@@ -152,4 +152,4 @@ export function ImageDialog({ open, onClose, onSelect }: ImageDialogProps) {
   );
 }
 
-export default ImageDialog;
+export default AvatarDialog;

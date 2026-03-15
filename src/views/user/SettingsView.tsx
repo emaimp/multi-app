@@ -13,7 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useUser } from '../../context/AuthContext';
-import { ImagePicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/ui';
+import { AvatarPicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/ui';
 
 export function SettingsView() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export function SettingsView() {
   const [username, setUsername] = useState(user?.username || '');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [imagePreview, setImagePreview] = useState<string | null>(user?.avatar || null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
   const [deleteAccountChecked, setDeleteAccountChecked] = useState(false);
 
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -87,8 +87,8 @@ export function SettingsView() {
     setIsLoading(true);
     setDialogLoading(true);
     try {
-      if (imagePreview !== user?.avatar) {
-        await updateUser({ avatar: imagePreview || null });
+      if (avatarPreview !== user?.avatar) {
+        await updateUser({ avatar: avatarPreview || null });
       }
 
       if (username !== user?.username) {
@@ -164,9 +164,9 @@ export function SettingsView() {
             mb: 1
           }}
         >
-          <ImagePicker
-            value={imagePreview}
-            onChange={setImagePreview}
+          <AvatarPicker
+            value={avatarPreview}
+            onChange={setAvatarPreview}
             size={100}
             showUserIcon
           />
