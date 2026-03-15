@@ -5,8 +5,8 @@ import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 interface UserHeaderProps {
-  avatar?: string | null;
-  avatarLoading?: boolean;
+  image?: string | null;
+  imageLoading?: boolean;
   size?: number;
   onSettingsClick?: () => void;
   onHelpClick?: () => void;
@@ -14,8 +14,8 @@ interface UserHeaderProps {
 }
 
 export function UserHeader({
-  avatar,
-  avatarLoading = false,
+  image,
+  imageLoading = false,
   size = 60,
   onSettingsClick,
   onHelpClick,
@@ -33,7 +33,7 @@ export function UserHeader({
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        {avatarLoading ? (
+        {imageLoading ? (
           <Skeleton variant="circular" width={size} height={size} />
         ) : (
           <Avatar
@@ -45,9 +45,9 @@ export function UserHeader({
               border: '1px solid',
               borderColor: 'divider',
             }}
-            src={avatar || undefined}
+            src={image || undefined}
           >
-            {!avatar && <PersonIcon />}
+            {!image && <PersonIcon />}
           </Avatar>
         )}
         <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>

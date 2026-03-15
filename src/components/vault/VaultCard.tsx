@@ -34,19 +34,31 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, isDragging, drag
       {...dragAttributes}
       {...dragListeners}
     >
-      <Avatar
-        sx={{
-          width: 48,
-          height: 48,
-          color: 'text.primary',
-          bgcolor: 'transparent',
-          border: '1px solid',
-          borderColor: 'divider',
-        }}
-        src={vault.image}
-      >
-        {vault.name.charAt(0).toUpperCase()}
-      </Avatar>
+      {(() => {
+        const isSvgIcon = vault.image?.startsWith('data:image/svg+xml');
+        const imageSize = isSvgIcon ? '75%' : '100%';
+        
+        return (
+          <Avatar
+            sx={{
+              width: 48,
+              height: 48,
+              color: 'text.primary',
+              bgcolor: 'action.hover',
+              border: '1px solid',
+              borderColor: 'divider',
+              '& img': {
+                objectFit: 'contain',
+                width: imageSize,
+                height: imageSize,
+              },
+            }}
+            src={vault.image}
+          >
+            {vault.name.charAt(0).toUpperCase()}
+          </Avatar>
+        );
+      })()}
 
       <Typography
         variant="body1"

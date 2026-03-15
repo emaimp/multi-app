@@ -26,7 +26,7 @@ export function MainView() {
   const navigate = useNavigate();
   const { user, logout, isLoadingContent, setIsLoadingContent, setUser } = useUser();
   const { invoke } = useBackend();
-  const [avatarLoading, setAvatarLoading] = useState(false);
+  const [imageLoading, setImageLoading] = useState(false);
   const {
     vaults,
     notes,
@@ -56,7 +56,7 @@ export function MainView() {
     if (user && isLoadingContent) {
       const masterKey = localStorage.getItem('masterKey');
       if (masterKey) {
-        setAvatarLoading(true);
+        setImageLoading(true);
         Promise.all([
           invoke('init_session', { userId: user.id, masterKey }),
           loadVaults(),
@@ -65,14 +65,14 @@ export function MainView() {
             if (avatar) {
               setUser({ ...user, avatar });
             }
-            setAvatarLoading(false);
+            setImageLoading(false);
             setIsLoadingContent(false);
           }).catch(() => {
-            setAvatarLoading(false);
+            setImageLoading(false);
             setIsLoadingContent(false);
           });
         }).catch(() => {
-          setAvatarLoading(false);
+          setImageLoading(false);
           setIsLoadingContent(false);
         });
       } else {
@@ -153,8 +153,8 @@ export function MainView() {
                     }}
                   >
                     <UserHeader
-                      avatar={user?.avatar}
-                      avatarLoading={avatarLoading}
+                      image={user?.avatar}
+                      imageLoading={imageLoading}
                       onSettingsClick={handleSettingsClick}
                       onHelpClick={() => {}}
                       onLogoutClick={logout}

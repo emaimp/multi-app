@@ -14,7 +14,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../types/vault';
 import { Collection } from '../../types/collection';
-import { ConfirmDialog, AvatarPicker } from '../ui';
+import { ConfirmDialog, ImagePicker } from '../ui';
 import { useVaults } from '../../context/VaultContext';
 
 interface VaultEditDialogProps {
@@ -91,7 +91,7 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
         <DialogContent>
           <Stack spacing={3} sx={{ pt: 1 }}>
             <Box sx={{ textAlign: 'center', mb: 2 }}>
-              <AvatarPicker
+              <ImagePicker
                 value={image}
                 onChange={setImage}
                 size={100}

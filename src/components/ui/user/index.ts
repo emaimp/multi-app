@@ -1,2 +1,2 @@
-export { default as AvatarPicker } from './AvatarPicker';
+export { default as ImagePicker } from './ImagePicker';
 export { default as UserHeader } from './UserHeader';
