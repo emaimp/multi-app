@@ -12,13 +12,13 @@ pub fn get_note_with_content(note_id: String, user_id: i32, state: tauri::State<
 }
 
 #[tauri::command]
-pub fn create_note(vault_id: String, title: String, content: String, user_id: i32, state: tauri::State<Database>) -> Result<Note, String> {
-    state.create_note(&vault_id, &title, &content, user_id)
+pub fn create_note(vault_id: String, title: String, content: String, color: String, image: Option<Vec<u8>>, user_id: i32, state: tauri::State<Database>) -> Result<Note, String> {
+    state.create_note(&vault_id, &title, &content, &color, image.as_deref(), user_id)
 }
 
 #[tauri::command]
-pub fn update_note(note_id: String, title: String, content: String, user_id: i32, state: tauri::State<Database>) -> Result<(), String> {
-    state.update_note(&note_id, &title, &content, user_id)
+pub fn update_note(note_id: String, title: String, content: String, color: String, image: Option<Vec<u8>>, user_id: i32, state: tauri::State<Database>) -> Result<(), String> {
+    state.update_note(&note_id, &title, &content, &color, image.as_deref(), user_id)
 }
 
 #[tauri::command]

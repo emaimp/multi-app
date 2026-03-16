@@ -43,6 +43,8 @@ pub struct Note {
     pub vault_id: String,
     pub title: String,
     pub content: String,
+    pub color: String,
+    pub image: Option<String>,
     pub created_at: i64,
     pub position: i32,
 }

@@ -9,13 +9,11 @@ import LockOpenIcon from '@mui/icons-material/LockOpen';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { Note } from '../../types/note';
-import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
+import { Note, NOTE_COLORS_HEX } from '../../types/note';
 import { ConfirmDialog } from '../ui';
 
 interface AccessNoteCardProps {
   note: Note;
-  vault: Vault | undefined;
   isLockedByDefault?: boolean;
   dragAttributes?: Record<string, unknown>;
   dragListeners?: Record<string, unknown>;
@@ -25,7 +23,7 @@ interface AccessNoteCardProps {
 
 const ACCESS_NOTE_DELIMITER = '::';
 
-export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: AccessNoteCardProps) {
+export function AccessNoteCard({ note, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: AccessNoteCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [username, setUsername] = useState(() => {
@@ -44,7 +42,7 @@ export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAtt
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isLocked, setIsLocked] = useState(isLockedByDefault);
 
-  const vaultColor = vault ? VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary : VAULT_COLORS_HEX.primary;
+  const noteColor = NOTE_COLORS_HEX[note.color] || NOTE_COLORS_HEX.blue;
 
   const getContent = () => `${username}${ACCESS_NOTE_DELIMITER}${password}`;
 
@@ -115,9 +113,9 @@ export function AccessNoteCard({ note, vault, isLockedByDefault = false, dragAtt
             alignItems: 'center',
             px: 1,
             py: 1,
-            bgcolor: vaultColor + '20',
+            bgcolor: noteColor + '20',
             borderBottom: '2px solid',
-            borderColor: vaultColor,
+            borderColor: noteColor,
           }}
         >
           {isEditingTitle && !isLocked ? (

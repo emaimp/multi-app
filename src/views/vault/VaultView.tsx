@@ -23,7 +23,7 @@ interface VaultViewProps {
   isLoading?: boolean;
   onAddSimpleNote: () => void;
   onAddAccessNote: () => void;
-  onUpdateNote: (noteId: string, title: string, content: string) => void;
+  onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
   onReorderNotes: (notes: Note[]) => void;
 }
@@ -129,7 +129,6 @@ export function VaultView({
               <SortableContext items={vaultNotes.map((n) => n.id)} strategy={verticalListSortingStrategy}>
                 <NoteList
                   notes={vaultNotes}
-                  vault={selectedVault}
                   lockedNotes={lockedNotes}
                   onUpdateNote={onUpdateNote}
                   onDeleteNote={onDeleteNote}

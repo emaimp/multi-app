@@ -37,6 +37,9 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
             content_encrypted TEXT NOT NULL,
             title_nonce TEXT NOT NULL,
             content_nonce TEXT NOT NULL,
+            color TEXT NOT NULL,
+            image BLOB,
+            image_nonce TEXT,
             created_at INTEGER NOT NULL,
             position INTEGER DEFAULT 0,
             FOREIGN KEY (vault_id) REFERENCES vaults(id) ON DELETE CASCADE

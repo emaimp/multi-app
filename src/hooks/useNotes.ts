@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Note } from '../types/note';
 import { useUser } from '../context/AuthContext';
 import { useBackend } from './useBackend';
-import { reorderItems } from './usePositionUtils';
+import { reorderItems, parseImageToBytes } from './usePositionUtils';
 
 interface UseNotesReturn {
   // States
@@ -15,8 +15,8 @@ interface UseNotesReturn {
   loadNotes: (vaultId: string) => Promise<void>;
   
   // CRUD Notes
-  createNote: (vaultId: string, title: string, content: string) => Promise<Note | undefined>;
-  updateNote: (noteId: string, title: string, content: string) => Promise<void>;
+  createNote: (vaultId: string, title: string, content: string, color?: string) => Promise<Note | undefined>;
+  updateNote: (noteId: string, title: string, content: string, color?: string, image?: string | null) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   reorderNotes: (notes: Note[]) => Promise<void>;
   
@@ -52,29 +52,33 @@ export function useNotes(): UseNotesReturn {
   };
 
   // CRUD Notes
-  const createNote = async (vaultId: string, title: string, content: string) => {
+  const createNote = async (vaultId: string, title: string, content: string, color: string = 'blue') => {
     if (!user) return undefined;
     const newNote = await invoke<Note>('create_note', {
       vaultId,
       title,
       content,
+      color,
       userId: user.id,
     });
     setNotes((prev) => [...prev, newNote]);
     return newNote;
   };
 
-  const updateNote = async (noteId: string, title: string, content: string) => {
+  const updateNote = async (noteId: string, title: string, content: string, color: string = 'blue', image?: string | null) => {
     if (!user) return;
+    const imageBytes = parseImageToBytes(image);
     await invoke('update_note', {
       noteId,
       title,
       content,
+      color,
+      image: imageBytes,
       userId: user.id,
     });
     setNotes((prev) =>
       prev.map((n) =>
-        n.id === noteId ? { ...n, title, content, updated_at: Date.now() } : n
+        n.id === noteId ? { ...n, title, content, color, image: image === null ? undefined : image, updated_at: Date.now() } : n
       )
     );
   };

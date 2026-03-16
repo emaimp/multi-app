@@ -9,13 +9,11 @@ import CheckIcon from '@mui/icons-material/Check';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { Note } from '../../types/note';
-import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
+import { Note, NOTE_COLORS_HEX } from '../../types/note';
 import { ConfirmDialog } from '../ui';
 
 interface SimpleNoteCardProps {
   note: Note;
-  vault: Vault | undefined;
   isLockedByDefault?: boolean;
   dragAttributes?: Record<string, unknown>;
   dragListeners?: Record<string, unknown>;
@@ -23,7 +21,7 @@ interface SimpleNoteCardProps {
   onDelete: (noteId: string) => void;
 }
 
-export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: SimpleNoteCardProps) {
+export function SimpleNoteCard({ note, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: SimpleNoteCardProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
@@ -34,7 +32,7 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isLocked, setIsLocked] = useState(isLockedByDefault);
 
-  const vaultColor = vault ? VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary : VAULT_COLORS_HEX.primary;
+  const noteColor = NOTE_COLORS_HEX[note.color] || NOTE_COLORS_HEX.blue;
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTitle(e.target.value);
@@ -115,9 +113,9 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
             alignItems: 'center',
             px: 1,
             py: 1,
-            bgcolor: vaultColor + '20',
+            bgcolor: noteColor + '20',
             borderBottom: '2px solid',
-            borderColor: vaultColor,
+            borderColor: noteColor,
           }}
         >
           {isEditingTitle && !isLocked ? (
@@ -208,7 +206,7 @@ export function SimpleNoteCard({ note, vault, isLockedByDefault = false, dragAtt
           gap: 0.5,
           px: 1,
           py: 0.5,
-          bgcolor: vaultColor + '10',
+          bgcolor: noteColor + '10',
           borderBottom: '1px solid',
           borderColor: 'divider'
           }}>

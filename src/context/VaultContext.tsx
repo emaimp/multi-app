@@ -31,8 +31,8 @@ interface VaultContextType {
   
   // CRUD Notes
   lockedNotes: Set<string>;
-  createNote: (vaultId: string, title: string, content: string) => Promise<void>;
-  updateNote: (noteId: string, title: string, content: string) => Promise<void>;
+  createNote: (vaultId: string, title: string, content: string, color?: string) => Promise<void>;
+  updateNote: (noteId: string, title: string, content: string, color?: string, image?: string | null) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   reorderNotes: (notes: Note[]) => Promise<void>;
   
@@ -152,12 +152,12 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   // CRUD Notes
-  const createNote = async (vaultId: string, title: string, content: string) => {
-    await createNoteHook(vaultId, title, content);
+  const createNote = async (vaultId: string, title: string, content: string, color?: string) => {
+    await createNoteHook(vaultId, title, content, color);
   };
 
-  const updateNote = async (noteId: string, title: string, content: string) => {
-    await updateNoteHook(noteId, title, content);
+  const updateNote = async (noteId: string, title: string, content: string, color?: string, image?: string | null) => {
+    await updateNoteHook(noteId, title, content, color, image);
   };
 
   const deleteNote = async (noteId: string) => {

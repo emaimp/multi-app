@@ -17,8 +17,10 @@ import {
   CollectionEditDialog,
   VaultTypeSelector,
 } from '../components/vault';
+import { NoteCard, NoteEditDialog } from '../components/note';
 import { Vault } from '../types/vault';
 import { Collection } from '../types/collection';
+import { Note } from '../types/note';
 import { VaultView } from './vault/VaultView';
 import { SettingsView } from './user/SettingsView';
 
@@ -87,6 +89,7 @@ export function MainView() {
   const [createAccessNoteDialogOpen, setCreateAccessNoteDialogOpen] = useState(false);
   const [vaultTypeSelectorOpen, setVaultTypeSelectorOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
 
@@ -104,6 +107,14 @@ export function MainView() {
 
   const handleVaultClick = (vaultId: string) => {
     selectVault(vaultId);
+  };
+
+  const handleNoteClick = (noteId: string) => {
+    console.log('Note clicked:', noteId);
+  };
+
+  const handleEditNote = (note: Note) => {
+    setEditingNote(note);
   };
 
   const handleSortNotes = () => {
@@ -127,14 +138,14 @@ export function MainView() {
   };
 
   const handleCreateSimpleNote = (title: string) => {
-    if (activeVault) {
-      createNote(activeVault, title, '');
+    if (activeVault && selectedVault) {
+      createNote(activeVault, title, '', selectedVault.color);
     }
   };
 
   const handleCreateAccessNote = (title: string) => {
-    if (activeVault) {
-      createNote(activeVault, title, '::');
+    if (activeVault && selectedVault) {
+      createNote(activeVault, title, '::', selectedVault.color);
     }
   };
 
@@ -188,7 +199,16 @@ export function MainView() {
               onSortClick={handleSortNotes}
               onFilterClick={() => {}}
               onNoteClick={handleAddSimpleNote}
-            />
+            >
+              {activeVault && sortedVaultNotes.map((note) => (
+                <NoteCard
+                  key={note.id}
+                  note={note}
+                  onClick={() => handleNoteClick(note.id)}
+                  onEdit={handleEditNote}
+                />
+              ))}
+            </SecondarySidebar>
 
             <VaultView
               selectedVault={selectedVault}
@@ -248,6 +268,16 @@ export function MainView() {
               onClose={() => setEditingVault(null)}
               onSave={updateVault}
               onDelete={deleteVault}
+            />
+
+            <NoteEditDialog
+              open={!!editingNote}
+              note={editingNote}
+              onClose={() => setEditingNote(null)}
+              onSave={(note, image) => {
+                updateNote(note.id, note.title, note.content, note.color, image);
+              }}
+              onDelete={deleteNote}
             />
 
             <CollectionEditDialog

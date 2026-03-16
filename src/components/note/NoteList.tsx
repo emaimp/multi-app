@@ -2,7 +2,6 @@ import { Box } from '@mui/material';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Note } from '../../types/note';
-import { Vault } from '../../types/vault';
 import { SimpleNoteCard } from './SimpleNoteCard';
 import { AccessNoteCard } from './AccessNoteCard';
 
@@ -10,21 +9,19 @@ const ACCESS_NOTE_DELIMITER = '::';
 
 interface NoteListProps {
   notes: Note[];
-  vault: Vault | undefined;
   lockedNotes?: Set<string>;
-  onUpdateNote: (noteId: string, title: string, content: string) => void;
+  onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 
 interface SortableNoteItemProps {
   note: Note;
-  vault: Vault | undefined;
   lockedNotes?: Set<string>;
-  onUpdateNote: (noteId: string, title: string, content: string) => void;
+  onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 
-function SortableNoteItem({ note, vault, lockedNotes, onUpdateNote, onDeleteNote }: SortableNoteItemProps) {
+function SortableNoteItem({ note, lockedNotes, onUpdateNote, onDeleteNote }: SortableNoteItemProps) {
   const isAccessNote = note.content.includes(ACCESS_NOTE_DELIMITER);
 
   const {
@@ -52,7 +49,6 @@ function SortableNoteItem({ note, vault, lockedNotes, onUpdateNote, onDeleteNote
     >
       <CardComponent
         note={note}
-        vault={vault}
         isLockedByDefault={lockedNotes?.has(note.id) ?? false}
         onUpdate={onUpdateNote}
         onDelete={onDeleteNote}
@@ -63,14 +59,13 @@ function SortableNoteItem({ note, vault, lockedNotes, onUpdateNote, onDeleteNote
   );
 }
 
-export function NoteList({ notes, vault, lockedNotes, onUpdateNote, onDeleteNote }: NoteListProps) {
+export function NoteList({ notes, lockedNotes, onUpdateNote, onDeleteNote }: NoteListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {notes.map((note) => (
         <SortableNoteItem
           key={note.id}
           note={note}
-          vault={vault}
           lockedNotes={lockedNotes}
           onUpdateNote={onUpdateNote}
           onDeleteNote={onDeleteNote}
