@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-import { Box, Button, Divider } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { Box } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import { SideDrawer, UserHeader, LoadingDialog, CreateDialog } from '../components/ui';
+import { LoadingDialog, CreateDialog } from '../components/ui';
+import { MainSidebar, SecondarySidebar } from '../components';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useBackend } from '../hooks/useBackend';
@@ -88,12 +88,30 @@ export function MainView() {
   const [vaultTypeSelectorOpen, setVaultTypeSelectorOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
 
   const selectedVault = vaults.find((v) => v.id === activeVault);
-  const vaultNotes = activeVault ? notes.filter((n) => n.vault_id === activeVault) : [];
+  const vaultNotes = activeVault 
+    ? notes.filter((n) => n.vault_id === activeVault)
+    : [];
+
+  const sortedVaultNotes = sortOrder 
+    ? [...vaultNotes].sort((a, b) => {
+        const comparison = a.title.localeCompare(b.title);
+        return sortOrder === 'asc' ? comparison : -comparison;
+      })
+    : vaultNotes;
 
   const handleVaultClick = (vaultId: string) => {
     selectVault(vaultId);
+  };
+
+  const handleSortNotes = () => {
+    setSortOrder((prev) => {
+      if (prev === null) return 'asc';
+      if (prev === 'asc') return 'desc';
+      return null;
+    });
   };
 
   const handleAddSimpleNote = () => {
@@ -139,42 +157,14 @@ export function MainView() {
         path="/"
         element={
           <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
-            <SideDrawer
+            <MainSidebar
+              avatar={user?.avatar}
+              avatarLoading={avatarLoading}
+              onSettingsClick={handleSettingsClick}
+              onHelpClick={() => {}}
+              onLogoutClick={logout}
+              onNewClick={() => setVaultTypeSelectorOpen(true)}
               onContentClick={clearVaultSelect}
-              header={
-                <>
-                  <Box
-                    sx={{
-                      p: 2,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      bgcolor: 'action.hover',
-                    }}
-                  >
-                    <UserHeader
-                      avatar={user?.avatar}
-                      avatarLoading={avatarLoading}
-                      onSettingsClick={handleSettingsClick}
-                      onHelpClick={() => {}}
-                      onLogoutClick={logout}
-                    />
-                  </Box>
-                  <Divider />
-                  <Box sx={{ p: 2 }}>
-                    <Button
-                      fullWidth
-                      variant="outlined"
-                      onClick={() => setVaultTypeSelectorOpen(true)}
-                      startIcon={<AddIcon />}
-
-                    >
-                      New
-                    </Button>
-                  </Box>
-                  <Divider />
-                </>
-              }
             >
               {loadingVaults ? (
                 <VaultListSkeleton />
@@ -191,11 +181,18 @@ export function MainView() {
                   onVaultReorder={reorderVaults}
                 />
               )}
-            </SideDrawer>
+            </MainSidebar>
+
+            <SecondarySidebar
+              open={!!activeVault}
+              onSortClick={handleSortNotes}
+              onFilterClick={() => {}}
+              onNoteClick={handleAddSimpleNote}
+            />
 
             <VaultView
               selectedVault={selectedVault}
-              vaultNotes={vaultNotes}
+              vaultNotes={sortedVaultNotes}
               lockedNotes={lockedNotes}
               isLoading={isLoadingContent}
               onAddSimpleNote={handleAddSimpleNote}

@@ -21,7 +21,6 @@ export function UserHeader({
   onHelpClick,
   onLogoutClick,
 }: UserHeaderProps) {
-  const iconSize = 20;
 
   return (
     <Box
@@ -32,9 +31,18 @@ export function UserHeader({
         justifyContent: 'space-between',
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
         {avatarLoading ? (
-          <Skeleton variant="circular" width={size} height={size} />
+          <Skeleton
+            variant="circular"
+            width={size}
+            height={size}
+          />
         ) : (
           <Avatar
             sx={{
@@ -50,7 +58,13 @@ export function UserHeader({
             {!avatar && <PersonIcon />}
           </Avatar>
         )}
-        <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            ml: 1
+          }}
+        >
           {onSettingsClick && (
             <IconButton
               onClick={onSettingsClick}
@@ -60,7 +74,7 @@ export function UserHeader({
                 '&:hover': { bgcolor: 'action.hover' } 
               }}
             >
-              <SettingsIcon sx={{ fontSize: iconSize }} />
+              <SettingsIcon sx={{ fontSize: 20 }} />
             </IconButton>
           )}
           {onHelpClick && (
@@ -72,7 +86,7 @@ export function UserHeader({
                 '&:hover': { bgcolor: 'action.hover' } 
               }}
             >
-              <HelpOutlineIcon sx={{ fontSize: iconSize }} />
+              <HelpOutlineIcon sx={{ fontSize: 20 }} />
             </IconButton>
           )}
         </Box>
@@ -84,7 +98,7 @@ export function UserHeader({
           size="medium"
           sx={{ borderRadius: 1 }}
         >
-          <LogoutIcon sx={{ fontSize: iconSize }} />
+          <LogoutIcon sx={{ fontSize: 20 }} />
         </IconButton>
       )}
     </Box>
