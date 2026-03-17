@@ -8,9 +8,6 @@ interface UseNotesReturn {
   // States
   notes: Note[];
   
-  // Loading states
-  lockedNotes: Set<string>;
-  
   // Load functions
   loadNotes: (vaultId: string) => Promise<void>;
   
@@ -29,13 +26,11 @@ export function useNotes(): UseNotesReturn {
   const { user } = useUser();
   const { invoke } = useBackend();
   const [notes, setNotes] = useState<Note[]>([]);
-  const [lockedNotes, setLockedNoteIds] = useState<Set<string>>(new Set());
   const prevUserRef = useRef(user);
 
   useEffect(() => {
     if (!user) {
       setNotes([]);
-      setLockedNoteIds(new Set());
     }
     prevUserRef.current = user;
   }, [user]);
@@ -48,7 +43,6 @@ export function useNotes(): UseNotesReturn {
       userId: user.id,
     });
     setNotes(notesData);
-    setLockedNoteIds(new Set(notesData.map((n) => n.id)));
   };
 
   // CRUD Notes
@@ -104,12 +98,10 @@ export function useNotes(): UseNotesReturn {
 
   const clearNotes = () => {
     setNotes([]);
-    setLockedNoteIds(new Set());
   };
 
   return {
     notes,
-    lockedNotes,
     loadNotes,
     createNote,
     updateNote,

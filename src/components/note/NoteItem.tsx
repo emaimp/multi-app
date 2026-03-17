@@ -12,7 +12,7 @@ import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Note, NOTE_COLORS_HEX } from '../../types/note';
 import { ConfirmDialog } from '../ui';
 
-interface SimpleNoteCardProps {
+interface NoteItemProps {
   note: Note;
   isLockedByDefault?: boolean;
   dragAttributes?: Record<string, unknown>;
@@ -21,7 +21,7 @@ interface SimpleNoteCardProps {
   onDelete: (noteId: string) => void;
 }
 
-export function SimpleNoteCard({ note, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: SimpleNoteCardProps) {
+export function NoteItem({ note, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: NoteItemProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
@@ -155,7 +155,7 @@ export function SimpleNoteCard({ note, isLockedByDefault = false, dragAttributes
               }}
               onClick={() => !isLocked && setIsEditingTitle(true)}
             >
-              {note.title || 'Untitled Simple Note'}
+              {note.title || 'Untitled Note'}
             </Typography>
           )}
 
@@ -254,7 +254,7 @@ export function SimpleNoteCard({ note, isLockedByDefault = false, dragAttributes
             variant="standard"
             value={content}
             onChange={(e) => !isLocked && setContent(e.target.value)}
-            placeholder="Write your simple note here..."
+            placeholder="Write your note here..."
             disabled={isLocked}
             InputProps={{
               disableUnderline: true,
@@ -275,8 +275,8 @@ export function SimpleNoteCard({ note, isLockedByDefault = false, dragAttributes
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Delete Simple Note"
-        message={`Are you sure you want to delete "${note.title || 'Untitled Simple Note'}"? This action cannot be undone.`}
+        title="Delete Note"
+        message={`Are you sure you want to delete "${note.title || 'Untitled Note'}"? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />
@@ -284,4 +284,4 @@ export function SimpleNoteCard({ note, isLockedByDefault = false, dragAttributes
   );
 }
 
-export default SimpleNoteCard;
+export default NoteItem;

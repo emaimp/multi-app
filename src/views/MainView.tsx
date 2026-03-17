@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { LoadingDialog, CreateDialog } from '../components/ui';
 import { MainSidebar, SecondarySidebar } from '../components';
 import { useUser } from '../context/AuthContext';
@@ -43,7 +42,6 @@ export function MainView() {
     deleteVault,
     reorderVaults,
     reorderVaultsInCollection,
-    lockedNotes,
     createNote,
     updateNote,
     deleteNote,
@@ -85,8 +83,7 @@ export function MainView() {
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createCollectionDialogOpen, setCreateCollectionDialogOpen] = useState(false);
-  const [createSimpleNoteDialogOpen, setCreateSimpleNoteDialogOpen] = useState(false);
-  const [createAccessNoteDialogOpen, setCreateAccessNoteDialogOpen] = useState(false);
+  const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
   const [vaultTypeSelectorOpen, setVaultTypeSelectorOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
@@ -125,30 +122,6 @@ export function MainView() {
     });
   };
 
-  const handleAddSimpleNote = () => {
-    if (activeVault) {
-      setCreateSimpleNoteDialogOpen(true);
-    }
-  };
-
-  const handleAddAccessNote = () => {
-    if (activeVault) {
-      setCreateAccessNoteDialogOpen(true);
-    }
-  };
-
-  const handleCreateSimpleNote = (title: string) => {
-    if (activeVault && selectedVault) {
-      createNote(activeVault, title, '', selectedVault.color);
-    }
-  };
-
-  const handleCreateAccessNote = (title: string) => {
-    if (activeVault && selectedVault) {
-      createNote(activeVault, title, '::', selectedVault.color);
-    }
-  };
-
   const handleSettingsClick = () => {
     navigate('/settings');
   };
@@ -159,6 +132,12 @@ export function MainView() {
 
   const handleSelectCollection = () => {
     setCreateCollectionDialogOpen(true);
+  };
+
+  const handleCreateNote = (title: string) => {
+    if (activeVault && selectedVault) {
+      createNote(activeVault, title, '', selectedVault.color);
+    }
   };
 
   return (
@@ -198,7 +177,7 @@ export function MainView() {
               open={!!activeVault}
               onSortClick={handleSortNotes}
               onFilterClick={() => {}}
-              onNoteClick={handleAddSimpleNote}
+              onNoteClick={() => setCreateNoteDialogOpen(true)}
             >
               {activeVault && sortedVaultNotes.map((note) => (
                 <NoteCard
@@ -213,10 +192,7 @@ export function MainView() {
             <VaultView
               selectedVault={selectedVault}
               vaultNotes={sortedVaultNotes}
-              lockedNotes={lockedNotes}
               isLoading={isLoadingContent}
-              onAddSimpleNote={handleAddSimpleNote}
-              onAddAccessNote={handleAddAccessNote}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}
               onReorderNotes={reorderNotes}
@@ -243,23 +219,13 @@ export function MainView() {
             />
 
             <CreateDialog
-              open={createSimpleNoteDialogOpen}
-              title="Create Simple Note"
-              label="Simple Note Title"
-              placeholder="Enter simple note title"
+              open={createNoteDialogOpen}
+              title="Create Note"
+              label="Note Title"
+              placeholder="Enter note title"
               titleIcon={<EventNoteIcon />}
-              onClose={() => setCreateSimpleNoteDialogOpen(false)}
-              onCreate={handleCreateSimpleNote}
-            />
-
-            <CreateDialog
-              open={createAccessNoteDialogOpen}
-              title="Create Access Note"
-              label="Access Note Title"
-              placeholder="Enter access note title"
-              titleIcon={<LockOpenIcon />}
-              onClose={() => setCreateAccessNoteDialogOpen(false)}
-              onCreate={handleCreateAccessNote}
+              onClose={() => setCreateNoteDialogOpen(false)}
+              onCreate={handleCreateNote}
             />
 
             <VaultEditDialog

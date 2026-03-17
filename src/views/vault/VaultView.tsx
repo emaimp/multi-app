@@ -1,7 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Box, Typography, Divider, Button } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import { NoteTypeSelector, NoteList } from '../../components/note';
+import { Box, Typography, Divider } from '@mui/material';
+import { NoteList } from '../../components/note';
 import {
   DndContext,
   closestCenter,
@@ -19,10 +17,7 @@ import { Vault } from '../../types/vault';
 interface VaultViewProps {
   selectedVault: Vault | undefined;
   vaultNotes: Note[];
-  lockedNotes?: Set<string>;
   isLoading?: boolean;
-  onAddSimpleNote: () => void;
-  onAddAccessNote: () => void;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
   onReorderNotes: (notes: Note[]) => void;
@@ -31,26 +26,11 @@ interface VaultViewProps {
 export function VaultView({
   selectedVault,
   vaultNotes,
-  lockedNotes,
   isLoading,
-  onAddSimpleNote,
-  onAddAccessNote,
   onUpdateNote,
   onDeleteNote,
   onReorderNotes,
 }: VaultViewProps) {
-  const [createType, setCreateType] = useState<string | null>(null);
-  const [noteTypeSelectorOpen, setNoteTypeSelectorOpen] = useState(false);
-
-  useEffect(() => {
-    if (createType) {
-      const timer = setTimeout(() => {
-        setCreateType(null);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [createType]);
-
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -72,34 +52,11 @@ export function VaultView({
     }
   };
 
-  const handleNewNoteClick = () => {
-    setNoteTypeSelectorOpen(true);
-  };
-
-  const handleSelectSimpleNote = () => {
-    setCreateType('simpleNote');
-    onAddSimpleNote();
-  };
-
-  const handleSelectAccessNote = () => {
-    setCreateType('accessNote');
-    onAddAccessNote();
-  };
-
   return (
     <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
       {selectedVault ? (
         <>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h4">{selectedVault.name}</Typography>
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={handleNewNoteClick}
-            >
-              New Note
-            </Button>
-          </Box>
+          <Typography variant="h4">{selectedVault.name}</Typography>
 
           <Divider sx={{ my: 3 }} />
 
@@ -114,9 +71,6 @@ export function VaultView({
               <Typography color="text.secondary" gutterBottom>
                 No notes yet in this vault
               </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Click "New Note" to create your first note
-              </Typography>
             </Box>
           ) : (
             <Box>
@@ -129,7 +83,6 @@ export function VaultView({
               <SortableContext items={vaultNotes.map((n) => n.id)} strategy={verticalListSortingStrategy}>
                 <NoteList
                   notes={vaultNotes}
-                  lockedNotes={lockedNotes}
                   onUpdateNote={onUpdateNote}
                   onDeleteNote={onDeleteNote}
                 />
@@ -156,13 +109,6 @@ export function VaultView({
           </Typography>
         </Box>
       )}
-
-      <NoteTypeSelector
-        open={noteTypeSelectorOpen}
-        onClose={() => setNoteTypeSelectorOpen(false)}
-        onSelectSimpleNote={handleSelectSimpleNote}
-        onSelectAccessNote={handleSelectAccessNote}
-      />
     </Box>
   );
 }

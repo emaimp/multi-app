@@ -30,7 +30,6 @@ interface VaultContextType {
   reorderVaultsInCollection: (collectionId: string, vault_ids: string[]) => void;
   
   // CRUD Notes
-  lockedNotes: Set<string>;
   createNote: (vaultId: string, title: string, content: string, color?: string) => Promise<void>;
   updateNote: (noteId: string, title: string, content: string, color?: string, image?: string | null) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
@@ -64,7 +63,6 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const {
     notes,
-    lockedNotes,
     loadNotes: loadNotesHook,
     createNote: createNoteHook,
     updateNote: updateNoteHook,
@@ -261,7 +259,6 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         deleteVault,
         reorderVaults,
         reorderVaultsInCollection,
-        lockedNotes,
         createNote,
         updateNote,
         deleteNote,
