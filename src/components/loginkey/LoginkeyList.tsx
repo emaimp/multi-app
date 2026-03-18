@@ -6,13 +6,13 @@ import { LoginkeyItem } from './LoginkeyItem';
 
 interface LoginkeyListProps {
   loginKeys: LoginKey[];
-  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string) => void;
+  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
 interface SortableLoginKeyItemProps {
   loginkey: LoginKey;
-  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string) => void;
+  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
 

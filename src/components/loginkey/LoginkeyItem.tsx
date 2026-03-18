@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { Box, TextField, IconButton, Typography, InputAdornment } from '@mui/material';
+import { Box, TextField, IconButton, Typography, InputAdornment, Link } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
+import { openUrl } from '@tauri-apps/plugin-opener';
 import { LoginKey } from '../../types/loginkey';
 import { ConfirmDialog } from '../ui';
 import { LOGINKEY_COLORS_HEX } from '../../types/loginkey';
@@ -15,7 +18,7 @@ interface LoginkeyItemProps {
   loginkey: LoginKey;
   dragAttributes?: Record<string, unknown>;
   dragListeners?: Record<string, unknown>;
-  onUpdate: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string) => void;
+  onUpdate: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDelete: (loginKeyId: string) => void;
 }
 
@@ -25,12 +28,14 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
   const [url, setUrl] = useState(loginkey.url || '');
   const [username, setUsername] = useState(loginkey.username);
   const [password, setPassword] = useState(loginkey.password);
+  const [details, setDetails] = useState(loginkey.details || '');
   const [showPassword, setShowPassword] = useState(false);
   const [showUsername, setShowUsername] = useState(false);
   const [copiedUsername, setCopiedUsername] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
 
   const colorHex = LOGINKEY_COLORS_HEX[loginkey.color] || LOGINKEY_COLORS_HEX.blue;
 
@@ -40,8 +45,8 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
 
   const handleSiteNameBlur = () => {
     setIsEditingSiteName(false);
-    if (siteName !== loginkey.site_name) {
-      onUpdate(loginkey.id, siteName, url || null, username, password);
+    if (siteName !== loginkey.site_name || url !== (loginkey.url || '') || username !== loginkey.username || password !== loginkey.password || details !== (loginkey.details || '')) {
+      onUpdate(loginkey.id, siteName, url || null, username, password, details || null);
     }
   };
 
@@ -52,7 +57,7 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
   };
 
   const handleSave = () => {
-    onUpdate(loginkey.id, siteName, url || null, username, password);
+    onUpdate(loginkey.id, siteName, url || null, username, password, details || null);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -82,6 +87,16 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
     setConfirmOpen(false);
   };
 
+  const handleUrlClick = async () => {
+    if (isLocked && url) {
+      try {
+        await openUrl(url);
+      } catch (e) {
+        console.error('Failed to open URL:', e);
+      }
+    }
+  };
+
   return (
     <>
       <Box
@@ -106,7 +121,7 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
             borderColor: colorHex,
           }}
         >
-          {isEditingSiteName ? (
+          {isEditingSiteName && !isLocked ? (
             <TextField
               autoFocus
               size="small"
@@ -132,15 +147,31 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
               sx={{
                 flexGrow: 1,
                 fontWeight: 500,
-                cursor: 'pointer',
+                cursor: isLocked ? 'default' : 'pointer',
+                opacity: isLocked ? 0.7 : 1,
+                '&:hover': !isLocked ? {
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                } : {},
                 px: 0.5,
                 borderRadius: 0.5,
               }}
-              onClick={() => setIsEditingSiteName(true)}
+              onClick={() => !isLocked && setIsEditingSiteName(true)}
             >
               {loginkey.site_name || 'Untitled Login Key'}
             </Typography>
           )}
+
+          <IconButton
+            size="small"
+            onClick={() => setIsLocked(!isLocked)}
+            sx={{
+              color: isLocked ? 'success.main' : 'inherit',
+              opacity: isLocked ? 1 : 0.6,
+              '&:hover': { opacity: 1 },
+            }}
+          >
+            {isLocked ? <LockIcon fontSize="small" /> : <LockOpenIcon fontSize="small" />}
+          </IconButton>
 
           <IconButton
             size="small"
@@ -172,22 +203,44 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
         </Box>
 
         <Box sx={{ p: 2 }}>
-          <TextField
-            fullWidth
-            variant="standard"
-            label="URL"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://example.com"
-            InputProps={{
-              disableUnderline: true,
-              sx: {
-                fontSize: '0.9rem',
-                mb: 1,
-              },
-            }}
-            sx={{ mb: 1 }}
-          />
+          {isLocked ? (
+            <Box sx={{ mb: 1 }}>
+              <Typography variant="caption" color="text.secondary">URL</Typography>
+              <Link
+                component="button"
+                onClick={handleUrlClick}
+                sx={{
+                  display: 'block',
+                  color: 'primary.main',
+                  textDecoration: 'none',
+                  cursor: url ? 'pointer' : 'default',
+                  opacity: url ? 1 : 0.5,
+                  '&:hover': url ? {
+                    textDecoration: 'underline',
+                  } : {},
+                }}
+              >
+                {url || 'No URL'}
+              </Link>
+            </Box>
+          ) : (
+            <TextField
+              fullWidth
+              variant="standard"
+              label="URL"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com"
+              InputProps={{
+                disableUnderline: true,
+                sx: {
+                  fontSize: '0.9rem',
+                  mb: 1,
+                },
+              }}
+              sx={{ mb: 1 }}
+            />
+          )}
 
           <TextField
             fullWidth
@@ -195,8 +248,9 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
             type={showUsername ? 'text' : 'password'}
             label="Username / Email"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => !isLocked && setUsername(e.target.value)}
             placeholder="Username / Email"
+            disabled={isLocked}
             InputProps={{
               disableUnderline: true,
               sx: {
@@ -236,8 +290,9 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
             type={showPassword ? 'text' : 'password'}
             label="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => !isLocked && setPassword(e.target.value)}
             placeholder="Password"
+            disabled={isLocked}
             InputProps={{
               disableUnderline: true,
               sx: {
@@ -267,6 +322,26 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
                 </InputAdornment>
               ),
             }}
+          />
+
+          <TextField
+            fullWidth
+            variant="standard"
+            label="Details"
+            value={details}
+            onChange={(e) => !isLocked && setDetails(e.target.value)}
+            placeholder="Additional details..."
+            disabled={isLocked}
+            multiline
+            rows={2}
+            InputProps={{
+              disableUnderline: true,
+              sx: {
+                fontSize: '0.9rem',
+                mt: 1,
+              },
+            }}
+            sx={{ mt: 1 }}
           />
         </Box>
       </Box>
