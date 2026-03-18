@@ -7,10 +7,11 @@ import {
   Button,
   TextField,
   Box,
+  Typography,
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { LoginKey } from '../../types/loginkey';
+import { LoginKey, LOGINKEY_COLORS, LOGINKEY_COLORS_HEX } from '../../types/loginkey';
 import { ConfirmDialog, AvatarPicker } from '../ui';
 
 interface LoginkeyEditDialogProps {
@@ -23,10 +24,6 @@ interface LoginkeyEditDialogProps {
 
 export function LoginkeyEditDialog({ open, loginkey, onClose, onSave, onDelete }: LoginkeyEditDialogProps) {
   const [siteName, setSiteName] = useState(loginkey?.site_name || '');
-  const [url, setUrl] = useState(loginkey?.url || '');
-  const [username, setUsername] = useState(loginkey?.username || '');
-  const [password, setPassword] = useState(loginkey?.password || '');
-  const [details, setDetails] = useState(loginkey?.details || '');
   const [color, setColor] = useState(loginkey?.color || 'blue');
   const [image, setImage] = useState<string | null>(loginkey?.image || null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -34,10 +31,6 @@ export function LoginkeyEditDialog({ open, loginkey, onClose, onSave, onDelete }
   useEffect(() => {
     if (loginkey) {
       setSiteName(loginkey.site_name);
-      setUrl(loginkey.url || '');
-      setUsername(loginkey.username);
-      setPassword(loginkey.password);
-      setDetails(loginkey.details || '');
       setColor(loginkey.color);
       setImage(loginkey.image || null);
     }
@@ -50,10 +43,6 @@ export function LoginkeyEditDialog({ open, loginkey, onClose, onSave, onDelete }
       onSave({
         ...loginkey,
         site_name: siteName.trim(),
-        url: url || null,
-        username,
-        password,
-        details: details || null,
         color,
       }, image);
       onClose();
@@ -93,41 +82,40 @@ export function LoginkeyEditDialog({ open, loginkey, onClose, onSave, onDelete }
               onChange={(e) => setSiteName(e.target.value)}
             />
 
-            <TextField
-              label="URL"
-              fullWidth
-              variant="outlined"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-            />
-
-            <TextField
-              label="Username / Email"
-              fullWidth
-              variant="outlined"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-
-            <TextField
-              label="Password"
-              fullWidth
-              variant="outlined"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-
-            <TextField
-              label="Details"
-              fullWidth
-              variant="outlined"
-              multiline
-              rows={3}
-              value={details}
-              onChange={(e) => setDetails(e.target.value)}
-            />
+            <Box>
+              <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Color
+              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: 2,
+                p: 2,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: 1,
+              }}>
+                {LOGINKEY_COLORS.map((c: string) => (
+                  <Box
+                    key={c}
+                    onClick={() => setColor(c)}
+                    sx={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      bgcolor: LOGINKEY_COLORS_HEX[c],
+                      cursor: 'pointer',
+                      border: color === c ? '3px solid' : '2px solid',
+                      borderColor: color === c ? 'text.primary' : 'transparent',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        transform: 'scale(1.1)',
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
           </Stack>
         </DialogContent>
         <DialogActions>

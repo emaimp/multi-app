@@ -1,32 +1,112 @@
-import { Box, IconButton, Tooltip, Divider } from '@mui/material';
+import { Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LoginIcon from '@mui/icons-material/Login';
 import NoteIcon from '@mui/icons-material/Note';
 import { FilterHeader } from './ui/headers/FilterHeader';
+import { NoteCard } from './note/NoteCard';
+import { LoginkeyCard } from './loginkey/LoginkeyCard';
+import { Note } from '../types/note';
+import { LoginKey } from '../types/loginkey';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 interface SecondarySidebarProps {
   open: boolean;
+  notes: Note[];
+  loginKeys: LoginKey[];
   onFilterClick?: () => void;
   onSortClick?: () => void;
-  onNoteClick?: () => void;
-  children?: React.ReactNode;
+  onCreateNote?: () => void;
+  onCreateLoginKey?: () => void;
+  onEditNote?: (note: Note) => void;
+  onEditLoginKey?: (loginkey: LoginKey) => void;
+  onReorderNotes?: (notes: Note[]) => void;
+  onReorderLoginKeys?: (loginKeys: LoginKey[]) => void;
 }
 
 export function SecondarySidebar({
   open,
+  notes,
+  loginKeys,
   onFilterClick,
   onSortClick,
-  onNoteClick,
-  children,
+  onCreateNote,
+  onCreateLoginKey,
+  onEditNote,
+  onEditLoginKey,
+  onReorderNotes,
+  onReorderLoginKeys,
 }: SecondarySidebarProps) {
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEndLoginKeys = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id && onReorderLoginKeys) {
+      const oldIndex = loginKeys.findIndex((lk) => lk.id === active.id);
+      const newIndex = loginKeys.findIndex((lk) => lk.id === over.id);
+      onReorderLoginKeys(arrayMove(loginKeys, oldIndex, newIndex));
+    }
+  };
+
+  const handleDragEndNotes = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id && onReorderNotes) {
+      const oldIndex = notes.findIndex((n) => n.id === active.id);
+      const newIndex = notes.findIndex((n) => n.id === over.id);
+      onReorderNotes(arrayMove(notes, oldIndex, newIndex));
+    }
+  };
 
   const buttons = [
     { icon: <BadgeIcon />, label: 'ID', onClick: undefined },
     { icon: <CreditCardIcon />, label: 'Credit Card', onClick: undefined },
-    { icon: <LoginIcon />, label: 'Login', onClick: undefined },
-    { icon: <NoteIcon />, label: 'Note', onClick: onNoteClick },
+    { icon: <LoginIcon />, label: 'Login Key', onClick: onCreateLoginKey },
+    { icon: <NoteIcon />, label: 'Note', onClick: onCreateNote },
   ];
+
+  function SortableNoteCard({ note, onEdit }: { note: Note; onEdit: (note: Note) => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = 
+      useSortable({ id: note.id });
+    const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+    return (
+      <Box ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <NoteCard note={note} onEdit={onEdit} />
+      </Box>
+    );
+  }
+
+  function SortableLoginkeyCard({ loginkey, onEdit }: { loginkey: LoginKey; onEdit: (loginkey: LoginKey) => void }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = 
+      useSortable({ id: loginkey.id });
+    const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
+    return (
+      <Box ref={setNodeRef} style={style} {...attributes} {...listeners}>
+        <LoginkeyCard loginkey={loginkey} onEdit={onEdit} />
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -97,7 +177,64 @@ export function SecondarySidebar({
       </Box>
 
       <Box sx={{ flex: 1, overflow: 'auto' }}>
-        {children}
+        {loginKeys.length > 0 && (
+          <>
+            <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Login Keys
+              </Typography>
+            </Box>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEndLoginKeys}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext
+                items={loginKeys.map((lk) => lk.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {loginKeys.map((loginkey) => (
+                  <SortableLoginkeyCard
+                    key={loginkey.id}
+                    loginkey={loginkey}
+                    onEdit={onEditLoginKey || (() => {})}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          </>
+        )}
+
+        {notes.length > 0 && (
+          <>
+            <Divider sx={{ my: 1 }} />
+            <Box sx={{ px: 2, pt: 1, pb: 1 }}>
+              <Typography variant="subtitle2" color="text.secondary">
+                Notas
+              </Typography>
+            </Box>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEndNotes}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext
+                items={notes.map((n) => n.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {notes.map((note) => (
+                  <SortableNoteCard
+                    key={note.id}
+                    note={note}
+                    onEdit={onEditNote || (() => {})}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          </>
+        )}
       </Box>
     </Box>
   );

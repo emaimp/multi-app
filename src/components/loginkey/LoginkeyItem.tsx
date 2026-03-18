@@ -9,6 +9,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { LoginKey } from '../../types/loginkey';
 import { ConfirmDialog } from '../ui';
+import { LOGINKEY_COLORS_HEX } from '../../types/loginkey';
 
 interface LoginkeyItemProps {
   loginkey: LoginKey;
@@ -30,6 +31,8 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
   const [copiedPassword, setCopiedPassword] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  const colorHex = LOGINKEY_COLORS_HEX[loginkey.color] || LOGINKEY_COLORS_HEX.blue;
 
   const handleSiteNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSiteName(e.target.value);
@@ -98,9 +101,9 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
             alignItems: 'center',
             px: 1,
             py: 1,
-            bgcolor: '#2563eb' + '20',
+            bgcolor: colorHex + '20',
             borderBottom: '2px solid',
-            borderColor: '#2563eb',
+            borderColor: colorHex,
           }}
         >
           {isEditingSiteName ? (

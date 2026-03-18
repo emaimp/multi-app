@@ -1,9 +1,11 @@
 import { createContext, useContext, ReactNode, useCallback } from 'react';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
+import { LoginKey } from '../types/loginkey';
 import { Collection } from '../types/collection';
 import { useVaults as useVaultsHook } from '../hooks/useVaults';
 import { useNotes as useNotesHook } from '../hooks/useNotes';
+import { useLoginKeys as useLoginKeysHook } from '../hooks/useLoginKeys';
 import { useCollections as useCollectionsHook } from '../hooks/useCollections';
 import { useBackend } from '../hooks/useBackend';
 
@@ -11,6 +13,7 @@ interface VaultContextType {
   // States
   vaults: Vault[];
   notes: Note[];
+  loginKeys: LoginKey[];
   collections: Collection[];
   
   // Active states
@@ -34,6 +37,12 @@ interface VaultContextType {
   updateNote: (noteId: string, title: string, content: string, color?: string, image?: string | null) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   reorderNotes: (notes: Note[]) => Promise<void>;
+
+  // CRUD LoginKeys
+  createLoginKey: (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string) => Promise<void>;
+  updateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => Promise<void>;
+  deleteLoginKey: (loginKeyId: string) => Promise<void>;
+  reorderLoginKeys: (loginKeys: LoginKey[]) => Promise<void>;
   
   // CRUD Collections
   createCollection: (name: string) => Promise<void>;
@@ -71,6 +80,17 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     setNotes,
     clearNotes,
   } = useNotesHook();
+
+  const {
+    loginKeys,
+    loadLoginKeys: loadLoginKeysHook,
+    createLoginKey: createLoginKeyHook,
+    updateLoginKey: updateLoginKeyHook,
+    deleteLoginKey: deleteLoginKeyHook,
+    reorderLoginKeys: reorderLoginKeysHook,
+    setLoginKeys,
+    clearLoginKeys,
+  } = useLoginKeysHook();
 
   const {
     collections,
@@ -135,14 +155,17 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
     await deleteVaultHook(vaultId);
     setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
+    setLoginKeys((prev) => prev.filter((lk) => lk.vault_id !== vaultId));
     if (activeVault === vaultId) {
       clearNotes();
+      clearLoginKeys();
     }
   };
 
   const selectVault = async (vaultId: string) => {
     await selectVaultHook(vaultId);
     await loadNotesHook(vaultId);
+    await loadLoginKeysHook(vaultId);
   };
 
   const reorderVaults = async (reorderedVaults: Vault[]) => {
@@ -164,6 +187,23 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const reorderNotes = async (reorderedNotes: Note[]) => {
     await reorderNotesHook(reorderedNotes);
+  };
+
+  // CRUD LoginKeys
+  const createLoginKey = async (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string) => {
+    await createLoginKeyHook(vaultId, siteName, url, username, password, details, color);
+  };
+
+  const updateLoginKey = async (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => {
+    await updateLoginKeyHook(loginKeyId, siteName, url, username, password, details, color, image);
+  };
+
+  const deleteLoginKey = async (loginKeyId: string) => {
+    await deleteLoginKeyHook(loginKeyId);
+  };
+
+  const reorderLoginKeys = async (reorderedLoginKeys: LoginKey[]) => {
+    await reorderLoginKeysHook(reorderedLoginKeys);
   };
 
   // CRUD Collections
@@ -263,6 +303,11 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         updateNote,
         deleteNote,
         reorderNotes,
+        loginKeys,
+        createLoginKey,
+        updateLoginKey,
+        deleteLoginKey,
+        reorderLoginKeys,
         createCollection,
         updateCollection,
         deleteCollection,
