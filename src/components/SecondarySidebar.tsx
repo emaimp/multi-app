@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -28,6 +29,8 @@ interface SecondarySidebarProps {
   loginKeys: LoginKey[];
   filterType?: 'all' | 'loginKeys' | 'notes';
   onFilterChange?: (filter: 'all' | 'loginKeys' | 'notes') => void;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
   onSortClick?: () => void;
   onCreateNote?: () => void;
   onCreateLoginKey?: () => void;
@@ -35,6 +38,7 @@ interface SecondarySidebarProps {
   onEditLoginKey?: (loginkey: LoginKey) => void;
   onReorderNotes?: (notes: Note[]) => void;
   onReorderLoginKeys?: (loginKeys: LoginKey[]) => void;
+  onClose?: () => void;
 }
 
 export function SecondarySidebar({
@@ -43,6 +47,8 @@ export function SecondarySidebar({
   loginKeys,
   filterType = 'all',
   onFilterChange,
+  searchQuery = '',
+  onSearchChange,
   onSortClick,
   onCreateNote,
   onCreateLoginKey,
@@ -50,10 +56,35 @@ export function SecondarySidebar({
   onEditLoginKey,
   onReorderNotes,
   onReorderLoginKeys,
+  onClose,
 }: SecondarySidebarProps) {
 
-  const filteredLoginKeys = filterType === 'notes' ? [] : loginKeys;
-  const filteredNotes = filterType === 'loginKeys' ? [] : notes;
+  useEffect(() => {
+    if (!open && onClose) {
+      onClose();
+    }
+  }, [open, onClose]);
+
+  const searchLower = searchQuery.toLowerCase();
+
+  const matchesLoginKeySearch = (lk: LoginKey) => {
+    if (!searchQuery) return true;
+    return lk.site_name.toLowerCase().includes(searchLower) ||
+           lk.username.toLowerCase().includes(searchLower) ||
+           (lk.url?.toLowerCase().includes(searchLower) ?? false);
+  };
+
+  const matchesNoteSearch = (note: Note) => {
+    if (!searchQuery) return true;
+    return note.title.toLowerCase().includes(searchLower) ||
+           note.content.toLowerCase().includes(searchLower);
+  };
+
+  const filteredByTypeLoginKeys = filterType === 'notes' ? [] : loginKeys;
+  const filteredByTypeNotes = filterType === 'loginKeys' ? [] : notes;
+
+  const filteredLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
+  const filteredNotes = filteredByTypeNotes.filter(matchesNoteSearch);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -144,6 +175,8 @@ export function SecondarySidebar({
           onFilterChange={onFilterChange}
           hasLoginKeys={loginKeys.length > 0}
           hasNotes={notes.length > 0}
+          searchQuery={searchQuery}
+          onSearchChange={onSearchChange}
         />
       </Box>
 

@@ -21,6 +21,7 @@ interface VaultViewProps {
   vaultNotes: Note[];
   vaultLoginKeys: LoginKey[];
   filterType?: 'all' | 'loginKeys' | 'notes';
+  searchQuery?: string;
   isLoading?: boolean;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
@@ -35,6 +36,7 @@ export function VaultView({
   vaultNotes,
   vaultLoginKeys,
   filterType = 'all',
+  searchQuery = '',
   isLoading,
   onUpdateNote,
   onDeleteNote,
@@ -43,8 +45,26 @@ export function VaultView({
   onDeleteLoginKey,
   onReorderLoginKeys,
 }: VaultViewProps) {
-  const filteredVaultLoginKeys = filterType === 'notes' ? [] : vaultLoginKeys;
-  const filteredVaultNotes = filterType === 'loginKeys' ? [] : vaultNotes;
+  const searchLower = searchQuery.toLowerCase();
+
+  const matchesLoginKeySearch = (lk: LoginKey) => {
+    if (!searchQuery) return true;
+    return lk.site_name.toLowerCase().includes(searchLower) ||
+           lk.username.toLowerCase().includes(searchLower) ||
+           (lk.url?.toLowerCase().includes(searchLower) ?? false);
+  };
+
+  const matchesNoteSearch = (note: Note) => {
+    if (!searchQuery) return true;
+    return note.title.toLowerCase().includes(searchLower) ||
+           note.content.toLowerCase().includes(searchLower);
+  };
+
+  const filteredByTypeLoginKeys = filterType === 'notes' ? [] : vaultLoginKeys;
+  const filteredByTypeNotes = filterType === 'loginKeys' ? [] : vaultNotes;
+
+  const filteredVaultLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
+  const filteredVaultNotes = filteredByTypeNotes.filter(matchesNoteSearch);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {

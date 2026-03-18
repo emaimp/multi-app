@@ -14,6 +14,8 @@ interface FilterHeaderProps {
   onFilterChange?: (filter: FilterType) => void;
   hasLoginKeys?: boolean;
   hasNotes?: boolean;
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
 }
 
 export function FilterHeader({
@@ -22,6 +24,8 @@ export function FilterHeader({
   onFilterChange,
   hasLoginKeys = true,
   hasNotes = true,
+  searchQuery = '',
+  onSearchChange,
 }: FilterHeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -115,7 +119,9 @@ export function FilterHeader({
       <TextField
         size="small"
         placeholder="Search..."
-        variant="outlined"
+        variant="standard"
+        value={searchQuery}
+        onChange={(e) => onSearchChange?.(e.target.value)}
         sx={{
           flex: 1,
           '& .MuiOutlinedInput-root': {
