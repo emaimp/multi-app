@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod collections;
+pub mod login_keys;
 pub mod notes;
 pub mod vaults;
 
@@ -33,6 +34,12 @@ pub fn run() {
             notes::update_note,
             notes::update_note_position,
             notes::delete_note,
+            login_keys::get_login_keys_decrypted,
+            login_keys::get_login_key_with_content,
+            login_keys::create_login_key,
+            login_keys::update_login_key,
+            login_keys::update_login_key_position,
+            login_keys::delete_login_key,
             collections::get_collections,
             collections::create_collection,
             collections::update_collection,

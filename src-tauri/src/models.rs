@@ -50,6 +50,22 @@ pub struct Note {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LoginKey {
+    pub id: String,
+    pub vault_id: String,
+    pub site_name: String,
+    pub url: Option<String>,
+    pub username: String,
+    pub password: String,
+    pub details: Option<String>,
+    pub color: String,
+    pub image: Option<String>,
+    pub created_at: i64,
+    pub updated_at: i64,
+    pub position: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Collection {
     pub id: String,
     pub user_id: i32,
