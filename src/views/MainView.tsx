@@ -99,6 +99,7 @@ export function MainView() {
   const [editingLoginKey, setEditingLoginKey] = useState<LoginKey | null>(null);
   const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [filterType, setFilterType] = useState<'all' | 'loginKeys' | 'notes'>('all');
 
   const selectedVault = vaults.find((v) => v.id === activeVault);
   const vaultNotes = activeVault 
@@ -205,8 +206,9 @@ export function MainView() {
               open={!!activeVault}
               notes={sortedVaultNotes}
               loginKeys={loginKeys}
+              filterType={filterType}
+              onFilterChange={setFilterType}
               onSortClick={handleSortNotes}
-              onFilterClick={() => {}}
               onCreateNote={() => setCreateNoteDialogOpen(true)}
               onCreateLoginKey={() => setCreateLoginKeyDialogOpen(true)}
               onEditNote={handleEditNote}
@@ -219,6 +221,7 @@ export function MainView() {
               selectedVault={selectedVault}
               vaultNotes={sortedVaultNotes}
               vaultLoginKeys={loginKeys}
+              filterType={filterType}
               isLoading={isLoadingContent}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}

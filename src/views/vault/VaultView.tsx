@@ -20,6 +20,7 @@ interface VaultViewProps {
   selectedVault: Vault | undefined;
   vaultNotes: Note[];
   vaultLoginKeys: LoginKey[];
+  filterType?: 'all' | 'loginKeys' | 'notes';
   isLoading?: boolean;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
@@ -33,6 +34,7 @@ export function VaultView({
   selectedVault,
   vaultNotes,
   vaultLoginKeys,
+  filterType = 'all',
   isLoading,
   onUpdateNote,
   onDeleteNote,
@@ -41,6 +43,8 @@ export function VaultView({
   onDeleteLoginKey,
   onReorderLoginKeys,
 }: VaultViewProps) {
+  const filteredVaultLoginKeys = filterType === 'notes' ? [] : vaultLoginKeys;
+  const filteredVaultNotes = filterType === 'loginKeys' ? [] : vaultNotes;
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -72,8 +76,8 @@ export function VaultView({
     }
   };
 
-  const hasLoginKeys = vaultLoginKeys.length > 0;
-  const hasNotes = vaultNotes.length > 0;
+  const hasLoginKeys = filteredVaultLoginKeys.length > 0;
+  const hasNotes = filteredVaultNotes.length > 0;
 
   return (
     <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
@@ -106,11 +110,11 @@ export function VaultView({
                     modifiers={[restrictToVerticalAxis]}
                   >
                     <SortableContext 
-                      items={vaultLoginKeys.map((lk) => lk.id)} 
+                      items={filteredVaultLoginKeys.map((lk) => lk.id)} 
                       strategy={verticalListSortingStrategy}
                     >
                       <LoginkeyList
-                        loginKeys={vaultLoginKeys}
+                        loginKeys={filteredVaultLoginKeys}
                         onUpdateLoginKey={onUpdateLoginKey}
                         onDeleteLoginKey={onDeleteLoginKey}
                       />
@@ -128,11 +132,11 @@ export function VaultView({
                   modifiers={[restrictToVerticalAxis]}
                 >
                   <SortableContext 
-                    items={vaultNotes.map((n) => n.id)} 
+                    items={filteredVaultNotes.map((n) => n.id)} 
                     strategy={verticalListSortingStrategy}
                   >
                     <NoteList
-                      notes={vaultNotes}
+                      notes={filteredVaultNotes}
                       onUpdateNote={onUpdateNote}
                       onDeleteNote={onDeleteNote}
                     />

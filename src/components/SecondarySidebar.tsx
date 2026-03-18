@@ -26,7 +26,8 @@ interface SecondarySidebarProps {
   open: boolean;
   notes: Note[];
   loginKeys: LoginKey[];
-  onFilterClick?: () => void;
+  filterType?: 'all' | 'loginKeys' | 'notes';
+  onFilterChange?: (filter: 'all' | 'loginKeys' | 'notes') => void;
   onSortClick?: () => void;
   onCreateNote?: () => void;
   onCreateLoginKey?: () => void;
@@ -40,7 +41,8 @@ export function SecondarySidebar({
   open,
   notes,
   loginKeys,
-  onFilterClick,
+  filterType = 'all',
+  onFilterChange,
   onSortClick,
   onCreateNote,
   onCreateLoginKey,
@@ -49,6 +51,9 @@ export function SecondarySidebar({
   onReorderNotes,
   onReorderLoginKeys,
 }: SecondarySidebarProps) {
+
+  const filteredLoginKeys = filterType === 'notes' ? [] : loginKeys;
+  const filteredNotes = filterType === 'loginKeys' ? [] : notes;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -135,7 +140,10 @@ export function SecondarySidebar({
       >
         <FilterHeader
           onSortClick={onSortClick}
-          onFilterClick={onFilterClick}
+          filterType={filterType}
+          onFilterChange={onFilterChange}
+          hasLoginKeys={loginKeys.length > 0}
+          hasNotes={notes.length > 0}
         />
       </Box>
 
@@ -177,7 +185,7 @@ export function SecondarySidebar({
       </Box>
 
       <Box sx={{ flex: 1, overflow: 'auto' }}>
-        {loginKeys.length > 0 && (
+        {filteredLoginKeys.length > 0 && (
           <>
             <Box sx={{ px: 2, pt: 2, pb: 1 }}>
               <Typography variant="subtitle2" color="text.secondary">
@@ -191,10 +199,10 @@ export function SecondarySidebar({
               modifiers={[restrictToVerticalAxis]}
             >
               <SortableContext
-                items={loginKeys.map((lk) => lk.id)}
+                items={filteredLoginKeys.map((lk) => lk.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {loginKeys.map((loginkey) => (
+                {filteredLoginKeys.map((loginkey) => (
                   <SortableLoginkeyCard
                     key={loginkey.id}
                     loginkey={loginkey}
@@ -206,7 +214,7 @@ export function SecondarySidebar({
           </>
         )}
 
-        {notes.length > 0 && (
+        {filteredNotes.length > 0 && (
           <>
             <Divider sx={{ my: 1 }} />
             <Box sx={{ px: 2, pt: 1, pb: 1 }}>
@@ -221,10 +229,10 @@ export function SecondarySidebar({
               modifiers={[restrictToVerticalAxis]}
             >
               <SortableContext
-                items={notes.map((n) => n.id)}
+                items={filteredNotes.map((n) => n.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {notes.map((note) => (
+                {filteredNotes.map((note) => (
                   <SortableNoteCard
                     key={note.id}
                     note={note}
