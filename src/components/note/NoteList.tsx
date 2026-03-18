@@ -6,17 +6,24 @@ import { NoteItem } from './NoteItem';
 
 interface NoteListProps {
   notes: Note[];
+  isLockedByDefault?: boolean;
+  newlyCreatedIds?: Set<string>;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 
 interface SortableNoteItemProps {
   note: Note;
+  isLockedByDefault?: boolean;
+  newlyCreatedIds?: Set<string>;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 
-function SortableNoteItem({ note, onUpdateNote, onDeleteNote }: SortableNoteItemProps) {
+function SortableNoteItem({ note, isLockedByDefault, newlyCreatedIds, onUpdateNote, onDeleteNote }: SortableNoteItemProps) {
+  const isNewlyCreated = newlyCreatedIds?.has(note.id) ?? false;
+  const itemIsLockedByDefault = isNewlyCreated ? false : (isLockedByDefault ?? true);
+  
   const {
     attributes,
     listeners,
@@ -40,6 +47,7 @@ function SortableNoteItem({ note, onUpdateNote, onDeleteNote }: SortableNoteItem
     >
       <NoteItem
         note={note}
+        isLockedByDefault={itemIsLockedByDefault}
         onUpdate={onUpdateNote}
         onDelete={onDeleteNote}
         dragAttributes={attributes as any}
@@ -49,13 +57,15 @@ function SortableNoteItem({ note, onUpdateNote, onDeleteNote }: SortableNoteItem
   );
 }
 
-export function NoteList({ notes, onUpdateNote, onDeleteNote }: NoteListProps) {
+export function NoteList({ notes, isLockedByDefault, newlyCreatedIds, onUpdateNote, onDeleteNote }: NoteListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {notes.map((note) => (
         <SortableNoteItem
           key={note.id}
           note={note}
+          isLockedByDefault={isLockedByDefault}
+          newlyCreatedIds={newlyCreatedIds}
           onUpdateNote={onUpdateNote}
           onDeleteNote={onDeleteNote}
         />

@@ -22,6 +22,9 @@ interface VaultViewProps {
   vaultLoginKeys: LoginKey[];
   filterType?: 'all' | 'loginKeys' | 'notes';
   searchQuery?: string;
+  isLockedByDefault?: boolean;
+  newlyCreatedNoteIds?: Set<string>;
+  newlyCreatedLoginKeyIds?: Set<string>;
   isLoading?: boolean;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
@@ -37,6 +40,9 @@ export function VaultView({
   vaultLoginKeys,
   filterType = 'all',
   searchQuery = '',
+  isLockedByDefault = true,
+  newlyCreatedNoteIds,
+  newlyCreatedLoginKeyIds,
   isLoading,
   onUpdateNote,
   onDeleteNote,
@@ -135,6 +141,8 @@ export function VaultView({
                     >
                       <LoginkeyList
                         loginKeys={filteredVaultLoginKeys}
+                        isLockedByDefault={isLockedByDefault}
+                        newlyCreatedIds={newlyCreatedLoginKeyIds}
                         onUpdateLoginKey={onUpdateLoginKey}
                         onDeleteLoginKey={onDeleteLoginKey}
                       />
@@ -157,6 +165,8 @@ export function VaultView({
                   >
                     <NoteList
                       notes={filteredVaultNotes}
+                      isLockedByDefault={isLockedByDefault}
+                      newlyCreatedIds={newlyCreatedNoteIds}
                       onUpdateNote={onUpdateNote}
                       onDeleteNote={onDeleteNote}
                     />

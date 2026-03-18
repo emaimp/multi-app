@@ -16,13 +16,14 @@ import { LOGINKEY_COLORS_HEX } from '../../types/loginkey';
 
 interface LoginkeyItemProps {
   loginkey: LoginKey;
+  isLockedByDefault?: boolean;
   dragAttributes?: Record<string, unknown>;
   dragListeners?: Record<string, unknown>;
   onUpdate: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDelete: (loginKeyId: string) => void;
 }
 
-export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate, onDelete }: LoginkeyItemProps) {
+export function LoginkeyItem({ loginkey, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: LoginkeyItemProps) {
   const [isEditingSiteName, setIsEditingSiteName] = useState(false);
   const [siteName, setSiteName] = useState(loginkey.site_name);
   const [url, setUrl] = useState(loginkey.url || '');
@@ -35,7 +36,7 @@ export function LoginkeyItem({ loginkey, dragAttributes, dragListeners, onUpdate
   const [copiedPassword, setCopiedPassword] = useState(false);
   const [saved, setSaved] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
+  const [isLocked, setIsLocked] = useState(isLockedByDefault);
 
   const colorHex = LOGINKEY_COLORS_HEX[loginkey.color] || LOGINKEY_COLORS_HEX.blue;
 

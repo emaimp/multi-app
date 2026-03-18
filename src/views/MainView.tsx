@@ -101,6 +101,15 @@ export function MainView() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'loginKeys' | 'notes'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [itemsLocked, setItemsLocked] = useState(true);
+  const [newlyCreatedNoteIds, setNewlyCreatedNoteIds] = useState<Set<string>>(new Set());
+  const [newlyCreatedLoginKeyIds, setNewlyCreatedLoginKeyIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (!activeVault) {
+      setItemsLocked(true);
+    }
+  }, [activeVault]);
 
   const selectedVault = vaults.find((v) => v.id === activeVault);
   const vaultNotes = activeVault 
@@ -146,15 +155,43 @@ export function MainView() {
     setCreateCollectionDialogOpen(true);
   };
 
-  const handleCreateNote = (title: string) => {
+  const handleCreateNote = async (title: string) => {
     if (activeVault && selectedVault) {
-      createNote(activeVault, title, '', selectedVault.color);
+      const newNote = await createNote(activeVault, title, '', selectedVault.color);
+      if (newNote) {
+        setNewlyCreatedNoteIds((prev) => {
+          const next = new Set(prev);
+          next.add(newNote.id);
+          return next;
+        });
+        setTimeout(() => {
+          setNewlyCreatedNoteIds((prev) => {
+            const next = new Set(prev);
+            next.delete(newNote.id);
+            return next;
+          });
+        }, 5000);
+      }
     }
   };
 
-  const handleCreateLoginKey = (siteName: string) => {
+  const handleCreateLoginKey = async (siteName: string) => {
     if (activeVault && selectedVault) {
-      createLoginKey(activeVault, siteName, null, '', '', null, selectedVault.color);
+      const newLoginKey = await createLoginKey(activeVault, siteName, null, '', '', null, selectedVault.color);
+      if (newLoginKey) {
+        setNewlyCreatedLoginKeyIds((prev) => {
+          const next = new Set(prev);
+          next.add(newLoginKey.id);
+          return next;
+        });
+        setTimeout(() => {
+          setNewlyCreatedLoginKeyIds((prev) => {
+            const next = new Set(prev);
+            next.delete(newLoginKey.id);
+            return next;
+          });
+        }, 5000);
+      }
     }
   };
 
@@ -227,6 +264,9 @@ export function MainView() {
               vaultLoginKeys={loginKeys}
               filterType={filterType}
               searchQuery={searchQuery}
+              isLockedByDefault={itemsLocked}
+              newlyCreatedNoteIds={newlyCreatedNoteIds}
+              newlyCreatedLoginKeyIds={newlyCreatedLoginKeyIds}
               isLoading={isLoadingContent}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}

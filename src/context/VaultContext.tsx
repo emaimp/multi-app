@@ -33,13 +33,13 @@ interface VaultContextType {
   reorderVaultsInCollection: (collectionId: string, vault_ids: string[]) => void;
   
   // CRUD Notes
-  createNote: (vaultId: string, title: string, content: string, color?: string) => Promise<void>;
+  createNote: (vaultId: string, title: string, content: string, color?: string) => Promise<Note | undefined>;
   updateNote: (noteId: string, title: string, content: string, color?: string, image?: string | null) => Promise<void>;
   deleteNote: (noteId: string) => Promise<void>;
   reorderNotes: (notes: Note[]) => Promise<void>;
 
   // CRUD LoginKeys
-  createLoginKey: (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string) => Promise<void>;
+  createLoginKey: (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string) => Promise<LoginKey | undefined>;
   updateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => Promise<void>;
   deleteLoginKey: (loginKeyId: string) => Promise<void>;
   reorderLoginKeys: (loginKeys: LoginKey[]) => Promise<void>;
@@ -173,8 +173,8 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   // CRUD Notes
-  const createNote = async (vaultId: string, title: string, content: string, color?: string) => {
-    await createNoteHook(vaultId, title, content, color);
+  const createNote = async (vaultId: string, title: string, content: string, color?: string): Promise<Note | undefined> => {
+    return await createNoteHook(vaultId, title, content, color);
   };
 
   const updateNote = async (noteId: string, title: string, content: string, color?: string, image?: string | null) => {
@@ -190,8 +190,8 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   // CRUD LoginKeys
-  const createLoginKey = async (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string) => {
-    await createLoginKeyHook(vaultId, siteName, url, username, password, details, color);
+  const createLoginKey = async (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string): Promise<LoginKey | undefined> => {
+    return await createLoginKeyHook(vaultId, siteName, url, username, password, details, color);
   };
 
   const updateLoginKey = async (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => {

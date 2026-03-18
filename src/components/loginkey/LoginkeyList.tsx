@@ -6,17 +6,24 @@ import { LoginkeyItem } from './LoginkeyItem';
 
 interface LoginkeyListProps {
   loginKeys: LoginKey[];
+  isLockedByDefault?: boolean;
+  newlyCreatedIds?: Set<string>;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
 interface SortableLoginKeyItemProps {
   loginkey: LoginKey;
+  isLockedByDefault?: boolean;
+  newlyCreatedIds?: Set<string>;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
-function SortableLoginKeyItem({ loginkey, onUpdateLoginKey, onDeleteLoginKey }: SortableLoginKeyItemProps) {
+function SortableLoginKeyItem({ loginkey, isLockedByDefault, newlyCreatedIds, onUpdateLoginKey, onDeleteLoginKey }: SortableLoginKeyItemProps) {
+  const isNewlyCreated = newlyCreatedIds?.has(loginkey.id) ?? false;
+  const itemIsLockedByDefault = isNewlyCreated ? false : (isLockedByDefault ?? true);
+
   const {
     attributes,
     listeners,
@@ -40,6 +47,7 @@ function SortableLoginKeyItem({ loginkey, onUpdateLoginKey, onDeleteLoginKey }: 
     >
       <LoginkeyItem
         loginkey={loginkey}
+        isLockedByDefault={itemIsLockedByDefault}
         onUpdate={onUpdateLoginKey}
         onDelete={onDeleteLoginKey}
         dragAttributes={attributes as any}
@@ -49,13 +57,15 @@ function SortableLoginKeyItem({ loginkey, onUpdateLoginKey, onDeleteLoginKey }: 
   );
 }
 
-export function LoginkeyList({ loginKeys, onUpdateLoginKey, onDeleteLoginKey }: LoginkeyListProps) {
+export function LoginkeyList({ loginKeys, isLockedByDefault, newlyCreatedIds, onUpdateLoginKey, onDeleteLoginKey }: LoginkeyListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {loginKeys.map((loginkey) => (
         <SortableLoginKeyItem
           key={loginkey.id}
           loginkey={loginkey}
+          isLockedByDefault={isLockedByDefault}
+          newlyCreatedIds={newlyCreatedIds}
           onUpdateLoginKey={onUpdateLoginKey}
           onDeleteLoginKey={onDeleteLoginKey}
         />
