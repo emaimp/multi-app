@@ -1,4 +1,4 @@
-export { default as AvatarPicker } from './AvatarPicker';
+export * from './avatar';
 export * from './dialogs';
 export * from './headers';
 export * from './layout';

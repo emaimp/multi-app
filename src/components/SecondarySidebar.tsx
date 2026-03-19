@@ -205,18 +205,20 @@ export function SecondarySidebar({
       >
         {buttons.map((btn, index) => (
           <Tooltip key={index} title={btn.label} arrow>
-            <IconButton
-              size="small"
-              onClick={btn.onClick}
-              disabled={!btn.onClick}
-              sx={{
-                bgcolor: 'action.selected',
-                borderRadius: 1,
-                '&:hover': { bgcolor: 'action.hover' },
-              }}
-            >
-              {btn.icon}
-            </IconButton>
+            <span>
+              <IconButton
+                size="small"
+                onClick={btn.onClick}
+                disabled={!btn.onClick}
+                sx={{
+                  bgcolor: 'action.selected',
+                  borderRadius: 1,
+                  '&:hover': { bgcolor: 'action.hover' },
+                }}
+              >
+                {btn.icon}
+              </IconButton>
+            </span>
           </Tooltip>
         ))}
       </Box>

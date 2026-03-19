@@ -1,6 +1,7 @@
-import { Box, Avatar, Typography, IconButton } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Note, NOTE_COLORS_HEX } from '../../types/note';
+import { AvatarDisplay } from '../ui';
 
 interface NoteCardProps {
   note: Note;
@@ -34,31 +35,10 @@ export function NoteCard({ note, onEdit, onClick, isSelected, isDragging, dragAt
       {...dragAttributes}
       {...dragListeners}
     >
-      {(() => {
-        const isSvgIcon = note.image?.startsWith('data:image/svg+xml');
-        const imageSize = isSvgIcon ? '75%' : '100%';
-        
-        return (
-          <Avatar
-            sx={{
-              width: 48,
-              height: 48,
-              color: 'text.primary',
-              bgcolor: 'action.hover',
-              border: '1px solid',
-              borderColor: 'divider',
-              '& img': {
-                objectFit: 'contain',
-                width: imageSize,
-                height: imageSize,
-              },
-            }}
-            src={note.image}
-          >
-            {note.title.charAt(0).toUpperCase()}
-          </Avatar>
-        );
-      })()}
+      <AvatarDisplay
+        src={note.image}
+        fallback={note.title.charAt(0).toUpperCase()}
+      />
 
       <Box sx={{ flexGrow: 1, ml: 2, overflow: 'hidden' }}>
         <Typography

@@ -1,6 +1,7 @@
-import { Box, Avatar, Typography, IconButton } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { LoginKey, LOGINKEY_COLORS_HEX } from '../../types/loginkey';
+import { AvatarDisplay } from '../ui';
 
 interface LoginkeyCardProps {
   loginkey: LoginKey;
@@ -34,31 +35,10 @@ export function LoginkeyCard({ loginkey, onEdit, onClick, isSelected, isDragging
       {...dragAttributes}
       {...dragListeners}
     >
-      {(() => {
-        const isSvgIcon = loginkey.image?.startsWith('data:image/svg+xml');
-        const imageSize = isSvgIcon ? '75%' : '100%';
-        
-        return (
-          <Avatar
-            sx={{
-              width: 48,
-              height: 48,
-              color: 'text.primary',
-              bgcolor: 'action.hover',
-              border: '1px solid',
-              borderColor: 'divider',
-              '& img': {
-                objectFit: 'contain',
-                width: imageSize,
-                height: imageSize,
-              },
-            }}
-            src={loginkey.image || undefined}
-          >
-            {loginkey.site_name.charAt(0).toUpperCase()}
-          </Avatar>
-        );
-      })()}
+      <AvatarDisplay
+        src={loginkey.image}
+        fallback={loginkey.site_name.charAt(0).toUpperCase()}
+      />
 
       <Box sx={{ flexGrow: 1, ml: 2, overflow: 'hidden' }}>
         <Typography

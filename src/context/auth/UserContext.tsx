@@ -113,22 +113,32 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('masterKey');
   };
 
+  function parseAvatarToBytes(avatar: string | null): number[] | null {
+    if (!avatar) return null;
+    
+    if (avatar.startsWith('data:image/svg+xml;utf-8,')) {
+      const encoded = avatar.split(',')[1];
+      const decoded = decodeURIComponent(encoded);
+      return Array.from(new TextEncoder().encode(decoded));
+    } else {
+      const base64Data = avatar.split(',')[1];
+      if (!base64Data) return null;
+      try {
+        return Array.from(Uint8Array.from(atob(base64Data), c => c.charCodeAt(0)));
+      } catch {
+        return Array.from(new TextEncoder().encode(atob(base64Data)));
+      }
+    }
+  }
+
   const updateUser = async (updates: Partial<User>) => {
     if (user) {
       if (updates.avatar !== undefined) {
-        if (updates.avatar === null) {
-          await invoke('update_avatar', {
-            userId: user.id,
-            avatar: null,
-          });
-        } else if (updates.avatar) {
-          const base64Data = updates.avatar.split(',')[1];
-          const binaryData = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
-          await invoke('update_avatar', {
-            userId: user.id,
-            avatar: Array.from(binaryData),
-          });
-        }
+        const avatarBytes = parseAvatarToBytes(updates.avatar);
+        await invoke('update_avatar', {
+          userId: user.id,
+          avatar: avatarBytes,
+        });
       }
       setUser({ ...user, ...updates });
     }

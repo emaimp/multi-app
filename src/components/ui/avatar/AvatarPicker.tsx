@@ -4,7 +4,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import PersonIcon from '@mui/icons-material/Person';
 import imageCompression from 'browser-image-compression';
-import { AvatarDialog } from './dialogs';
+import { AvatarDialog } from '../dialogs';
 
 interface AvatarPickerProps {
   value?: string | null;

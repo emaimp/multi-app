@@ -1,8 +1,8 @@
-import { Avatar, Box, IconButton, Skeleton } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
+import { Box, IconButton, Skeleton } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { AvatarDisplay } from '../avatar';
 
 interface UserHeaderProps {
   avatar?: string | null;
@@ -44,19 +44,11 @@ export function UserHeader({
             height={size}
           />
         ) : (
-          <Avatar
-            sx={{
-              width: size,
-              height: size,
-              color: 'text.primary',
-              bgcolor: 'transparent',
-              border: '1px solid',
-              borderColor: 'divider',
-            }}
-            src={avatar || undefined}
-          >
-            {!avatar && <PersonIcon />}
-          </Avatar>
+          <AvatarDisplay
+            src={avatar}
+            size={size}
+            showUserIcon
+          />
         )}
         <Box
           sx={{

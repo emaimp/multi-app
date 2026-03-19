@@ -73,6 +73,7 @@ export function VaultTypeSelector({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      disableEnforceFocus
       PaperProps={{
         sx: {
           borderRadius: 2,
@@ -80,7 +81,7 @@ export function VaultTypeSelector({
       }}
     >
       <DialogTitle sx={{ pb: 1 }}>
-        <Typography variant="h5" fontWeight={600}>
+        <Typography variant="h6" fontWeight={600} component="span">
           Create new
         </Typography>
       </DialogTitle>

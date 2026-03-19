@@ -1,6 +1,7 @@
-import { Box, Avatar, Typography, IconButton } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
+import { AvatarDisplay } from '../ui';
 
 interface VaultCardProps {
   vault: Vault;
@@ -34,31 +35,10 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, isDragging, drag
       {...dragAttributes}
       {...dragListeners}
     >
-      {(() => {
-        const isSvgIcon = vault.image?.startsWith('data:image/svg+xml');
-        const imageSize = isSvgIcon ? '75%' : '100%';
-        
-        return (
-          <Avatar
-            sx={{
-              width: 48,
-              height: 48,
-              color: 'text.primary',
-              bgcolor: 'action.hover',
-              border: '1px solid',
-              borderColor: 'divider',
-              '& img': {
-                objectFit: 'contain',
-                width: imageSize,
-                height: imageSize,
-              },
-            }}
-            src={vault.image}
-          >
-            {vault.name.charAt(0).toUpperCase()}
-          </Avatar>
-        );
-      })()}
+      <AvatarDisplay
+        src={vault.image}
+        fallback={vault.name.charAt(0).toUpperCase()}
+      />
 
       <Typography
         variant="body1"
