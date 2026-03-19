@@ -7,23 +7,16 @@ import { LoginkeyItem } from './LoginkeyItem';
 interface LoginkeyListProps {
   loginKeys: LoginKey[];
   isLockedByDefault?: boolean;
-  newlyCreatedIds?: Set<string>;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
-interface SortableLoginKeyItemProps {
-  loginkey: LoginKey;
-  isLockedByDefault?: boolean;
-  newlyCreatedIds?: Set<string>;
+interface SortableLoginKeyItemCallbacks {
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
-function SortableLoginKeyItem({ loginkey, isLockedByDefault, newlyCreatedIds, onUpdateLoginKey, onDeleteLoginKey }: SortableLoginKeyItemProps) {
-  const isNewlyCreated = newlyCreatedIds?.has(loginkey.id) ?? false;
-  const itemIsLockedByDefault = isNewlyCreated ? false : (isLockedByDefault ?? true);
-
+function SortableLoginKeyItem({ loginkey, isLockedByDefault, onUpdateLoginKey, onDeleteLoginKey }: SortableLoginKeyItemCallbacks & { loginkey: LoginKey; isLockedByDefault?: boolean }) {
   const {
     attributes,
     listeners,
@@ -47,7 +40,7 @@ function SortableLoginKeyItem({ loginkey, isLockedByDefault, newlyCreatedIds, on
     >
       <LoginkeyItem
         loginkey={loginkey}
-        isLockedByDefault={itemIsLockedByDefault}
+        isLockedByDefault={isLockedByDefault}
         onUpdate={onUpdateLoginKey}
         onDelete={onDeleteLoginKey}
         dragAttributes={attributes as any}
@@ -57,7 +50,7 @@ function SortableLoginKeyItem({ loginkey, isLockedByDefault, newlyCreatedIds, on
   );
 }
 
-export function LoginkeyList({ loginKeys, isLockedByDefault, newlyCreatedIds, onUpdateLoginKey, onDeleteLoginKey }: LoginkeyListProps) {
+export function LoginkeyList({ loginKeys, isLockedByDefault, onUpdateLoginKey, onDeleteLoginKey }: LoginkeyListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {loginKeys.map((loginkey) => (
@@ -65,7 +58,6 @@ export function LoginkeyList({ loginKeys, isLockedByDefault, newlyCreatedIds, on
           key={loginkey.id}
           loginkey={loginkey}
           isLockedByDefault={isLockedByDefault}
-          newlyCreatedIds={newlyCreatedIds}
           onUpdateLoginKey={onUpdateLoginKey}
           onDeleteLoginKey={onDeleteLoginKey}
         />

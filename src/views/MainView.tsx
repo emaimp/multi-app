@@ -102,14 +102,17 @@ export function MainView() {
   const [filterType, setFilterType] = useState<'all' | 'loginKeys' | 'notes'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [itemsLocked, setItemsLocked] = useState(true);
-  const [newlyCreatedNoteIds, setNewlyCreatedNoteIds] = useState<Set<string>>(new Set());
-  const [newlyCreatedLoginKeyIds, setNewlyCreatedLoginKeyIds] = useState<Set<string>>(new Set());
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!activeVault) {
       setItemsLocked(true);
     }
   }, [activeVault]);
+
+  useEffect(() => {
+    setSelectedItemId(null);
+  }, [filterType]);
 
   const selectedVault = vaults.find((v) => v.id === activeVault);
   const vaultNotes = activeVault 
@@ -159,18 +162,8 @@ export function MainView() {
     if (activeVault && selectedVault) {
       const newNote = await createNote(activeVault, title, '', selectedVault.color);
       if (newNote) {
-        setNewlyCreatedNoteIds((prev) => {
-          const next = new Set(prev);
-          next.add(newNote.id);
-          return next;
-        });
-        setTimeout(() => {
-          setNewlyCreatedNoteIds((prev) => {
-            const next = new Set(prev);
-            next.delete(newNote.id);
-            return next;
-          });
-        }, 5000);
+        setSelectedItemId(newNote.id);
+        setItemsLocked(false);
       }
     }
   };
@@ -179,18 +172,8 @@ export function MainView() {
     if (activeVault && selectedVault) {
       const newLoginKey = await createLoginKey(activeVault, siteName, null, '', '', null, selectedVault.color);
       if (newLoginKey) {
-        setNewlyCreatedLoginKeyIds((prev) => {
-          const next = new Set(prev);
-          next.add(newLoginKey.id);
-          return next;
-        });
-        setTimeout(() => {
-          setNewlyCreatedLoginKeyIds((prev) => {
-            const next = new Set(prev);
-            next.delete(newLoginKey.id);
-            return next;
-          });
-        }, 5000);
+        setSelectedItemId(newLoginKey.id);
+        setItemsLocked(false);
       }
     }
   };
@@ -245,7 +228,9 @@ export function MainView() {
               notes={sortedVaultNotes}
               loginKeys={loginKeys}
               filterType={filterType}
+              selectedItemId={selectedItemId}
               onFilterChange={setFilterType}
+              onSelectItem={setSelectedItemId}
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               onSortClick={handleSortNotes}
@@ -255,7 +240,10 @@ export function MainView() {
               onEditLoginKey={handleEditLoginKey}
               onReorderNotes={reorderNotes}
               onReorderLoginKeys={handleReorderLoginKeys}
-              onClose={() => setSearchQuery('')}
+              onClose={() => {
+                setSearchQuery('');
+                setSelectedItemId(null);
+              }}
             />
 
             <VaultView
@@ -264,9 +252,8 @@ export function MainView() {
               vaultLoginKeys={loginKeys}
               filterType={filterType}
               searchQuery={searchQuery}
+              selectedItemId={selectedItemId}
               isLockedByDefault={itemsLocked}
-              newlyCreatedNoteIds={newlyCreatedNoteIds}
-              newlyCreatedLoginKeyIds={newlyCreatedLoginKeyIds}
               isLoading={isLoadingContent}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}

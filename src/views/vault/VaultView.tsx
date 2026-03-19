@@ -22,9 +22,8 @@ interface VaultViewProps {
   vaultLoginKeys: LoginKey[];
   filterType?: 'all' | 'loginKeys' | 'notes';
   searchQuery?: string;
+  selectedItemId?: string | null;
   isLockedByDefault?: boolean;
-  newlyCreatedNoteIds?: Set<string>;
-  newlyCreatedLoginKeyIds?: Set<string>;
   isLoading?: boolean;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
@@ -40,9 +39,8 @@ export function VaultView({
   vaultLoginKeys,
   filterType = 'all',
   searchQuery = '',
+  selectedItemId,
   isLockedByDefault = true,
-  newlyCreatedNoteIds,
-  newlyCreatedLoginKeyIds,
   isLoading,
   onUpdateNote,
   onDeleteNote,
@@ -102,8 +100,16 @@ export function VaultView({
     }
   };
 
-  const hasLoginKeys = filteredVaultLoginKeys.length > 0;
-  const hasNotes = filteredVaultNotes.length > 0;
+  const displayedLoginKeys = selectedItemId
+    ? filteredVaultLoginKeys.filter((lk) => lk.id === selectedItemId)
+    : filteredVaultLoginKeys;
+
+  const displayedNotes = selectedItemId
+    ? filteredVaultNotes.filter((n) => n.id === selectedItemId)
+    : filteredVaultNotes;
+
+  const hasDisplayedLoginKeys = displayedLoginKeys.length > 0;
+  const hasDisplayedNotes = displayedNotes.length > 0;
 
   return (
     <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
@@ -113,7 +119,7 @@ export function VaultView({
 
           <Divider sx={{ my: 3 }} />
 
-          {(!hasLoginKeys && !hasNotes) ? (
+          {(!hasDisplayedLoginKeys && !hasDisplayedNotes) ? (
             <Box sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -127,7 +133,7 @@ export function VaultView({
             </Box>
           ) : (
             <Box>
-              {hasLoginKeys && (
+              {hasDisplayedLoginKeys && (
                 <>
                   <DndContext
                     sensors={sensors}
@@ -136,23 +142,22 @@ export function VaultView({
                     modifiers={[restrictToVerticalAxis]}
                   >
                     <SortableContext 
-                      items={filteredVaultLoginKeys.map((lk) => lk.id)} 
+                      items={displayedLoginKeys.map((lk) => lk.id)} 
                       strategy={verticalListSortingStrategy}
                     >
                       <LoginkeyList
-                        loginKeys={filteredVaultLoginKeys}
+                        loginKeys={displayedLoginKeys}
                         isLockedByDefault={isLockedByDefault}
-                        newlyCreatedIds={newlyCreatedLoginKeyIds}
                         onUpdateLoginKey={onUpdateLoginKey}
                         onDeleteLoginKey={onDeleteLoginKey}
                       />
                     </SortableContext>
                   </DndContext>
-                  {hasNotes && <Divider sx={{ my: 3 }} />}
+                  {hasDisplayedNotes && <Divider sx={{ my: 3 }} />}
                 </>
               )}
 
-              {hasNotes && (
+              {hasDisplayedNotes && (
                 <DndContext
                   sensors={sensors}
                   collisionDetection={closestCenter}
@@ -160,13 +165,12 @@ export function VaultView({
                   modifiers={[restrictToVerticalAxis]}
                 >
                   <SortableContext 
-                    items={filteredVaultNotes.map((n) => n.id)} 
+                    items={displayedNotes.map((n) => n.id)} 
                     strategy={verticalListSortingStrategy}
                   >
                     <NoteList
-                      notes={filteredVaultNotes}
+                      notes={displayedNotes}
                       isLockedByDefault={isLockedByDefault}
-                      newlyCreatedIds={newlyCreatedNoteIds}
                       onUpdateNote={onUpdateNote}
                       onDeleteNote={onDeleteNote}
                     />

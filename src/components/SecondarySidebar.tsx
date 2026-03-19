@@ -28,7 +28,9 @@ interface SecondarySidebarProps {
   notes: Note[];
   loginKeys: LoginKey[];
   filterType?: 'all' | 'loginKeys' | 'notes';
+  selectedItemId?: string | null;
   onFilterChange?: (filter: 'all' | 'loginKeys' | 'notes') => void;
+  onSelectItem?: (itemId: string | null) => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   onSortClick?: () => void;
@@ -46,7 +48,9 @@ export function SecondarySidebar({
   notes,
   loginKeys,
   filterType = 'all',
+  selectedItemId,
   onFilterChange,
+  onSelectItem,
   searchQuery = '',
   onSearchChange,
   onSortClick,
@@ -122,24 +126,24 @@ export function SecondarySidebar({
     { icon: <NoteIcon />, label: 'Note', onClick: onCreateNote },
   ];
 
-  function SortableNoteCard({ note, onEdit }: { note: Note; onEdit: (note: Note) => void }) {
+  function SortableNoteCard({ note, selected, onSelect, onEdit }: { note: Note; selected?: boolean; onSelect?: (id: string | null) => void; onEdit: (note: Note) => void }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = 
       useSortable({ id: note.id });
     const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
     return (
-      <Box ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <NoteCard note={note} onEdit={onEdit} />
+      <Box ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onSelect?.(note.id)}>
+        <NoteCard note={note} isSelected={selected} onEdit={onEdit} />
       </Box>
     );
   }
 
-  function SortableLoginkeyCard({ loginkey, onEdit }: { loginkey: LoginKey; onEdit: (loginkey: LoginKey) => void }) {
+  function SortableLoginkeyCard({ loginkey, selected, onSelect, onEdit }: { loginkey: LoginKey; selected?: boolean; onSelect?: (id: string | null) => void; onEdit: (loginkey: LoginKey) => void }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = 
       useSortable({ id: loginkey.id });
     const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
     return (
-      <Box ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <LoginkeyCard loginkey={loginkey} onEdit={onEdit} />
+      <Box ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onSelect?.(loginkey.id)}>
+        <LoginkeyCard loginkey={loginkey} isSelected={selected} onEdit={onEdit} />
       </Box>
     );
   }
@@ -217,7 +221,14 @@ export function SecondarySidebar({
         ))}
       </Box>
 
-      <Box sx={{ flex: 1, overflow: 'auto' }}>
+      <Box
+        sx={{ flex: 1, overflow: 'auto' }}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) {
+            onSelectItem?.(null);
+          }
+        }}
+      >
         {filteredLoginKeys.length > 0 && (
           <>
             <Box sx={{ px: 2, pt: 2, pb: 1 }}>
@@ -239,7 +250,12 @@ export function SecondarySidebar({
                   <SortableLoginkeyCard
                     key={loginkey.id}
                     loginkey={loginkey}
-                    onEdit={onEditLoginKey || (() => {})}
+                    selected={selectedItemId === loginkey.id}
+                    onSelect={onSelectItem}
+                    onEdit={(lk) => {
+                      onSelectItem?.(lk.id);
+                      onEditLoginKey?.(lk);
+                    }}
                   />
                 ))}
               </SortableContext>
@@ -269,7 +285,12 @@ export function SecondarySidebar({
                   <SortableNoteCard
                     key={note.id}
                     note={note}
-                    onEdit={onEditNote || (() => {})}
+                    selected={selectedItemId === note.id}
+                    onSelect={onSelectItem}
+                    onEdit={(n) => {
+                      onSelectItem?.(n.id);
+                      onEditNote?.(n);
+                    }}
                   />
                 ))}
               </SortableContext>

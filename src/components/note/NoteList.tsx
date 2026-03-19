@@ -7,23 +7,16 @@ import { NoteItem } from './NoteItem';
 interface NoteListProps {
   notes: Note[];
   isLockedByDefault?: boolean;
-  newlyCreatedIds?: Set<string>;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 
-interface SortableNoteItemProps {
-  note: Note;
-  isLockedByDefault?: boolean;
-  newlyCreatedIds?: Set<string>;
+interface SortableNoteItemCallbacks {
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
 
-function SortableNoteItem({ note, isLockedByDefault, newlyCreatedIds, onUpdateNote, onDeleteNote }: SortableNoteItemProps) {
-  const isNewlyCreated = newlyCreatedIds?.has(note.id) ?? false;
-  const itemIsLockedByDefault = isNewlyCreated ? false : (isLockedByDefault ?? true);
-  
+function SortableNoteItem({ note, isLockedByDefault, onUpdateNote, onDeleteNote }: SortableNoteItemCallbacks & { note: Note; isLockedByDefault?: boolean }) {
   const {
     attributes,
     listeners,
@@ -47,7 +40,7 @@ function SortableNoteItem({ note, isLockedByDefault, newlyCreatedIds, onUpdateNo
     >
       <NoteItem
         note={note}
-        isLockedByDefault={itemIsLockedByDefault}
+        isLockedByDefault={isLockedByDefault}
         onUpdate={onUpdateNote}
         onDelete={onDeleteNote}
         dragAttributes={attributes as any}
@@ -57,7 +50,7 @@ function SortableNoteItem({ note, isLockedByDefault, newlyCreatedIds, onUpdateNo
   );
 }
 
-export function NoteList({ notes, isLockedByDefault, newlyCreatedIds, onUpdateNote, onDeleteNote }: NoteListProps) {
+export function NoteList({ notes, isLockedByDefault, onUpdateNote, onDeleteNote }: NoteListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {notes.map((note) => (
@@ -65,7 +58,6 @@ export function NoteList({ notes, isLockedByDefault, newlyCreatedIds, onUpdateNo
           key={note.id}
           note={note}
           isLockedByDefault={isLockedByDefault}
-          newlyCreatedIds={newlyCreatedIds}
           onUpdateNote={onUpdateNote}
           onDeleteNote={onDeleteNote}
         />
