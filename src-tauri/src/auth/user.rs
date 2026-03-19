@@ -45,14 +45,32 @@ impl Database {
             (Some(enc), Some(nonce)) => {
                 match decrypt_bytes_from_base64(&enc, &nonce, &key) {
                     Ok(decrypted) => {
+                        let mime = if decrypted.starts_with(b"\x89PNG\r\n\x1a\n") {
+                            "image/png"
+                        } else if decrypted.starts_with(&[0xff, 0xd8, 0xff]) {
+                            "image/jpeg"
+                        } else if &decrypted[..4] == b"<svg" || (decrypted.len() > 3 && &decrypted[..4] == &[0xef, 0xbb, 0xbf, 0x3c] && &decrypted[3..7] == b"<svg") {
+                            "image/svg+xml"
+                        } else {
+                            "image/webp"
+                        };
                         let b64 = STANDARD.encode(&decrypted);
-                        Some(format!("data:image/webp;base64,{}", b64))
+                        Some(format!("data:{};base64,{}", mime, b64))
                     }
                     Err(_) => {
                         let fallback = STANDARD.decode(&enc).ok();
                         fallback.map(|bytes| {
+                            let mime = if bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
+                                "image/png"
+                            } else if bytes.starts_with(&[0xff, 0xd8, 0xff]) {
+                                "image/jpeg"
+                            } else if &bytes[..4] == b"<svg" || (bytes.len() > 3 && &bytes[..4] == &[0xef, 0xbb, 0xbf, 0x3c] && &bytes[3..7] == b"<svg") {
+                                "image/svg+xml"
+                            } else {
+                                "image/webp"
+                            };
                             let b64 = STANDARD.encode(&bytes);
-                            format!("data:image/webp;base64,{}", b64)
+                            format!("data:{};base64,{}", mime, b64)
                         })
                     }
                 }

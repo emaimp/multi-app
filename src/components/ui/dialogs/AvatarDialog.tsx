@@ -35,8 +35,8 @@ export function AvatarDialog({ open, onClose, onSelect }: AvatarDialogProps) {
 
   const handleIconClick = (icon: { path: string; hex: string }) => {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="${icon.path}" fill="#${icon.hex}"/></svg>`;
-    const base64 = btoa(svg);
-    const dataUrl = `data:image/svg+xml;base64,${base64}`;
+    const encoded = encodeURIComponent(svg);
+    const dataUrl = `data:image/svg+xml;utf-8,${encoded}`;
     onSelect(dataUrl);
   };
 

@@ -139,14 +139,32 @@ fn vault_from_row(row: &Row, user_id: i32, key: &GenericArray<u8, U32>) -> Resul
         (Some(enc), Some(nonce)) => {
             match decrypt_bytes_from_base64(&enc, &nonce, key) {
                 Ok(decrypted) => {
+                    let mime = if decrypted.starts_with(b"\x89PNG\r\n\x1a\n") {
+                        "image/png"
+                    } else if decrypted.starts_with(&[0xff, 0xd8, 0xff]) {
+                        "image/jpeg"
+                    } else if decrypted.starts_with(b"<svg") {
+                        "image/svg+xml"
+                    } else {
+                        "image/webp"
+                    };
                     let b64 = base64::engine::general_purpose::STANDARD.encode(&decrypted);
-                    Some(format!("data:image/webp;base64,{}", b64))
+                    Some(format!("data:{};base64,{}", mime, b64))
                 }
                 Err(_) => {
                     let fallback = base64::engine::general_purpose::STANDARD.decode(&enc).ok();
                     fallback.map(|bytes| {
+                        let mime = if bytes.starts_with(b"\x89PNG\r\n\x1a\n") {
+                            "image/png"
+                        } else if bytes.starts_with(&[0xff, 0xd8, 0xff]) {
+                            "image/jpeg"
+                    } else if bytes.starts_with(b"<svg") {
+                        "image/svg+xml"
+                        } else {
+                            "image/webp"
+                        };
                         let b64 = base64::engine::general_purpose::STANDARD.encode(&bytes);
-                        format!("data:image/webp;base64,{}", b64)
+                        format!("data:{};base64,{}", mime, b64)
                     })
                 }
             }

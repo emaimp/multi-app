@@ -6,5 +6,12 @@ export function parseImageToBytes(image: string | null | undefined): number[] | 
   if (image === null) return null;
   if (!image) return undefined;
   const base64Data = image.split(',')[1];
-  return Array.from(Uint8Array.from(atob(base64Data), c => c.charCodeAt(0)));
+  if (!base64Data) return undefined;
+  try {
+    const binary = atob(base64Data);
+    return Array.from(Uint8Array.from(binary, c => c.charCodeAt(0)));
+  } catch {
+    const utf8Data = decodeURIComponent(base64Data);
+    return Array.from(new TextEncoder().encode(utf8Data));
+  }
 }
