@@ -224,6 +224,7 @@ export function MainView() {
             </MainSidebar>
 
             <SecondarySidebar
+              key={activeVault || 'no-vault'}
               open={!!activeVault}
               notes={sortedVaultNotes}
               loginKeys={loginKeys}

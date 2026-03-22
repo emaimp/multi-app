@@ -163,6 +163,8 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   };
 
   const selectVault = async (vaultId: string) => {
+    clearNotes();
+    clearLoginKeys();
     await selectVaultHook(vaultId);
     await loadNotesHook(vaultId);
     await loadLoginKeysHook(vaultId);

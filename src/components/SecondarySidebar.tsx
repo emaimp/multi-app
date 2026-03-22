@@ -1,27 +1,13 @@
 import { useEffect } from 'react';
-import { Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
+import { Box, Divider, IconButton, Tooltip } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LoginIcon from '@mui/icons-material/Login';
 import NoteIcon from '@mui/icons-material/Note';
 import { FilterHeader } from './ui/headers/FilterHeader';
-import { NoteCard } from './note/NoteCard';
-import { LoginkeyCard } from './loginkey/LoginkeyCard';
+import { CategoryAccordion } from './ui/CategoryAccordion';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 
 interface SecondarySidebarProps {
   open: boolean;
@@ -90,35 +76,6 @@ export function SecondarySidebar({
   const filteredLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
   const filteredNotes = filteredByTypeNotes.filter(matchesNoteSearch);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const handleDragEndLoginKeys = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id && onReorderLoginKeys) {
-      const oldIndex = loginKeys.findIndex((lk) => lk.id === active.id);
-      const newIndex = loginKeys.findIndex((lk) => lk.id === over.id);
-      onReorderLoginKeys(arrayMove(loginKeys, oldIndex, newIndex));
-    }
-  };
-
-  const handleDragEndNotes = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id && onReorderNotes) {
-      const oldIndex = notes.findIndex((n) => n.id === active.id);
-      const newIndex = notes.findIndex((n) => n.id === over.id);
-      onReorderNotes(arrayMove(notes, oldIndex, newIndex));
-    }
-  };
-
   const buttons = [
     { icon: <BadgeIcon />, label: 'ID', onClick: undefined },
     { icon: <CreditCardIcon />, label: 'Credit Card', onClick: undefined },
@@ -126,32 +83,10 @@ export function SecondarySidebar({
     { icon: <NoteIcon />, label: 'Note', onClick: onCreateNote },
   ];
 
-  function SortableNoteCard({ note, selected, onSelect, onEdit }: { note: Note; selected?: boolean; onSelect?: (id: string | null) => void; onEdit: (note: Note) => void }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = 
-      useSortable({ id: note.id });
-    const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
-    return (
-      <Box ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onSelect?.(note.id)}>
-        <NoteCard note={note} isSelected={selected} onEdit={onEdit} />
-      </Box>
-    );
-  }
-
-  function SortableLoginkeyCard({ loginkey, selected, onSelect, onEdit }: { loginkey: LoginKey; selected?: boolean; onSelect?: (id: string | null) => void; onEdit: (loginkey: LoginKey) => void }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = 
-      useSortable({ id: loginkey.id });
-    const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
-    return (
-      <Box ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onSelect?.(loginkey.id)}>
-        <LoginkeyCard loginkey={loginkey} isSelected={selected} onEdit={onEdit} />
-      </Box>
-    );
-  }
-
   return (
     <Box
       sx={{
-        width: open ? 250 : 5,
+        width: open ? 250 : 0,
         flexShrink: 0,
         height: '100vh',
         boxSizing: 'border-box',
@@ -224,81 +159,39 @@ export function SecondarySidebar({
       </Box>
 
       <Box
-        sx={{ flex: 1, overflow: 'auto' }}
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          transition: 'opacity 200ms ease-out',
+          opacity: open ? 1 : 0,
+        }}
         onClick={(e) => {
           if (e.target === e.currentTarget) {
             onSelectItem?.(null);
           }
         }}
       >
-        {filteredLoginKeys.length > 0 && (
-          <>
-            <Box sx={{ px: 2, pt: 2, pb: 1 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Login Keys
-              </Typography>
-            </Box>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEndLoginKeys}
-              modifiers={[restrictToVerticalAxis]}
-            >
-              <SortableContext
-                items={filteredLoginKeys.map((lk) => lk.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {filteredLoginKeys.map((loginkey) => (
-                  <SortableLoginkeyCard
-                    key={loginkey.id}
-                    loginkey={loginkey}
-                    selected={selectedItemId === loginkey.id}
-                    onSelect={onSelectItem}
-                    onEdit={(lk) => {
-                      onSelectItem?.(lk.id);
-                      onEditLoginKey?.(lk);
-                    }}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </>
-        )}
+        <CategoryAccordion
+          title="Login Keys"
+          icon={<LoginIcon sx={{ fontSize: 20 }} />}
+          items={filteredLoginKeys}
+          type="loginKeys"
+          selectedItemId={selectedItemId}
+          onSelectItem={onSelectItem}
+          onEditItem={onEditLoginKey}
+          onReorder={onReorderLoginKeys}
+        />
 
-        {filteredNotes.length > 0 && (
-          <>
-            <Divider sx={{ my: 1 }} />
-            <Box sx={{ px: 2, pt: 1, pb: 1 }}>
-              <Typography variant="subtitle2" color="text.secondary">
-                Notas
-              </Typography>
-            </Box>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEndNotes}
-              modifiers={[restrictToVerticalAxis]}
-            >
-              <SortableContext
-                items={filteredNotes.map((n) => n.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {filteredNotes.map((note) => (
-                  <SortableNoteCard
-                    key={note.id}
-                    note={note}
-                    selected={selectedItemId === note.id}
-                    onSelect={onSelectItem}
-                    onEdit={(n) => {
-                      onSelectItem?.(n.id);
-                      onEditNote?.(n);
-                    }}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </>
-        )}
+        <CategoryAccordion
+          title="Notas"
+          icon={<NoteIcon sx={{ fontSize: 20 }} />}
+          items={filteredNotes}
+          type="notes"
+          selectedItemId={selectedItemId}
+          onSelectItem={onSelectItem}
+          onEditItem={onEditNote}
+          onReorder={onReorderNotes}
+        />
       </Box>
     </Box>
   );
