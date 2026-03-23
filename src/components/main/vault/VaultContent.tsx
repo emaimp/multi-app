@@ -1,6 +1,6 @@
 import { Box, Typography, Divider } from '@mui/material';
-import { NoteList } from '../../components/main/note';
-import { LoginkeyList } from '../../components/main/loginkey';
+import { NoteList } from '../note';
+import { LoginkeyList } from '../loginkey';
 import {
   DndContext,
   closestCenter,
@@ -12,11 +12,11 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { Note } from '../../types/note';
-import { LoginKey } from '../../types/loginkey';
-import { Vault } from '../../types/vault';
+import { Note } from '../../../types/note';
+import { LoginKey } from '../../../types/loginkey';
+import { Vault } from '../../../types/vault';
 
-interface VaultViewProps {
+interface VaultContentProps {
   selectedVault: Vault | undefined;
   vaultNotes: Note[];
   vaultLoginKeys: LoginKey[];
@@ -33,7 +33,7 @@ interface VaultViewProps {
   onReorderLoginKeys: (loginKeys: LoginKey[]) => void;
 }
 
-export function VaultView({
+export function VaultContent({
   selectedVault,
   vaultNotes,
   vaultLoginKeys,
@@ -48,7 +48,7 @@ export function VaultView({
   onUpdateLoginKey,
   onDeleteLoginKey,
   onReorderLoginKeys,
-}: VaultViewProps) {
+}: VaultContentProps) {
   const searchLower = searchQuery.toLowerCase();
 
   const matchesLoginKeySearch = (lk: LoginKey) => {
@@ -202,4 +202,4 @@ export function VaultView({
   );
 }
 
-export default VaultView;
+export default VaultContent;

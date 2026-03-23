@@ -23,7 +23,7 @@ import { Vault } from '../types/vault';
 import { Collection } from '../types/collection';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
-import { VaultView } from './vault/VaultView';
+import { VaultContent } from '../components/main/vault';
 import { SettingsView } from './user/SettingsView';
 
 export function MainView() {
@@ -247,7 +247,7 @@ export function MainView() {
               }}
             />
 
-            <VaultView
+            <VaultContent
               selectedVault={selectedVault}
               vaultNotes={sortedVaultNotes}
               vaultLoginKeys={loginKeys}
