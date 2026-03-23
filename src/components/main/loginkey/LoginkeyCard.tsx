@@ -1,7 +1,7 @@
 import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { LoginKey, LOGINKEY_COLORS_HEX } from '../../types/loginkey';
-import { AvatarDisplay } from '../ui';
+import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
+import { AvatarDisplay } from '../../ui';
 
 interface LoginkeyCardProps {
   loginkey: LoginKey;

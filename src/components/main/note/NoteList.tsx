@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Note } from '../../types/note';
+import { Note } from '../../../types/note';
 import { NoteItem } from './NoteItem';
 
 interface NoteListProps {

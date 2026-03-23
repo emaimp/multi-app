@@ -1,7 +1,7 @@
 import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Vault, VAULT_COLORS_HEX } from '../../types/vault';
-import { AvatarDisplay } from '../ui';
+import { Vault, VAULT_COLORS_HEX } from '../../../types/vault';
+import { AvatarDisplay } from '../../ui/avatar';
 
 interface VaultCardProps {
   vault: Vault;

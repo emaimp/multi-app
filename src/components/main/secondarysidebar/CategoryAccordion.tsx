@@ -7,8 +7,8 @@ import {
   Box,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Note } from '../../types/note';
-import { LoginKey } from '../../types/loginkey';
+import { Note } from '../../../types/note';
+import { LoginKey } from '../../../types/loginkey';
 import {
   DndContext,
   closestCenter,

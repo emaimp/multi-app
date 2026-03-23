@@ -1,6 +1,6 @@
 import { Box, Typography, Divider } from '@mui/material';
-import { NoteList } from '../../components/note';
-import { LoginkeyList } from '../../components/loginkey';
+import { NoteList } from '../../components/main/note';
+import { LoginkeyList } from '../../components/main/loginkey';
 import {
   DndContext,
   closestCenter,

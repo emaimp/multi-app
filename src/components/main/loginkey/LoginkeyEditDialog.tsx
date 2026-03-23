@@ -11,8 +11,8 @@ import {
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { LoginKey, LOGINKEY_COLORS, LOGINKEY_COLORS_HEX } from '../../types/loginkey';
-import { ConfirmDialog, AvatarPicker } from '../ui';
+import { LoginKey, LOGINKEY_COLORS, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
+import { ConfirmDialog, AvatarPicker } from '../../ui';
 
 interface LoginkeyEditDialogProps {
   open: boolean;

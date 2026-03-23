@@ -12,10 +12,10 @@ import {
   Typography,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Collection } from '../../types/collection';
-import { Vault } from '../../types/vault';
-import { ConfirmDialog } from '../ui';
-import { useVaults } from '../../context/VaultContext';
+import { Collection } from '../../../types/collection';
+import { Vault } from '../../../types/vault';
+import { ConfirmDialog } from '../../ui';
+import { useVaults } from '../../../context/VaultContext';
 
 interface CollectionEditDialogProps {
   open: boolean;

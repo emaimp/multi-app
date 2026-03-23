@@ -8,10 +8,10 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useSortableSensors } from '../../hooks/useSortableSensors';
-import { Vault } from '../../types/vault';
-import { Collection } from '../../types/collection';
-import { CollectionAccordion } from './CollectionAccordion';
+import { useSortableSensors } from '../../../hooks/useSortableSensors';
+import { Vault } from '../../../types/vault';
+import { Collection } from '../../../types/collection';
+import { CollectionAccordion } from '../mainsidebar/CollectionAccordion';
 import { VaultCard } from './VaultCard';
 
 interface VaultListProps {

@@ -4,10 +4,10 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LoginIcon from '@mui/icons-material/Login';
 import NoteIcon from '@mui/icons-material/Note';
-import { FilterHeader } from './ui/headers/FilterHeader';
-import { CategoryAccordion } from './ui/CategoryAccordion';
-import { Note } from '../types/note';
-import { LoginKey } from '../types/loginkey';
+import { FilterHeader } from './FilterHeader';
+import { CategoryAccordion } from './CategoryAccordion';
+import { Note } from '../../../types/note';
+import { LoginKey } from '../../../types/loginkey';
 
 interface SecondarySidebarProps {
   open: boolean;
@@ -183,7 +183,7 @@ export function SecondarySidebar({
         />
 
         <CategoryAccordion
-          title="Notas"
+          title="Notes"
           icon={<NoteIcon sx={{ fontSize: 20 }} />}
           items={filteredNotes}
           type="notes"

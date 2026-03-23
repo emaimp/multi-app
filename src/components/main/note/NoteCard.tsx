@@ -1,7 +1,7 @@
 import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Note, NOTE_COLORS_HEX } from '../../types/note';
-import { AvatarDisplay } from '../ui';
+import { Note, NOTE_COLORS_HEX } from '../../../types/note';
+import { AvatarDisplay } from '../../ui/avatar';
 
 interface NoteCardProps {
   note: Note;

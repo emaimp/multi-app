@@ -17,10 +17,10 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { useSortableSensors } from '../../hooks/useSortableSensors';
-import { Collection } from '../../types/collection';
-import { Vault } from '../../types/vault';
-import { VaultCard } from './VaultCard';
+import { useSortableSensors } from '../../../hooks/useSortableSensors';
+import { Collection } from '../../../types/collection';
+import { Vault } from '../../../types/vault';
+import { VaultCard } from '../vault/VaultCard';
 
 interface CollectionAccordionProps {
   collection: Collection;

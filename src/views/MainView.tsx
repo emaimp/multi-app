@@ -6,7 +6,6 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import KeyIcon from '@mui/icons-material/Key';
 import { LoadingDialog, CreateDialog } from '../components/ui';
-import { MainSidebar, SecondarySidebar } from '../components';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useBackend } from '../hooks/useBackend';
@@ -14,11 +13,12 @@ import {
   VaultList,
   VaultListSkeleton,
   VaultEditDialog,
-  CollectionEditDialog,
   VaultTypeSelector,
-} from '../components/vault';
-import { NoteEditDialog } from '../components/note';
-import { LoginkeyEditDialog } from '../components/loginkey';
+} from '../components/main/vault';
+import { MainSidebar, CollectionEditDialog } from '../components/main/mainsidebar';
+import { SecondarySidebar } from '../components/main/secondarysidebar';
+import { NoteEditDialog } from '../components/main/note';
+import { LoginkeyEditDialog } from '../components/main/loginkey';
 import { Vault } from '../types/vault';
 import { Collection } from '../types/collection';
 import { Note } from '../types/note';

@@ -1,6 +1,6 @@
 import { Box, Button, Divider } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { UserHeader } from './ui/headers/UserHeader';
+import { UserHeader } from '../../ui/headers/UserHeader';
 
 interface MainSidebarProps {
   avatar?: string | null;

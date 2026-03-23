@@ -10,9 +10,9 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { openUrl } from '@tauri-apps/plugin-opener';
-import { LoginKey } from '../../types/loginkey';
-import { ConfirmDialog } from '../ui';
-import { LOGINKEY_COLORS_HEX } from '../../types/loginkey';
+import { LoginKey } from '../../../types/loginkey';
+import { ConfirmDialog } from '../../ui';
+import { LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
 
 interface LoginkeyItemProps {
   loginkey: LoginKey;

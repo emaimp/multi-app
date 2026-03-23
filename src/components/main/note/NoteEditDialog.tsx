@@ -11,8 +11,8 @@ import {
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Note, NOTE_COLORS, NOTE_COLORS_HEX } from '../../types/note';
-import { ConfirmDialog, AvatarPicker } from '../ui';
+import { Note, NOTE_COLORS, NOTE_COLORS_HEX } from '../../../types/note';
+import { ConfirmDialog, AvatarPicker } from '../../ui';
 
 interface NoteEditDialogProps {
   open: boolean;

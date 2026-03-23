@@ -9,8 +9,8 @@ import CheckIcon from '@mui/icons-material/Check';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { Note, NOTE_COLORS_HEX } from '../../types/note';
-import { ConfirmDialog } from '../ui';
+import { Note, NOTE_COLORS_HEX } from '../../../types/note';
+import { ConfirmDialog } from '../../ui';
 
 interface NoteItemProps {
   note: Note;
