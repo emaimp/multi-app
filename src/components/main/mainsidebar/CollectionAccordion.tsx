@@ -19,8 +19,8 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useSortableSensors } from '../../../hooks/useSortableSensors';
 import { Collection } from '../../../types/collection';
-import { Vault } from '../../../types/vault';
-import { VaultCard } from '../vault/VaultCard';
+import { Vault, VAULT_COLORS_HEX } from '../../../types/vault';
+import { ItemCard } from '../cards/ItemCard';
 
 interface CollectionAccordionProps {
   collection: Collection;
@@ -173,10 +173,15 @@ function SortableVaultItem({ vault, onVaultClick, onEditVault, activeVault }: So
 
   return (
     <Box ref={setNodeRef} style={style} sx={{ cursor: isDragging ? 'grabbing' : 'default' }}>
-      <VaultCard
-        vault={vault}
-        onClick={() => onVaultClick(vault.id)}
+      <ItemCard
+        title={vault.name}
+        color={vault.color}
+        colorPalette={VAULT_COLORS_HEX}
+        avatarSrc={vault.image}
+        avatarFallback={vault.name.charAt(0).toUpperCase()}
+        item={vault}
         onEdit={onEditVault}
+        onClick={() => onVaultClick(vault.id)}
         isSelected={activeVault === vault.id}
         isDragging={isDragging}
         dragAttributes={attributes as any}

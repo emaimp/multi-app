@@ -1,20 +1,37 @@
 import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { Vault, VAULT_COLORS_HEX } from '../../../types/vault';
 import { AvatarDisplay } from '../../ui/avatar';
 
-interface VaultCardProps {
-  vault: Vault;
-  onEdit: (vault: Vault) => void;
-  onClick?: () => void;
+interface ItemCardProps<T> {
+  title: string;
+  color: string;
+  colorPalette: Record<string, string>;
+  avatarSrc?: string | null;
+  avatarFallback: string;
   isSelected?: boolean;
   isDragging?: boolean;
   dragAttributes?: Record<string, unknown>;
   dragListeners?: Record<string, unknown>;
+  onClick?: () => void;
+  onEdit: (item: T) => void;
+  item: T;
 }
 
-export function VaultCard({ vault, onEdit, onClick, isSelected, isDragging, dragAttributes, dragListeners }: VaultCardProps) {
-  const colorHex = VAULT_COLORS_HEX[vault.color] || VAULT_COLORS_HEX.primary;
+export function ItemCard<T>({ 
+  title, 
+  color, 
+  colorPalette, 
+  avatarSrc, 
+  avatarFallback, 
+  isSelected, 
+  isDragging, 
+  dragAttributes, 
+  dragListeners, 
+  onClick, 
+  onEdit, 
+  item 
+}: ItemCardProps<T>) {
+  const colorHex = colorPalette[color] || Object.values(colorPalette)[0];
 
   return (
     <Box
@@ -36,8 +53,8 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, isDragging, drag
       {...dragListeners}
     >
       <AvatarDisplay
-        src={vault.image}
-        fallback={vault.name.charAt(0).toUpperCase()}
+        src={avatarSrc}
+        fallback={avatarFallback}
       />
 
       <Typography
@@ -48,14 +65,14 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, isDragging, drag
           fontWeight: 500,
         }}
       >
-        {vault.name}
+        {title}
       </Typography>
 
       <IconButton
         size="small"
         onClick={(e) => {
           e.stopPropagation();
-          onEdit(vault);
+          onEdit(item);
         }}
         sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}
       >
@@ -65,4 +82,4 @@ export function VaultCard({ vault, onEdit, onClick, isSelected, isDragging, drag
   );
 }
 
-export default VaultCard;
+export default ItemCard;

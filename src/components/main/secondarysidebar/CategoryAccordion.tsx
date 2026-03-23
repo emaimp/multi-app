@@ -7,8 +7,8 @@ import {
   Box,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Note } from '../../../types/note';
-import { LoginKey } from '../../../types/loginkey';
+import { Note, NOTE_COLORS_HEX } from '../../../types/note';
+import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
 import {
   DndContext,
   closestCenter,
@@ -18,8 +18,7 @@ import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrate
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { NoteCard } from '../note/NoteCard';
-import { LoginkeyCard } from '../loginkey/LoginkeyCard';
+import { ItemCard } from '../cards/ItemCard';
 import { PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
 
 interface CategoryAccordionLoginKeysProps {
@@ -194,11 +193,20 @@ function SortableLoginkeyCardWrapper({ loginkey, selected, onSelect, onEdit }: S
   };
 
   return (
-    <Box ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onSelect?.(loginkey.id)}>
-      <LoginkeyCard
-        loginkey={loginkey}
-        isSelected={selected}
+    <Box ref={setNodeRef} style={style} sx={{ cursor: isDragging ? 'grabbing' : 'default' }}>
+      <ItemCard
+        title={loginkey.site_name}
+        color={loginkey.color}
+        colorPalette={LOGINKEY_COLORS_HEX}
+        avatarSrc={loginkey.image}
+        avatarFallback={loginkey.site_name.charAt(0).toUpperCase()}
+        item={loginkey}
         onEdit={onEdit}
+        onClick={() => onSelect?.(loginkey.id)}
+        isSelected={selected}
+        isDragging={isDragging}
+        dragAttributes={attributes as any}
+        dragListeners={listeners as any}
       />
     </Box>
   );
@@ -228,11 +236,20 @@ function SortableNoteCardWrapper({ note, selected, onSelect, onEdit }: SortableN
   };
 
   return (
-    <Box ref={setNodeRef} style={style} {...attributes} {...listeners} onClick={() => onSelect?.(note.id)}>
-      <NoteCard
-        note={note}
-        isSelected={selected}
+    <Box ref={setNodeRef} style={style} sx={{ cursor: isDragging ? 'grabbing' : 'default' }}>
+      <ItemCard
+        title={note.title}
+        color={note.color}
+        colorPalette={NOTE_COLORS_HEX}
+        avatarSrc={note.image}
+        avatarFallback={note.title.charAt(0).toUpperCase()}
+        item={note}
         onEdit={onEdit}
+        onClick={() => onSelect?.(note.id)}
+        isSelected={selected}
+        isDragging={isDragging}
+        dragAttributes={attributes as any}
+        dragListeners={listeners as any}
       />
     </Box>
   );
