@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Divider, IconButton, Tooltip } from '@mui/material';
+import { Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LoginIcon from '@mui/icons-material/Login';
@@ -11,6 +11,7 @@ import { LoginKey } from '../../../types/loginkey';
 
 interface SecondarySidebarProps {
   open: boolean;
+  isLocked?: boolean;
   notes: Note[];
   loginKeys: LoginKey[];
   filterType?: 'all' | 'loginKeys' | 'notes';
@@ -33,6 +34,7 @@ interface SecondarySidebarProps {
 
 export function SecondarySidebar({
   open,
+  isLocked = false,
   notes,
   loginKeys,
   filterType = 'all',
@@ -127,6 +129,7 @@ export function SecondarySidebar({
           bgcolor: 'action.hover',
           transition: 'opacity 200ms ease-out',
           opacity: open ? 1 : 0,
+          pointerEvents: isLocked ? 'none' : 'auto',
         }}
       >
         <FilterHeader
@@ -157,6 +160,7 @@ export function SecondarySidebar({
           borderColor: 'divider',
           transition: 'opacity 200ms ease-out',
           opacity: open ? 1 : 0,
+          pointerEvents: isLocked ? 'none' : 'auto',
         }}
       >
         {buttons.map((btn, index) => (
@@ -165,7 +169,7 @@ export function SecondarySidebar({
               <IconButton
                 size="small"
                 onClick={btn.onClick}
-                disabled={!btn.onClick}
+                disabled={!btn.onClick || isLocked}
                 sx={{
                   bgcolor: 'action.selected',
                   borderRadius: 1,
@@ -182,41 +186,63 @@ export function SecondarySidebar({
       <Box
         sx={{
           flex: 1,
-          overflow: 'auto',
+          overflow: 'hidden',
           transition: 'opacity 200ms ease-out',
           opacity: open ? 1 : 0,
+          position: 'relative',
         }}
         onClick={(e) => {
-          if (e.target === e.currentTarget) {
+          if (e.target === e.currentTarget && !isLocked) {
             onSelectItem?.(null);
           }
         }}
       >
-        <CategoryAccordion
-          title="Login Keys"
-          icon={<LoginIcon sx={{ fontSize: 20 }} />}
-          items={filteredLoginKeys}
-          type="loginKeys"
-          selectedItemId={selectedItemId}
-          onSelectItem={onSelectItem}
-          onEditItem={onEditLoginKey}
-          onReorder={onReorderLoginKeys}
-          defaultExpanded={loginKeysExpanded}
-          animationKey={animationKey}
-        />
+        {isLocked ? (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              height: '100%',
+              pt: 4,
+              textAlign: 'center',
+              color: 'text.secondary',
+            }}
+          >
+            <Typography variant="body2">
+              Select a vault to view its contents.
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            <CategoryAccordion
+              title="Login Keys"
+              icon={<LoginIcon sx={{ fontSize: 20 }} />}
+              items={filteredLoginKeys}
+              type="loginKeys"
+              selectedItemId={selectedItemId}
+              onSelectItem={onSelectItem}
+              onEditItem={onEditLoginKey}
+              onReorder={onReorderLoginKeys}
+              defaultExpanded={loginKeysExpanded}
+              animationKey={animationKey}
+            />
 
-        <CategoryAccordion
-          title="Notes"
-          icon={<NoteIcon sx={{ fontSize: 20 }} />}
-          items={filteredNotes}
-          type="notes"
-          selectedItemId={selectedItemId}
-          onSelectItem={onSelectItem}
-          onEditItem={onEditNote}
-          onReorder={onReorderNotes}
-          defaultExpanded={notesExpanded}
-          animationKey={animationKey}
-        />
+            <CategoryAccordion
+              title="Notes"
+              icon={<NoteIcon sx={{ fontSize: 20 }} />}
+              items={filteredNotes}
+              type="notes"
+              selectedItemId={selectedItemId}
+              onSelectItem={onSelectItem}
+              onEditItem={onEditNote}
+              onReorder={onReorderNotes}
+              defaultExpanded={notesExpanded}
+              animationKey={animationKey}
+            />
+          </>
+        )}
       </Box>
     </Box>
   );
