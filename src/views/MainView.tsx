@@ -224,10 +224,7 @@ export function MainView() {
             </MainSidebar>
 
             <SecondarySidebar
-              key={activeVault || 'no-vault'}
-              open={true}
               isLocked={!activeVault}
-              defaultExpanded={!!activeVault}
               animationKey={activeVault || undefined}
               notes={sortedVaultNotes}
               loginKeys={loginKeys}
@@ -244,10 +241,6 @@ export function MainView() {
               onEditLoginKey={handleEditLoginKey}
               onReorderNotes={reorderNotes}
               onReorderLoginKeys={handleReorderLoginKeys}
-              onClose={() => {
-                setSearchQuery('');
-                setSelectedItemId(null);
-              }}
             />
 
             <VaultContent

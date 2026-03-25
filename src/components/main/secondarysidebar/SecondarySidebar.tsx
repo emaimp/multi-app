@@ -10,7 +10,6 @@ import { Note } from '../../../types/note';
 import { LoginKey } from '../../../types/loginkey';
 
 interface SecondarySidebarProps {
-  open: boolean;
   isLocked?: boolean;
   notes: Note[];
   loginKeys: LoginKey[];
@@ -27,13 +26,10 @@ interface SecondarySidebarProps {
   onEditLoginKey?: (loginkey: LoginKey) => void;
   onReorderNotes?: (notes: Note[]) => void;
   onReorderLoginKeys?: (loginKeys: LoginKey[]) => void;
-  onClose?: () => void;
-  defaultExpanded?: boolean;
   animationKey?: string;
 }
 
 export function SecondarySidebar({
-  open,
   isLocked = false,
   notes,
   loginKeys,
@@ -50,33 +46,21 @@ export function SecondarySidebar({
   onEditLoginKey,
   onReorderNotes,
   onReorderLoginKeys,
-  onClose,
-  defaultExpanded,
   animationKey,
 }: SecondarySidebarProps) {
-
-  useEffect(() => {
-    if (!open && onClose) {
-      onClose();
-    }
-  }, [open, onClose]);
-
-  const [loginKeysExpanded, setLoginKeysExpanded] = useState(defaultExpanded);
+  const [loginKeysExpanded, setLoginKeysExpanded] = useState(false);
   const [notesExpanded, setNotesExpanded] = useState(false);
 
   useEffect(() => {
-    if (!open) {
-      setLoginKeysExpanded(false);
-      setNotesExpanded(false);
-    } else if (defaultExpanded && animationKey) {
+    if (!isLocked && animationKey) {
       setLoginKeysExpanded(true);
       const timer = setTimeout(() => setNotesExpanded(true), 150);
       return () => clearTimeout(timer);
-    } else if (!defaultExpanded) {
+    } else if (isLocked) {
       setLoginKeysExpanded(false);
       setNotesExpanded(false);
     }
-  }, [defaultExpanded, animationKey, open]);
+  }, [isLocked, animationKey]);
 
   const searchLower = searchQuery.toLowerCase();
 
@@ -109,7 +93,7 @@ export function SecondarySidebar({
   return (
     <Box
       sx={{
-        width: open ? 250 : 0,
+        width: 250,
         flexShrink: 0,
         height: '100vh',
         boxSizing: 'border-box',
@@ -117,7 +101,6 @@ export function SecondarySidebar({
         borderRight: 1,
         borderColor: 'divider',
         overflowX: 'hidden',
-        transition: 'width 250ms ease-out',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -127,8 +110,6 @@ export function SecondarySidebar({
           height: 60,
           p: 2,
           bgcolor: 'action.hover',
-          transition: 'opacity 200ms ease-out',
-          opacity: open ? 1 : 0,
           pointerEvents: isLocked ? 'none' : 'auto',
         }}
       >
@@ -143,12 +124,7 @@ export function SecondarySidebar({
         />
       </Box>
 
-      <Divider
-        sx={{
-          opacity: open ? 1 : 0,
-          transition: 'opacity 200ms ease-out'
-        }}
-      />
+      <Divider />
 
       <Box
         sx={{
@@ -158,8 +134,6 @@ export function SecondarySidebar({
           p: 2.2,
           borderBottom: 1,
           borderColor: 'divider',
-          transition: 'opacity 200ms ease-out',
-          opacity: open ? 1 : 0,
           pointerEvents: isLocked ? 'none' : 'auto',
         }}
       >
@@ -187,8 +161,6 @@ export function SecondarySidebar({
         sx={{
           flex: 1,
           overflow: 'hidden',
-          transition: 'opacity 200ms ease-out',
-          opacity: open ? 1 : 0,
           position: 'relative',
         }}
         onClick={(e) => {
