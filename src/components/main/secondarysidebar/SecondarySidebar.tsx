@@ -27,6 +27,8 @@ interface SecondarySidebarProps {
   onReorderNotes?: (notes: Note[]) => void;
   onReorderLoginKeys?: (loginKeys: LoginKey[]) => void;
   onClose?: () => void;
+  defaultExpanded?: boolean;
+  animationKey?: string;
 }
 
 export function SecondarySidebar({
@@ -47,6 +49,8 @@ export function SecondarySidebar({
   onReorderNotes,
   onReorderLoginKeys,
   onClose,
+  defaultExpanded,
+  animationKey,
 }: SecondarySidebarProps) {
 
   useEffect(() => {
@@ -180,6 +184,8 @@ export function SecondarySidebar({
           onSelectItem={onSelectItem}
           onEditItem={onEditLoginKey}
           onReorder={onReorderLoginKeys}
+          defaultExpanded={defaultExpanded}
+          animationKey={animationKey}
         />
 
         <CategoryAccordion
@@ -191,6 +197,8 @@ export function SecondarySidebar({
           onSelectItem={onSelectItem}
           onEditItem={onEditNote}
           onReorder={onReorderNotes}
+          defaultExpanded={defaultExpanded}
+          animationKey={animationKey}
         />
       </Box>
     </Box>

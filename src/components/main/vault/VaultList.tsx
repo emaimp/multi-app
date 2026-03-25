@@ -101,7 +101,7 @@ export function VaultList({
           modifiers={[restrictToVerticalAxis]}
         >
           <SortableContext items={unassignedVaultIds} strategy={verticalListSortingStrategy}>
-            <List>
+            <List disablePadding>
               {unassignedVaults.map((vault) => (
                 <SortableVaultItem
                   key={vault.id}

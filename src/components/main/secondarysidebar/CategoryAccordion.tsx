@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionSummary,
@@ -6,6 +6,7 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+import { motion } from 'framer-motion';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Note, NOTE_COLORS_HEX } from '../../../types/note';
 import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
@@ -14,7 +15,11 @@ import {
   closestCenter,
   DragEndEvent,
 } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -30,6 +35,8 @@ interface CategoryAccordionLoginKeysProps {
   onSelectItem?: (itemId: string | null) => void;
   onEditItem?: (item: LoginKey) => void;
   onReorder?: (items: LoginKey[]) => void;
+  defaultExpanded?: boolean;
+  animationKey?: string;
 }
 
 interface CategoryAccordionNotesProps {
@@ -41,6 +48,8 @@ interface CategoryAccordionNotesProps {
   onSelectItem?: (itemId: string | null) => void;
   onEditItem?: (item: Note) => void;
   onReorder?: (items: Note[]) => void;
+  defaultExpanded?: boolean;
+  animationKey?: string;
 }
 
 type CategoryAccordionProps = CategoryAccordionLoginKeysProps | CategoryAccordionNotesProps;
@@ -54,8 +63,25 @@ export function CategoryAccordion({
   onSelectItem,
   onEditItem,
   onReorder,
+  defaultExpanded = true,
+  animationKey,
 }: CategoryAccordionProps) {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    setExpanded(defaultExpanded);
+  }, [defaultExpanded]);
+
+  const variants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.25,
+      },
+    },
+  } as const;
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -108,23 +134,35 @@ export function CategoryAccordion({
         >
           {type === 'loginKeys' ? (
             (items as LoginKey[]).map((loginkey) => (
-              <SortableLoginkeyCardWrapper
-                key={loginkey.id}
-                loginkey={loginkey}
-                selected={selectedItemId === loginkey.id}
-                onSelect={onSelectItem}
-                onEdit={onEditItem as (item: LoginKey) => void}
-              />
+              <motion.div
+                key={`${animationKey}-${loginkey.id}`}
+                initial="hidden"
+                animate="visible"
+                variants={variants}
+              >
+                <SortableLoginkeyCardWrapper
+                  loginkey={loginkey}
+                  selected={selectedItemId === loginkey.id}
+                  onSelect={onSelectItem}
+                  onEdit={onEditItem as (item: LoginKey) => void}
+                />
+              </motion.div>
             ))
           ) : (
             (items as Note[]).map((note) => (
-              <SortableNoteCardWrapper
-                key={note.id}
-                note={note}
-                selected={selectedItemId === note.id}
-                onSelect={onSelectItem}
-                onEdit={onEditItem as (item: Note) => void}
-              />
+              <motion.div
+                key={`${animationKey}-${note.id}`}
+                initial="hidden"
+                animate="visible"
+                variants={variants}
+              >
+                <SortableNoteCardWrapper
+                  note={note}
+                  selected={selectedItemId === note.id}
+                  onSelect={onSelectItem}
+                  onEdit={onEditItem as (item: Note) => void}
+                />
+              </motion.div>
             ))
           )}
         </SortableContext>
@@ -162,7 +200,7 @@ export function CategoryAccordion({
           </Typography>
         </Box>
       </AccordionSummary>
-      <AccordionDetails sx={{ py: 1, px: 0 }}>
+      <AccordionDetails sx={{ py: 0, px: 0, overflowX: 'hidden' }}>
         {renderItems()}
       </AccordionDetails>
     </Accordion>
