@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Divider, IconButton, Tooltip } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -58,6 +58,23 @@ export function SecondarySidebar({
       onClose();
     }
   }, [open, onClose]);
+
+  const [loginKeysExpanded, setLoginKeysExpanded] = useState(defaultExpanded);
+  const [notesExpanded, setNotesExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!open) {
+      setLoginKeysExpanded(false);
+      setNotesExpanded(false);
+    } else if (defaultExpanded && animationKey) {
+      setLoginKeysExpanded(true);
+      const timer = setTimeout(() => setNotesExpanded(true), 150);
+      return () => clearTimeout(timer);
+    } else if (!defaultExpanded) {
+      setLoginKeysExpanded(false);
+      setNotesExpanded(false);
+    }
+  }, [defaultExpanded, animationKey, open]);
 
   const searchLower = searchQuery.toLowerCase();
 
@@ -184,7 +201,7 @@ export function SecondarySidebar({
           onSelectItem={onSelectItem}
           onEditItem={onEditLoginKey}
           onReorder={onReorderLoginKeys}
-          defaultExpanded={defaultExpanded}
+          defaultExpanded={loginKeysExpanded}
           animationKey={animationKey}
         />
 
@@ -197,7 +214,7 @@ export function SecondarySidebar({
           onSelectItem={onSelectItem}
           onEditItem={onEditNote}
           onReorder={onReorderNotes}
-          defaultExpanded={defaultExpanded}
+          defaultExpanded={notesExpanded}
           animationKey={animationKey}
         />
       </Box>
