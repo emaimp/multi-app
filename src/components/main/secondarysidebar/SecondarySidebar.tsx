@@ -100,7 +100,7 @@ export function SecondarySidebar({
         backgroundColor: 'background.paper',
         borderRight: 1,
         borderColor: 'divider',
-        overflowX: 'hidden',
+        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
       }}

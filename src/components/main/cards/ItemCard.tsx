@@ -39,12 +39,15 @@ export function ItemCard<T>({
       sx={{
         display: 'flex',
         alignItems: 'center',
-        p: 1.5,
+        p: 1,
         borderRadius: 1,
         borderLeft: '4px solid',
         borderLeftColor: colorHex,
         bgcolor: isSelected ? 'action.selected' : 'transparent',
         cursor: isDragging ? 'grabbing' : 'pointer',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        width: '100%',
         '&:hover': {
           bgcolor: 'action.hover',
         },

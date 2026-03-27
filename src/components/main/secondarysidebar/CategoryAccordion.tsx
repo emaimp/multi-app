@@ -200,7 +200,7 @@ export function CategoryAccordion({
           </Typography>
         </Box>
       </AccordionSummary>
-      <AccordionDetails sx={{ py: 0, px: 0, overflowX: 'hidden' }}>
+      <AccordionDetails sx={{ py: 0.1, px: 0.1, overflow: 'hidden' }}>
         {renderItems()}
       </AccordionDetails>
     </Accordion>

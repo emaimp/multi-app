@@ -35,6 +35,7 @@ export function MainSidebar({
         borderColor: 'divider',
         display: 'flex',
         flexDirection: 'column',
+        overflow: 'hidden',
       }}
     >
       <Box
@@ -75,7 +76,7 @@ export function MainSidebar({
         }}
         sx={{
           flex: 1,
-          overflow: 'auto',
+          overflow: 'hidden',
           cursor: 'pointer'
         }}
       >

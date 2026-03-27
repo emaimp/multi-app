@@ -114,7 +114,7 @@ export function CollectionAccordion({
           </Typography>
         </Box>
       </AccordionSummary>
-      <AccordionDetails sx={{ py: 1, px: 0 }}>
+      <AccordionDetails sx={{ py: 0.1, px: 0.1, overflow: 'hidden' }}>
         {vault_ids.length > 0 ? (
           <DndContext
             sensors={sensors}

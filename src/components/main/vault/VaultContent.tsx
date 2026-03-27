@@ -112,7 +112,15 @@ export function VaultContent({
   const hasDisplayedNotes = displayedNotes.length > 0;
 
   return (
-    <Box sx={{ flex: 1, overflow: 'auto', p: 3 }}>
+    <Box
+      sx={{
+        flex: 1,
+        overflow: 'hidden',
+        height: '100vh',
+        boxSizing: 'border-box',
+        p: 3
+      }}
+    >
       {selectedVault ? (
         <>
           <Typography variant="h4">{selectedVault.name}</Typography>
