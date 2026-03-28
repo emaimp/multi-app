@@ -76,6 +76,11 @@ impl Database {
             rusqlite::params![&id, user_id, &name_encrypted, color, &name_nonce, image_encrypted, image_nonce, created_at, vault_position],
         ).map_err(|e| e.to_string())?;
 
+        // Get or create "General" collection and add the vault to it
+        drop(conn); // Release lock before accessing collections
+        let general_collection = self.get_or_create_general_collection(user_id)?;
+        self.add_vault_to_collection(&general_collection.id, &id)?;
+
         Ok(Vault {
             id,
             user_id,

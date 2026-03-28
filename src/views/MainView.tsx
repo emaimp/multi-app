@@ -44,7 +44,6 @@ export function MainView() {
     createVault,
     updateVault,
     deleteVault,
-    reorderVaults,
     reorderVaultsInCollection,
     createNote,
     updateNote,
@@ -218,7 +217,6 @@ export function MainView() {
                   onEditCollection={(collection) => setEditingCollection(collection)}
                   onCollectionReorder={reorderCollections}
                   onVaultReorderInCollection={reorderVaultsInCollection}
-                  onVaultReorder={reorderVaults}
                 />
               )}
             </MainSidebar>

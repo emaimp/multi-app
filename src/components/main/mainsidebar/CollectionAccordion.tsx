@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Accordion,
   AccordionSummary,
@@ -32,6 +32,8 @@ interface CollectionAccordionProps {
   dragAttributes?: any;
   dragListeners?: any;
   onVaultReorder?: (collectionId: string, vault_ids: string[]) => void;
+  isGeneral?: boolean;
+  defaultExpanded?: boolean;
 }
 
 export function CollectionAccordion({
@@ -44,8 +46,14 @@ export function CollectionAccordion({
   dragAttributes,
   dragListeners,
   onVaultReorder,
+  isGeneral = false,
+  defaultExpanded = false,
 }: CollectionAccordionProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    setExpanded(defaultExpanded);
+  }, [defaultExpanded]);
   
   const sensors = useSortableSensors();
 
@@ -86,7 +94,7 @@ export function CollectionAccordion({
           pl: 1,
         }}
       >
-        {onEditCollection && (
+        {onEditCollection ? (
           <Box
             component="span"
             onClick={(e) => {
@@ -104,7 +112,9 @@ export function CollectionAccordion({
           >
             <MoreVertIcon fontSize="small" />
           </Box>
-        )}
+        ) : isGeneral ? (
+          <Box sx={{ width: 28, mr: 1 }} />
+        ) : null}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
           <Typography variant="subtitle1" fontWeight="medium">
             {collection.name}

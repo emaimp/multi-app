@@ -121,9 +121,39 @@ impl Database {
 
     pub fn delete_collection(&self, collection_id: &str) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
+        
+        // Get vault_ids from the collection before deleting
+        let vault_ids_json: String = conn.query_row(
+            "SELECT vault_ids FROM collections WHERE id = ?",
+            [collection_id],
+            |row| row.get(0)
+        ).map_err(|e| e.to_string())?;
+
+        let vault_ids: Vec<String> = serde_json::from_str(&vault_ids_json).unwrap_or_default();
+
+        // Delete all vaults in the collection
+        for vault_id in vault_ids {
+            let _ = conn.execute("DELETE FROM vaults WHERE id = ?", [&vault_id]);
+        }
+
+        // Delete the collection
         conn.execute("DELETE FROM collections WHERE id = ?", [collection_id])
             .map_err(|e| e.to_string())?;
+        
         Ok(())
+    }
+
+    pub fn get_or_create_general_collection(&self, user_id: i32) -> Result<Collection, String> {
+        // First try to find existing "General" collection
+        let collections = self.get_collections(user_id)?;
+        for c in collections {
+            if c.name == "General" {
+                return Ok(c);
+            }
+        }
+        
+        // If not found, create it
+        self.create_collection(user_id, "General")
     }
 }
 
