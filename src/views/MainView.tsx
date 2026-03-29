@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import KeyIcon from '@mui/icons-material/Key';
 import { LoadingDialog, CreateDialog } from '../components/ui';
+import { CreateCollectionDialog } from '../components/main/mainsidebar/CreateCollectionDialog';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useBackend } from '../hooks/useBackend';
@@ -53,7 +53,6 @@ export function MainView() {
     updateLoginKey,
     deleteLoginKey,
     reorderLoginKeys,
-    createCollection,
     updateCollection,
     deleteCollection,
     reorderCollections,
@@ -268,14 +267,9 @@ export function MainView() {
               onCreate={(name) => createVault(name, 'blue')}
             />
 
-            <CreateDialog
+            <CreateCollectionDialog
               open={createCollectionDialogOpen}
-              title="Create Collection"
-              label="Collection Name"
-              placeholder="Enter collection name"
-              titleIcon={<ViewModuleIcon />}
               onClose={() => setCreateCollectionDialogOpen(false)}
-              onCreate={createCollection}
             />
 
             <CreateDialog
