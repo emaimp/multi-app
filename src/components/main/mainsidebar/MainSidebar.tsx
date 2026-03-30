@@ -76,7 +76,7 @@ export function MainSidebar({
         }}
         sx={{
           flex: 1,
-          overflow: 'hidden',
+          overflow: 'auto',
           cursor: 'pointer'
         }}
       >

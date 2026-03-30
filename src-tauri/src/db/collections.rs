@@ -142,19 +142,6 @@ impl Database {
         
         Ok(())
     }
-
-    pub fn get_or_create_general_collection(&self, user_id: i32) -> Result<Collection, String> {
-        // First try to find existing "General" collection
-        let collections = self.get_collections(user_id)?;
-        for c in collections {
-            if c.name == "General" {
-                return Ok(c);
-            }
-        }
-        
-        // If not found, create it
-        self.create_collection(user_id, "General")
-    }
 }
 
 fn collection_from_row(row: &rusqlite::Row, user_id: i32, key: &GenericArray<u8, U32>) -> Result<Collection, rusqlite::Error> {

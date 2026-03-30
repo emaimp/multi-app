@@ -49,7 +49,7 @@ impl Database {
         Ok(vault)
     }
 
-    pub fn create_vault(&self, user_id: i32, name: &str, color: &str, image: Option<&[u8]>) -> Result<Vault, String> {
+    pub fn create_vault(&self, user_id: i32, name: &str, color: &str, image: Option<&[u8]>, collection_id: Option<&str>) -> Result<Vault, String> {
         let conn = self.conn.lock().unwrap();
         let id = uuid::Uuid::new_v4().to_string();
         let created_at = Utc::now().timestamp_millis();
@@ -76,10 +76,10 @@ impl Database {
             rusqlite::params![&id, user_id, &name_encrypted, color, &name_nonce, image_encrypted, image_nonce, created_at, vault_position],
         ).map_err(|e| e.to_string())?;
 
-        // Get or create "General" collection and add the vault to it
-        drop(conn); // Release lock before accessing collections
-        let general_collection = self.get_or_create_general_collection(user_id)?;
-        self.add_vault_to_collection(&general_collection.id, &id)?;
+        if let Some(col_id) = collection_id {
+            drop(conn);
+            self.add_vault_to_collection(col_id, &id)?;
+        }
 
         Ok(Vault {
             id,

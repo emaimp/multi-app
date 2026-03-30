@@ -26,7 +26,7 @@ interface VaultContextType {
   loadVaults: () => Promise<void>;
   
   // CRUD Vaults
-  createVault: (name: string, color: string) => Promise<void>;
+  createVault: (name: string, color: string, collectionId?: string) => Promise<void>;
   updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
   reorderVaults: (vaults: Vault[]) => Promise<void>;
@@ -45,7 +45,7 @@ interface VaultContextType {
   reorderLoginKeys: (loginKeys: LoginKey[]) => Promise<void>;
   
   // CRUD Collections
-  createCollection: (name: string) => Promise<void>;
+  createCollection: (name: string) => Promise<Collection | undefined>;
   updateCollection: (collection: Collection) => Promise<void>;
   deleteCollection: (collectionId: string) => Promise<void>;
   reorderCollections: (collections: Collection[]) => void;
@@ -110,8 +110,18 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   }, [loadVaultsHook, loadCollectionsHook]);
 
   // CRUD Vaults
-  const createVault = async (name: string, color: string) => {
-    await createVaultHook(name, color);
+  const createVault = async (name: string, color: string, collectionId?: string) => {
+    const newVault = await createVaultHook(name, color, collectionId);
+
+    if (collectionId && newVault) {
+      setCollections((prev) =>
+        prev.map((c) =>
+          c.id === collectionId
+            ? { ...c, vault_ids: [...c.vault_ids, newVault.id] }
+            : c
+        )
+      );
+    }
   };
 
   const updateVault = async (vault: Vault, image?: string | null) => {
@@ -210,7 +220,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   // CRUD Collections
   const createCollection = async (name: string) => {
-    await createCollectionHook(name);
+    return await createCollectionHook(name);
   };
 
   const updateCollection = async (collection: Collection) => {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -23,24 +23,10 @@ interface CreateCollectionDialogProps {
 const MAX_VAULTS = 5;
 
 export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialogProps) {
-  const { createVault, createCollection, collections } = useVaults();
+  const { createVault, createCollection } = useVaults();
   const [collectionName, setCollectionName] = useState('');
   const [vaultNames, setVaultNames] = useState<string[]>(['']);
   const [isCreating, setIsCreating] = useState(false);
-
-  useEffect(() => {
-    if (isCreating && collections.length > 0) {
-      const newCollection = collections.find(c => c.name === collectionName.trim());
-      if (newCollection) {
-        const validVaultNames = vaultNames.filter(v => v.trim());
-        for (const vaultName of validVaultNames) {
-          createVault(vaultName.trim(), 'blue');
-        }
-        setIsCreating(false);
-        handleClose();
-      }
-    }
-  }, [collections, isCreating]);
 
   const handleAddVault = () => {
     if (vaultNames.length < MAX_VAULTS) {
@@ -66,7 +52,20 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
     if (validVaultNames.length === 0) return;
 
     setIsCreating(true);
-    await createCollection(collectionName.trim());
+
+    try {
+      const newCollection = await createCollection(collectionName.trim());
+      if (newCollection) {
+        await Promise.all(
+          validVaultNames.map(vaultName => createVault(vaultName.trim(), 'blue', newCollection.id))
+        );
+      }
+    } catch (error) {
+      console.error('Error creating collection:', error);
+    } finally {
+      setIsCreating(false);
+      handleClose();
+    }
   };
 
   const handleClose = () => {

@@ -12,8 +12,8 @@ pub fn get_vault(vault_id: String, state: tauri::State<Database>) -> Result<Opti
 }
 
 #[tauri::command]
-pub fn create_vault(user_id: i32, name: String, color: String, image: Option<Vec<u8>>, state: tauri::State<Database>) -> Result<Vault, String> {
-    state.create_vault(user_id, &name, &color, image.as_deref())
+pub fn create_vault(user_id: i32, name: String, color: String, image: Option<Vec<u8>>, collection_id: Option<String>, state: tauri::State<Database>) -> Result<Vault, String> {
+    state.create_vault(user_id, &name, &color, image.as_deref(), collection_id.as_deref())
 }
 
 #[tauri::command]

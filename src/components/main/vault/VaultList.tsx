@@ -12,6 +12,7 @@ import { useSortableSensors } from '../../../hooks/useSortableSensors';
 import { Vault } from '../../../types/vault';
 import { Collection } from '../../../types/collection';
 import { CollectionAccordion } from '../mainsidebar/CollectionAccordion';
+import { WithoutCollection } from '../mainsidebar/WithoutCollection';
 
 interface VaultListProps {
   vaults: Vault[];
@@ -22,6 +23,8 @@ interface VaultListProps {
   activeVault: string | null;
   onCollectionReorder: (collections: Collection[]) => void;
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
+  unassignedVaults: Vault[];
+  onReorderUnassignedVaults: (vaults: Vault[]) => void;
 }
 
 export function VaultList({ 
@@ -33,6 +36,8 @@ export function VaultList({
   activeVault,
   onCollectionReorder,
   onVaultReorderInCollection,
+  unassignedVaults,
+  onReorderUnassignedVaults,
 }: VaultListProps) {
   const sensors = useSortableSensors();
 
@@ -45,51 +50,49 @@ export function VaultList({
       onCollectionReorder(newCollections);
     }
   };
-  
-  const unassignedVaults = vaults.filter(
-    vault => !collections.some(collection => collection.vault_ids.includes(vault.id))
-  );
 
-  const unassignedVaultIds = unassignedVaults.map(v => v.id);
+  const allCollectionIds = collections.map(c => c.id);
 
-  const generalCollection = {
-    id: 'general',
-    name: 'General',
-    vault_ids: unassignedVaultIds,
-  } as Collection;
-
-  const allCollections = unassignedVaults.length > 0
-    ? [...collections, generalCollection]
-    : collections;
-
-  const allCollectionIdsWithGeneral = allCollections.map(c => c.id);
+  const hasContent = collections.length > 0 || unassignedVaults.length > 0;
 
   return (
     <Box sx={{ width: '100%' }}>
-      {allCollections.length > 0 ? (
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleCollectionDragEnd}
-          modifiers={[restrictToVerticalAxis]}
-        >
-          <SortableContext items={allCollectionIdsWithGeneral} strategy={verticalListSortingStrategy}>
-            {allCollections.map((collection) => (
-              <SortableCollection
-                key={collection.id}
-                collection={collection}
-                vaults={vaults}
-                onVaultClick={onVaultClick}
-                onEditVault={onEditVault}
-                onEditCollection={onEditCollection}
-                activeVault={activeVault}
-                onVaultReorderInCollection={onVaultReorderInCollection}
-                isGeneral={collection.id === 'general'}
-                defaultExpanded={activeVault ? collection.vault_ids.includes(activeVault) : collection.vault_ids.length > 0}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+      {hasContent ? (
+        <>
+          {collections.length > 0 && (
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleCollectionDragEnd}
+              modifiers={[restrictToVerticalAxis]}
+            >
+              <SortableContext items={allCollectionIds} strategy={verticalListSortingStrategy}>
+                {collections.map((collection) => (
+                  <SortableCollection
+                    key={collection.id}
+                    collection={collection}
+                    vaults={vaults}
+                    onVaultClick={onVaultClick}
+                    onEditVault={onEditVault}
+                    onEditCollection={onEditCollection}
+                    activeVault={activeVault}
+                    onVaultReorderInCollection={onVaultReorderInCollection}
+                    defaultExpanded={activeVault ? collection.vault_ids.includes(activeVault) : collection.vault_ids.length > 0}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
+          )}
+          {unassignedVaults.length > 0 && (
+            <WithoutCollection
+              vaults={unassignedVaults}
+              onVaultClick={onVaultClick}
+              onEditVault={onEditVault}
+              activeVault={activeVault}
+              onReorder={onReorderUnassignedVaults}
+            />
+          )}
+        </>
       ) : (
         <Box
           sx={{
@@ -115,7 +118,6 @@ interface SortableCollectionProps {
   onEditCollection?: (collection: Collection) => void;
   activeVault: string | null;
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
-  isGeneral?: boolean;
   defaultExpanded?: boolean;
 }
 
@@ -127,7 +129,6 @@ function SortableCollection({
   onEditCollection,
   activeVault,
   onVaultReorderInCollection,
-  isGeneral = false,
   defaultExpanded = false,
 }: SortableCollectionProps) {
   const {
@@ -159,7 +160,6 @@ function SortableCollection({
         dragAttributes={attributes}
         dragListeners={listeners}
         onVaultReorder={onVaultReorderInCollection}
-        isGeneral={isGeneral}
         defaultExpanded={defaultExpanded}
       />
     </Box>

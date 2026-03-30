@@ -16,7 +16,7 @@ interface UseVaultsReturn {
   loadVaults: () => Promise<void>;
   
   // CRUD Vaults
-  createVault: (name: string, color: string) => Promise<Vault | undefined>;
+  createVault: (name: string, color: string, collectionId?: string) => Promise<Vault | undefined>;
   updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
   reorderVaults: (vaults: Vault[]) => Promise<void>;
@@ -56,12 +56,14 @@ export function useVaults(): UseVaultsReturn {
   };
 
   // CRUD Vaults
-  const createVault = async (name: string, color: string) => {
+  const createVault = async (name: string, color: string, collectionId?: string) => {
     if (!user) return undefined;
     const newVault = await invoke<Vault>('create_vault', {
       userId: user.id,
       name,
       color,
+      image: null,
+      collectionId,
     });
     setVaults((prev) => [...prev, newVault]);
     return newVault;

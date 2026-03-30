@@ -32,7 +32,6 @@ interface CollectionAccordionProps {
   dragAttributes?: any;
   dragListeners?: any;
   onVaultReorder?: (collectionId: string, vault_ids: string[]) => void;
-  isGeneral?: boolean;
   defaultExpanded?: boolean;
 }
 
@@ -46,7 +45,6 @@ export function CollectionAccordion({
   dragAttributes,
   dragListeners,
   onVaultReorder,
-  isGeneral = false,
   defaultExpanded = false,
 }: CollectionAccordionProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -112,8 +110,6 @@ export function CollectionAccordion({
           >
             <MoreVertIcon fontSize="small" />
           </Box>
-        ) : isGeneral ? (
-          <Box sx={{ width: 28, mr: 1 }} />
         ) : null}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
           <Typography variant="subtitle1" fontWeight="medium">
