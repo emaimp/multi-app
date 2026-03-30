@@ -10,7 +10,6 @@ import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useBackend } from '../hooks/useBackend';
 import {
-  VaultList,
   VaultListSkeleton,
   VaultEditDialog,
   VaultTypeSelector,
@@ -204,23 +203,18 @@ export function MainView() {
               onLogoutClick={logout}
               onNewClick={() => setVaultTypeSelectorOpen(true)}
               onContentClick={clearVaultSelect}
+              vaults={vaults}
+              collections={collections}
+              activeVault={activeVault}
+              onVaultClick={handleVaultClick}
+              onEditVault={(vault) => setEditingVault(vault)}
+              onEditCollection={(collection) => setEditingCollection(collection)}
+              onCollectionReorder={reorderCollections}
+              onVaultReorderInCollection={reorderVaultsInCollection}
+              unassignedVaults={vaults.filter(v => !collections.some(c => c.vault_ids.includes(v.id)))}
+              onReorderUnassignedVaults={reorderVaults}
             >
-              {loadingVaults ? (
-                <VaultListSkeleton />
-              ) : (
-                <VaultList
-                  vaults={vaults}
-                  collections={collections}
-                  activeVault={activeVault}
-                  onVaultClick={handleVaultClick}
-                  onEditVault={(vault) => setEditingVault(vault)}
-                  onEditCollection={(collection) => setEditingCollection(collection)}
-                  onCollectionReorder={reorderCollections}
-                  onVaultReorderInCollection={reorderVaultsInCollection}
-                  unassignedVaults={vaults.filter(v => !collections.some(c => c.vault_ids.includes(v.id)))}
-                  onReorderUnassignedVaults={reorderVaults}
-                />
-              )}
+              {loadingVaults && <VaultListSkeleton />}
             </MainSidebar>
 
             <SecondarySidebar

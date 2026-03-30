@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Note, NOTE_COLORS_HEX } from '../../../types/note';
 import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
+import { useSortableSensors } from '../../../hooks/useSortableSensors';
 import {
   DndContext,
   closestCenter,
@@ -17,14 +18,13 @@ import {
 } from '@dnd-kit/core';
 import {
   SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy
+  verticalListSortingStrategy,
+  arrayMove
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ItemCard } from '../cards/ItemCard';
-import { PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core';
 
 interface CategoryAccordionLoginKeysProps {
   title: string;
@@ -83,16 +83,7 @@ export function CategoryAccordion({
     },
   } as const;
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
+  const sensors = useSortableSensors();
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -100,13 +91,12 @@ export function CategoryAccordion({
       const oldIndex = items.findIndex((item) => item.id === active.id);
       const newIndex = items.findIndex((item) => item.id === over.id);
       if (oldIndex !== -1 && newIndex !== -1) {
-        const reorderedItems = [...items];
-        const [removed] = reorderedItems.splice(oldIndex, 1);
-        reorderedItems.splice(newIndex, 0, removed);
         if (type === 'loginKeys') {
-          (onReorder as (items: LoginKey[]) => void)(reorderedItems as LoginKey[]);
+          const reorderedItems = arrayMove(items as LoginKey[], oldIndex, newIndex);
+          onReorder(reorderedItems);
         } else {
-          (onReorder as (items: Note[]) => void)(reorderedItems as Note[]);
+          const reorderedItems = arrayMove(items as Note[], oldIndex, newIndex);
+          onReorder(reorderedItems);
         }
       }
     }
