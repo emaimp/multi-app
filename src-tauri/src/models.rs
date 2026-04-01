@@ -74,3 +74,32 @@ pub struct Collection {
     pub position: i32,
     pub created_at: i64,
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct IdCard {
+    pub id: String,
+    pub vault_id: String,
+    pub id_type: String,
+    pub full_name: String,
+    pub id_number: String,
+    pub color: String,
+    pub image: Option<String>,
+    pub created_at: i64,
+    pub position: i32,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CreditCard {
+    pub id: String,
+    pub vault_id: String,
+    pub card_name: String,
+    pub holder_name: String,
+    pub card_number: String,
+    pub expiry: String,
+    pub cvv: String,
+    pub color: String,
+    pub image: Option<String>,
+    pub created_at: i64,
+    pub updated_at: i64,
+    pub position: i32,
+}

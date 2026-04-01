@@ -1,5 +1,7 @@
 pub mod auth;
 pub mod collections;
+pub mod credit_cards;
+pub mod id_cards;
 pub mod login_keys;
 pub mod notes;
 pub mod vaults;
@@ -46,6 +48,18 @@ pub fn run() {
             collections::add_vault_to_collection,
             collections::remove_vault_from_collection,
             collections::delete_collection,
+            id_cards::get_id_cards_decrypted,
+            id_cards::get_id_card_with_content,
+            id_cards::create_id_card,
+            id_cards::update_id_card,
+            id_cards::update_id_card_position,
+            id_cards::delete_id_card,
+            credit_cards::get_credit_cards_decrypted,
+            credit_cards::get_credit_card_with_content,
+            credit_cards::create_credit_card,
+            credit_cards::update_credit_card,
+            credit_cards::update_credit_card_position,
+            credit_cards::delete_credit_card,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

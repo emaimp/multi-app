@@ -86,5 +86,50 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
         [],
     )?;
 
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS id_cards (
+            id TEXT PRIMARY KEY,
+            vault_id TEXT NOT NULL,
+            id_type_encrypted TEXT NOT NULL,
+            id_type_nonce TEXT NOT NULL,
+            full_name_encrypted TEXT NOT NULL,
+            full_name_nonce TEXT NOT NULL,
+            id_number_encrypted TEXT NOT NULL,
+            id_number_nonce TEXT NOT NULL,
+            color TEXT NOT NULL,
+            image BLOB,
+            image_nonce TEXT,
+            created_at INTEGER NOT NULL,
+            position INTEGER DEFAULT 0,
+            FOREIGN KEY (vault_id) REFERENCES vaults(id) ON DELETE CASCADE
+        )",
+        [],
+    )?;
+
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS credit_cards (
+            id TEXT PRIMARY KEY,
+            vault_id TEXT NOT NULL,
+            card_name_encrypted TEXT NOT NULL,
+            card_name_nonce TEXT NOT NULL,
+            holder_name_encrypted TEXT NOT NULL,
+            holder_name_nonce TEXT NOT NULL,
+            card_number_encrypted TEXT NOT NULL,
+            card_number_nonce TEXT NOT NULL,
+            expiry_encrypted TEXT NOT NULL,
+            expiry_nonce TEXT NOT NULL,
+            cvv_encrypted TEXT NOT NULL,
+            cvv_nonce TEXT NOT NULL,
+            color TEXT NOT NULL,
+            image BLOB,
+            image_nonce TEXT,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL,
+            position INTEGER DEFAULT 0,
+            FOREIGN KEY (vault_id) REFERENCES vaults(id) ON DELETE CASCADE
+        )",
+        [],
+    )?;
+
     Ok(())
 }
