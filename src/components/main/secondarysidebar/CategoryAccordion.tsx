@@ -22,9 +22,7 @@ import {
   arrayMove
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { ItemCard } from '../cards/ItemCard';
+import { SortableItemCard } from '../cards/SortableItemCard';
 
 interface CategoryAccordionLoginKeysProps {
   title: string;
@@ -130,10 +128,15 @@ export function CategoryAccordion({
                 animate="visible"
                 variants={variants}
               >
-                <SortableLoginkeyCardWrapper
-                  loginkey={loginkey}
-                  selected={selectedItemId === loginkey.id}
-                  onSelect={onSelectItem}
+                <SortableItemCard
+                  item={loginkey}
+                  title={loginkey.site_name}
+                  color={loginkey.color}
+                  colorPalette={LOGINKEY_COLORS_HEX}
+                  avatarSrc={loginkey.image}
+                  avatarFallback={loginkey.site_name.charAt(0).toUpperCase()}
+                  isSelected={selectedItemId === loginkey.id}
+                  onClick={() => onSelectItem?.(loginkey.id)}
                   onEdit={onEditItem as (item: LoginKey) => void}
                 />
               </motion.div>
@@ -146,10 +149,15 @@ export function CategoryAccordion({
                 animate="visible"
                 variants={variants}
               >
-                <SortableNoteCardWrapper
-                  note={note}
-                  selected={selectedItemId === note.id}
-                  onSelect={onSelectItem}
+                <SortableItemCard
+                  item={note}
+                  title={note.title}
+                  color={note.color}
+                  colorPalette={NOTE_COLORS_HEX}
+                  avatarSrc={note.image}
+                  avatarFallback={note.title.charAt(0).toUpperCase()}
+                  isSelected={selectedItemId === note.id}
+                  onClick={() => onSelectItem?.(note.id)}
                   onEdit={onEditItem as (item: Note) => void}
                 />
               </motion.div>
@@ -194,92 +202,6 @@ export function CategoryAccordion({
         {renderItems()}
       </AccordionDetails>
     </Accordion>
-  );
-}
-
-interface SortableLoginkeyCardWrapperProps {
-  loginkey: LoginKey;
-  selected?: boolean;
-  onSelect?: (id: string | null) => void;
-  onEdit: (loginkey: LoginKey) => void;
-}
-
-function SortableLoginkeyCardWrapper({ loginkey, selected, onSelect, onEdit }: SortableLoginkeyCardWrapperProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: loginkey.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <Box ref={setNodeRef} style={style} sx={{ cursor: isDragging ? 'grabbing' : 'default' }}>
-      <ItemCard
-        title={loginkey.site_name}
-        color={loginkey.color}
-        colorPalette={LOGINKEY_COLORS_HEX}
-        avatarSrc={loginkey.image}
-        avatarFallback={loginkey.site_name.charAt(0).toUpperCase()}
-        item={loginkey}
-        onEdit={onEdit}
-        onClick={() => onSelect?.(loginkey.id)}
-        isSelected={selected}
-        isDragging={isDragging}
-        dragAttributes={attributes as any}
-        dragListeners={listeners as any}
-      />
-    </Box>
-  );
-}
-
-interface SortableNoteCardWrapperProps {
-  note: Note;
-  selected?: boolean;
-  onSelect?: (id: string | null) => void;
-  onEdit: (note: Note) => void;
-}
-
-function SortableNoteCardWrapper({ note, selected, onSelect, onEdit }: SortableNoteCardWrapperProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: note.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
-  return (
-    <Box ref={setNodeRef} style={style} sx={{ cursor: isDragging ? 'grabbing' : 'default' }}>
-      <ItemCard
-        title={note.title}
-        color={note.color}
-        colorPalette={NOTE_COLORS_HEX}
-        avatarSrc={note.image}
-        avatarFallback={note.title.charAt(0).toUpperCase()}
-        item={note}
-        onEdit={onEdit}
-        onClick={() => onSelect?.(note.id)}
-        isSelected={selected}
-        isDragging={isDragging}
-        dragAttributes={attributes as any}
-        dragListeners={listeners as any}
-      />
-    </Box>
   );
 }
 
