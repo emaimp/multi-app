@@ -25,10 +25,12 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [masterKey, setMasterKey] = useState('');
+  const [confirmMasterKey, setConfirmMasterKey] = useState('');
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showMasterKey, setShowMasterKey] = useState(false);
+  const [showConfirmMasterKey, setShowConfirmMasterKey] = useState(false);
 
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
@@ -38,6 +40,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
   const [masterKeyError, setMasterKeyError] = useState(false);
   const [masterKeyErrorMessage, setMasterKeyErrorMessage] = useState('');
+  const [confirmMasterKeyError, setConfirmMasterKeyError] = useState(false);
+  const [confirmMasterKeyErrorMessage, setConfirmMasterKeyErrorMessage] = useState('');
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -107,6 +111,17 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     return true;
   };
 
+  const validateConfirmMasterKey = (value: string) => {
+    if (value !== masterKey) {
+      setConfirmMasterKeyError(true);
+      setConfirmMasterKeyErrorMessage('Master Keys do not match.');
+      return false;
+    }
+    setConfirmMasterKeyError(false);
+    setConfirmMasterKeyErrorMessage('');
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -114,13 +129,19 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     const isPasswordValid = validatePassword(password);
     const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
     const isMasterKeyValid = validateMasterKey(masterKey);
+    const isConfirmMasterKeyValid = validateConfirmMasterKey(confirmMasterKey);
 
-    if (!isUsernameValid || !isPasswordValid || !isConfirmPasswordValid || !isMasterKeyValid) {
+    if (!isUsernameValid || !isPasswordValid || !isConfirmPasswordValid || !isMasterKeyValid || !isConfirmMasterKeyValid) {
       return;
     }
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      return;
+    }
+
+    if (masterKey !== confirmMasterKey) {
+      setError('Master Keys do not match');
       return;
     }
 
@@ -405,6 +426,9 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 }
               }
               
+              if (confirmMasterKey && !confirmMasterKeyError) {
+                validateConfirmMasterKey(confirmMasterKey);
+              }
               if (error) setError('');
             }}
             slotProps={{
@@ -418,6 +442,48 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                       edge="end"
                     >
                       {showMasterKey ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+            sx={{ mt: 1 }}
+          />
+
+          <TextField
+            id="confirmMasterKey"
+            name="confirmMasterKey"
+            type={showConfirmMasterKey ? 'text' : 'password'}
+            label="Confirm Master Key"
+            placeholder="••••••"
+            autoComplete="off"
+            fullWidth
+            variant="outlined"
+            value={confirmMasterKey}
+            error={confirmMasterKeyError}
+            helperText={confirmMasterKeyErrorMessage}
+            onChange={(e) => {
+              setConfirmMasterKey(e.target.value);
+              if (e.target.value.length === 0 || e.target.value === masterKey) {
+                setConfirmMasterKeyError(false);
+                setConfirmMasterKeyErrorMessage('');
+              } else {
+                setConfirmMasterKeyError(true);
+                setConfirmMasterKeyErrorMessage('Master Keys do not match.');
+              }
+              if (error) setError('');
+            }}
+            slotProps={{
+              input: {
+                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm master key visibility"
+                      onClick={() => setShowConfirmMasterKey(!showConfirmMasterKey)}
+                      edge="end"
+                    >
+                      {showConfirmMasterKey ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
