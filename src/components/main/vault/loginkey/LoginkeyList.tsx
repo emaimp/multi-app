@@ -1,7 +1,7 @@
 import { Box } from '@mui/material';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { LoginKey } from '../../../types/loginkey';
+import { LoginKey } from '../../../../types/loginkey';
 import { LoginkeyItem } from './LoginkeyItem';
 
 interface LoginkeyListProps {

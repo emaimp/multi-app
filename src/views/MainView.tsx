@@ -16,8 +16,8 @@ import {
 } from '../components/main/vault';
 import { MainSidebar, CollectionEditDialog } from '../components/main/mainsidebar';
 import { SecondarySidebar } from '../components/main/secondarysidebar';
-import { NoteEditDialog } from '../components/main/note';
-import { LoginkeyEditDialog } from '../components/main/loginkey';
+import { NoteEditDialog } from '../components/main/vault/note';
+import { LoginkeyEditDialog } from '../components/main/vault/loginkey';
 import { Vault } from '../types/vault';
 import { Collection } from '../types/collection';
 import { Note } from '../types/note';

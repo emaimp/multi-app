@@ -1,6 +1,6 @@
 import { Box, Typography, Divider } from '@mui/material';
-import { NoteList } from '../note';
-import { LoginkeyList } from '../loginkey';
+import { NoteList } from './note';
+import { LoginkeyList } from './loginkey';
 import {
   DndContext,
   closestCenter,
@@ -10,7 +10,12 @@ import {
   useSensors,
   DragEndEvent,
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { Note } from '../../../types/note';
 import { LoginKey } from '../../../types/loginkey';

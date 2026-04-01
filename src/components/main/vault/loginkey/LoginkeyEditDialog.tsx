@@ -11,38 +11,42 @@ import {
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Note, NOTE_COLORS, NOTE_COLORS_HEX } from '../../../types/note';
-import { ConfirmDialog, AvatarPicker } from '../../ui';
+import {
+  LoginKey,
+  LOGINKEY_COLORS,
+  LOGINKEY_COLORS_HEX
+} from '../../../../types/loginkey';
+import { ConfirmDialog, AvatarPicker } from '../../../ui';
 
-interface NoteEditDialogProps {
+interface LoginkeyEditDialogProps {
   open: boolean;
-  note: Note | null;
+  loginkey: LoginKey | null;
   onClose: () => void;
-  onSave: (note: Note, image?: string | null) => void;
-  onDelete: (noteId: string) => void;
+  onSave: (loginkey: LoginKey, image?: string | null) => void;
+  onDelete: (loginKeyId: string) => void;
 }
 
-export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEditDialogProps) {
-  const [title, setTitle] = useState(note?.title || '');
-  const [color, setColor] = useState(note?.color || 'blue');
-  const [image, setImage] = useState<string | null>(note?.image || null);
+export function LoginkeyEditDialog({ open, loginkey, onClose, onSave, onDelete }: LoginkeyEditDialogProps) {
+  const [siteName, setSiteName] = useState(loginkey?.site_name || '');
+  const [color, setColor] = useState(loginkey?.color || 'blue');
+  const [image, setImage] = useState<string | null>(loginkey?.image || null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
-    if (note) {
-      setTitle(note.title);
-      setColor(note.color);
-      setImage(note.image || null);
+    if (loginkey) {
+      setSiteName(loginkey.site_name);
+      setColor(loginkey.color);
+      setImage(loginkey.image || null);
     }
-  }, [note]);
+  }, [loginkey]);
 
-  if (!note) return null;
+  if (!loginkey) return null;
 
   const handleSubmit = () => {
-    if (title.trim()) {
+    if (siteName.trim()) {
       onSave({
-        ...note,
-        title: title.trim(),
+        ...loginkey,
+        site_name: siteName.trim(),
         color,
       }, image);
       onClose();
@@ -54,7 +58,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
   };
 
   const handleConfirmDelete = () => {
-    onDelete(note.id);
+    onDelete(loginkey.id);
     setConfirmOpen(false);
     onClose();
   };
@@ -62,7 +66,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Note</DialogTitle>
+        <DialogTitle>Edit Login Key</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ pt: 1 }}>
             <Box sx={{ textAlign: 'center', mb: 2 }}>
@@ -70,16 +74,16 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
                 value={image}
                 onChange={setImage}
                 size={100}
-                label={title.charAt(0).toUpperCase()}
+                label={siteName.charAt(0).toUpperCase()}
               />
             </Box>
 
             <TextField
-              label="Note Title"
+              label="Site Name"
               fullWidth
               variant="outlined"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={siteName}
+              onChange={(e) => setSiteName(e.target.value)}
             />
 
             <Box>
@@ -95,7 +99,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
                 borderColor: 'divider',
                 borderRadius: 1,
               }}>
-                {NOTE_COLORS.map((c: string) => (
+                {LOGINKEY_COLORS.map((c: string) => (
                   <Box
                     key={c}
                     onClick={() => setColor(c)}
@@ -103,7 +107,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
                       width: 32,
                       height: 32,
                       borderRadius: '50%',
-                      bgcolor: NOTE_COLORS_HEX[c],
+                      bgcolor: LOGINKEY_COLORS_HEX[c],
                       cursor: 'pointer',
                       border: color === c ? '3px solid' : '2px solid',
                       borderColor: color === c ? 'text.primary' : 'transparent',
@@ -124,7 +128,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
           </Button>
           <Box sx={{ flexGrow: 1 }} />
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={!title.trim()}>
+          <Button onClick={handleSubmit} variant="contained" disabled={!siteName.trim()}>
             Save
           </Button>
         </DialogActions>
@@ -132,8 +136,8 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Delete Note"
-        message={`Are you sure you want to delete "${note.title}"? This action cannot be undone.`}
+        title="Delete Login Key"
+        message={`Are you sure you want to delete "${loginkey.site_name}"? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />
@@ -141,4 +145,4 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
   );
 }
 
-export default NoteEditDialog;
+export default LoginkeyEditDialog;
