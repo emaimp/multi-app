@@ -9,23 +9,28 @@ import {
   Box,
   Typography,
   Stack,
+  Autocomplete,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../../types/vault';
+import { Collection } from '../../../types/collection';
 import { ConfirmDialog, AvatarPicker } from '../../ui';
 
 interface VaultEditDialogProps {
   open: boolean;
   vault: Vault | null;
+  collections: Collection[];
   onClose: () => void;
   onSave: (vault: Vault, image?: string | null) => void;
   onDelete: (vaultId: string) => void;
+  onUpdateCollection: (vaultId: string, collectionId: string | null) => void;
 }
 
-export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: VaultEditDialogProps) {
+export function VaultEditDialog({ open, vault, collections, onClose, onSave, onDelete, onUpdateCollection }: VaultEditDialogProps) {
   const [name, setName] = useState(vault?.name || '');
   const [color, setColor] = useState(vault?.color || 'blue');
   const [image, setImage] = useState<string | null>(vault?.image || null);
+  const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
@@ -33,8 +38,10 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
       setName(vault.name);
       setColor(vault.color);
       setImage(vault.image || null);
+      const vaultCollection = collections.find(c => c.vault_ids.includes(vault.id)) || null;
+      setSelectedCollection(vaultCollection);
     }
-  }, [vault]);
+  }, [vault, collections]);
 
   if (!vault) return null;
 
@@ -82,6 +89,22 @@ export function VaultEditDialog({ open, vault, onClose, onSave, onDelete }: Vaul
               variant="outlined"
               value={name}
               onChange={(e) => setName(e.target.value)}
+            />
+
+            <Autocomplete
+              value={selectedCollection}
+              onChange={(_, newValue) => {
+                setSelectedCollection(newValue);
+                if (vault) {
+                  onUpdateCollection(vault.id, newValue?.id || null);
+                }
+              }}
+              options={collections}
+              getOptionLabel={(option) => option.name}
+              renderInput={(params) => (
+                <TextField {...params} label="Collection" variant="outlined" />
+              )}
+              disableClearable={false}
             />
 
             <Box>

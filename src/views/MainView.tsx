@@ -292,9 +292,30 @@ export function MainView() {
             <VaultEditDialog
               open={!!editingVault}
               vault={editingVault}
+              collections={collections}
               onClose={() => setEditingVault(null)}
               onSave={updateVault}
               onDelete={deleteVault}
+              onUpdateCollection={(vaultId, collectionId) => {
+                if (!collectionId) {
+                  const currentCollection = collections.find(c => c.vault_ids.includes(vaultId));
+                  if (currentCollection) {
+                    const newVaultIds = currentCollection.vault_ids.filter(id => id !== vaultId);
+                    reorderVaultsInCollection(currentCollection.id, newVaultIds);
+                  }
+                } else {
+                  const targetCollection = collections.find(c => c.id === collectionId);
+                  if (targetCollection) {
+                    const currentCollection = collections.find(c => c.vault_ids.includes(vaultId));
+                    if (currentCollection && currentCollection.id !== collectionId) {
+                      const newVaultIds = currentCollection.vault_ids.filter(id => id !== vaultId);
+                      reorderVaultsInCollection(currentCollection.id, newVaultIds);
+                    }
+                    const newVaultIds = [...targetCollection.vault_ids, vaultId];
+                    reorderVaultsInCollection(collectionId, newVaultIds);
+                  }
+                }
+              }}
             />
 
             <NoteEditDialog
