@@ -19,7 +19,8 @@ interface UseVaultsReturn {
   createVault: (name: string, color: string, collectionId?: string) => Promise<Vault | undefined>;
   updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
-  reorderVaults: (vaults: Vault[]) => Promise<void>;
+  reorderVaultsUnassigned: (vaults: Vault[], collectionVaultIds: string[]) => Promise<void>;
+  reorderVaultsInCollection: (collectionId: string, vaultIds: string[]) => Promise<void>;
   selectVault: (vaultId: string) => Promise<void>;
   
   // Internal
@@ -94,11 +95,30 @@ export function useVaults(): UseVaultsReturn {
     }
   };
 
-  const reorderVaults = async (reorderedVaults: Vault[]) => {
-    const updatedVaults = reorderItems(reorderedVaults);
-    setVaults(updatedVaults);
+  const reorderVaultsUnassigned = async (reorderedVaults: Vault[], collectionVaultIds: string[]) => {
+    const unassignedVaults = reorderedVaults.filter(v => !collectionVaultIds.includes(v.id));
+    const updatedVaults = reorderItems(unassignedVaults);
+    setVaults(prev => {
+      const assignedVaults = prev.filter(v => collectionVaultIds.includes(v.id));
+      return [...assignedVaults, ...updatedVaults];
+    });
     for (let i = 0; i < updatedVaults.length; i++) {
       await invoke('update_vault_position', { vaultId: updatedVaults[i].id, newPosition: i });
+    }
+  };
+
+  const reorderVaultsInCollection = async (_collectionId: string, newVaultIds: string[]) => {
+    setVaults(prev =>
+      prev.map(v => {
+        const newIndex = newVaultIds.indexOf(v.id);
+        if (newIndex !== -1) {
+          return { ...v, position: newIndex };
+        }
+        return v;
+      })
+    );
+    for (let i = 0; i < newVaultIds.length; i++) {
+      await invoke('update_vault_position', { vaultId: newVaultIds[i], newPosition: i });
     }
   };
 
@@ -118,7 +138,8 @@ export function useVaults(): UseVaultsReturn {
     createVault,
     updateVault,
     deleteVault,
-    reorderVaults,
+    reorderVaultsUnassigned,
+    reorderVaultsInCollection,
     selectVault,
     setVaults,
     clearVaultSelect,

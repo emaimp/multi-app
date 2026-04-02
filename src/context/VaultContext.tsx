@@ -29,7 +29,7 @@ interface VaultContextType {
   createVault: (name: string, color: string, collectionId?: string) => Promise<void>;
   updateVault: (vault: Vault, image?: string | null) => Promise<void>;
   deleteVault: (vaultId: string) => Promise<void>;
-  reorderVaults: (vaults: Vault[]) => Promise<void>;
+  reorderVaultsUnassigned: (vaults: Vault[], collectionVaultIds: string[]) => Promise<void>;
   reorderVaultsInCollection: (collectionId: string, vault_ids: string[]) => void;
   
   // CRUD Notes
@@ -64,7 +64,8 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     createVault: createVaultHook,
     updateVault: updateVaultHook,
     deleteVault: deleteVaultHook,
-    reorderVaults: reorderVaultsHook,
+    reorderVaultsUnassigned: reorderVaultsUnassignedHook,
+    reorderVaultsInCollection: reorderVaultsInCollectionHook,
     selectVault: selectVaultHook,
     setVaults,
     clearVaultSelect,
@@ -99,7 +100,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     updateCollection: updateCollectionHook,
     deleteCollection: deleteCollectionHook,
     reorderCollections: reorderCollectionsHook,
-    reorderVaultsInCollection: reorderVaultsInCollectionHook,
+    setVaultIds: setVaultIdsHook,
     setCollections,
   } = useCollectionsHook();
 
@@ -180,8 +181,15 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     await loadLoginKeysHook(vaultId);
   };
 
-  const reorderVaults = async (reorderedVaults: Vault[]) => {
-    await reorderVaultsHook(reorderedVaults);
+  const reorderVaultsUnassigned = async (reorderedVaults: Vault[], collectionVaultIds: string[]) => {
+    await reorderVaultsUnassignedHook(reorderedVaults, collectionVaultIds);
+  };
+
+  const reorderVaultsInCollection = async (collectionId: string, newVaultIds: string[]) => {
+    await Promise.all([
+      reorderVaultsInCollectionHook(collectionId, newVaultIds),
+      setVaultIdsHook(collectionId, newVaultIds),
+    ]);
   };
 
   // CRUD Notes
@@ -291,10 +299,6 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     reorderCollectionsHook(reorderedCollections);
   };
 
-  const reorderVaultsInCollection = (collectionId: string, vaultIds: string[]) => {
-    reorderVaultsInCollectionHook(collectionId, vaultIds);
-  };
-
   return (
     <VaultContext.Provider
       value={{
@@ -309,7 +313,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         createVault,
         updateVault,
         deleteVault,
-        reorderVaults,
+        reorderVaultsUnassigned,
         reorderVaultsInCollection,
         createNote,
         updateNote,

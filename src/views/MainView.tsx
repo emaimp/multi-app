@@ -43,7 +43,7 @@ export function MainView() {
     createVault,
     updateVault,
     deleteVault,
-    reorderVaults,
+    reorderVaultsUnassigned,
     reorderVaultsInCollection,
     createNote,
     updateNote,
@@ -212,7 +212,7 @@ export function MainView() {
               onCollectionReorder={reorderCollections}
               onVaultReorderInCollection={reorderVaultsInCollection}
               unassignedVaults={vaults.filter(v => !collections.some(c => c.vault_ids.includes(v.id)))}
-              onReorderUnassignedVaults={reorderVaults}
+              onReorderUnassignedVaults={(vaults) => reorderVaultsUnassigned(vaults, collections.flatMap(c => c.vault_ids))}
             >
               {loadingVaults && <VaultListSkeleton />}
             </MainSidebar>

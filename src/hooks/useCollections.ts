@@ -15,7 +15,7 @@ interface UseCollectionsReturn {
   updateCollection: (collection: Collection) => Promise<void>;
   deleteCollection: (collectionId: string) => Promise<void>;
   reorderCollections: (collections: Collection[]) => Promise<void>;
-  reorderVaultsInCollection: (collectionId: string, newVaultIds: string[]) => Promise<void>;
+  setVaultIds: (collectionId: string, vaultIds: string[]) => Promise<void>;
   
   // Internal
   setCollections: React.Dispatch<React.SetStateAction<Collection[]>>;
@@ -98,14 +98,10 @@ export function useCollections(): UseCollectionsReturn {
     }
   };
 
-  const reorderVaultsInCollection = async (collectionId: string, newVaultIds: string[]) => {
+  const setVaultIds = async (collectionId: string, newVaultIds: string[]) => {
     setCollections((prev) =>
       prev.map((c) => (c.id === collectionId ? { ...c, vault_ids: newVaultIds } : c))
     );
-
-    for (let i = 0; i < newVaultIds.length; i++) {
-      await invoke('update_vault_position', { vaultId: newVaultIds[i], newPosition: i });
-    }
 
     const collection = collections.find((c) => c.id === collectionId);
     if (collection) {
@@ -122,7 +118,7 @@ export function useCollections(): UseCollectionsReturn {
     updateCollection,
     deleteCollection,
     reorderCollections,
-    reorderVaultsInCollection,
+    setVaultIds,
     setCollections,
   };
 }
