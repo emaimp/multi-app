@@ -172,6 +172,7 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
               margin="dense"
               label="Vault Name"
               placeholder="Enter vault name"
+              autoComplete="off"
               fullWidth
               variant="outlined"
               value={vaultName}

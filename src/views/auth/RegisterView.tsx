@@ -367,6 +367,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             type={showMasterKey ? 'text' : 'password'}
             label="Master Key"
             placeholder="Enter master key"
+            autoComplete="off"
             fullWidth
             variant="outlined"
             value={masterKey}
@@ -404,7 +405,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                         ml: 1,
                         verticalAlign: 'middle',
                         cursor: 'help',
-                        color: 'action.active'
+                        color: 'action.active',
                       }}
                     />
                   </Tooltip>

@@ -2,9 +2,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Link from '@mui/material/Link';
@@ -35,7 +33,6 @@ function LoginView() {
   const [masterKeyError, setMasterKeyError] = useState(false);
   const [masterKeyInvalidError, setMasterKeyInvalidError] = useState(false);
 
-  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showMasterKey, setShowMasterKey] = useState(false);
   const [error, setError] = useState('');
@@ -86,7 +83,7 @@ function LoginView() {
 
     try {
       setIsLoading(true);
-      await login(username, password, rememberMe, masterKey);
+      await login(username, password, masterKey);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -214,6 +211,7 @@ function LoginView() {
           type={showMasterKey ? 'text' : 'password'}
           label="Master Key"
           placeholder="Enter master key"
+          autoComplete="off"
           fullWidth
           variant="outlined"
           value={masterKey}
@@ -244,22 +242,11 @@ function LoginView() {
           sx={{ mt: 1 }}
         />
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              value="remember"
-              color="primary"
-            />
-          }
-          label="Remember me"
-        />
-
         <Button
           type="submit"
           fullWidth
           variant="contained"
+          sx={{ mt: 2 }}
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
         >
@@ -277,7 +264,13 @@ function LoginView() {
         </Link>
       </Box>
 
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+        }}
+      >
         <Typography sx={{ textAlign: 'center' }}>
           Don&apos;t have an account?&nbsp;
           <Link

@@ -7,7 +7,7 @@ interface UserContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoadingContent: boolean;
-  login: (username: string, password: string, remember?: boolean, masterKey?: string) => Promise<void>;
+  login: (username: string, password: string, masterKey?: string) => Promise<void>;
   register: (username: string, password: string, masterKey: string) => Promise<void>;
   recoverPassword: (username: string, masterKey: string, newPassword: string) => Promise<void>;
   changePassword: (masterKey: string, newPassword: string) => Promise<void>;
@@ -27,42 +27,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const { clearSession } = useSession();
 
   useEffect(() => {
-    const remembered = localStorage.getItem('rememberedUser');
     const masterKey = localStorage.getItem('masterKey');
-    if (remembered) {
-      try {
-        const { user: savedUser, expiry } = JSON.parse(remembered);
-        if (Date.now() < expiry) {
-          setUser(savedUser);
-          if (masterKey) {
-            setIsLoadingContent(true);
-          }
-        } else {
-          localStorage.removeItem('rememberedUser');
-          localStorage.removeItem('masterKey');
-        }
-      } catch (e) {
-        localStorage.removeItem('rememberedUser');
-        localStorage.removeItem('masterKey');
-      }
+    if (masterKey) {
+      setIsLoadingContent(true);
     }
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      const remembered = localStorage.getItem('rememberedUser');
-      if (remembered) {
-        try {
-          const { expiry } = JSON.parse(remembered);
-          localStorage.setItem('rememberedUser', JSON.stringify({ user, expiry }));
-        } catch (e) {
-          localStorage.setItem('rememberedUser', JSON.stringify({ user, expiry: Date.now() + 7 * 24 * 60 * 60 * 1000 }));
-        }
-      }
-    }
-  }, [user]);
-
-  const login = async (username: string, password: string, remember?: boolean, masterKey?: string) => {
+  const login = async (username: string, password: string, masterKey?: string) => {
     const userWithoutAvatar = await invoke<User>('login', { username, password, masterKey: masterKey || '' });
     
     setUser(userWithoutAvatar);
@@ -70,12 +41,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (masterKey) {
       localStorage.setItem('masterKey', masterKey);
       setIsLoadingContent(true);
-    }
-    
-    if (remember) {
-      const expiry = Date.now() + 7 * 24 * 60 * 60 * 1000;
-      const userToSave = { ...userWithoutAvatar, avatar: null };
-      localStorage.setItem('rememberedUser', JSON.stringify({ user: userToSave, expiry }));
     }
   };
 
@@ -109,7 +74,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
     setUser(null);
     setIsLoadingContent(false);
-    localStorage.removeItem('rememberedUser');
     localStorage.removeItem('masterKey');
   };
 
