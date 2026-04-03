@@ -11,6 +11,7 @@ import { LoginKey } from '../../../types/loginkey';
 
 interface SecondarySidebarProps {
   isLocked?: boolean;
+  isLoadingContent?: boolean;
   notes: Note[];
   loginKeys: LoginKey[];
   filterType?: 'all' | 'loginKeys' | 'notes';
@@ -31,6 +32,7 @@ interface SecondarySidebarProps {
 
 export function SecondarySidebar({
   isLocked = false,
+  isLoadingContent = false,
   notes,
   loginKeys,
   filterType = 'all',
@@ -160,7 +162,7 @@ export function SecondarySidebar({
       <Box
         sx={{
           flex: 1,
-          overflow: 'hidden',
+          overflowY: isLocked || isLoadingContent ? 'hidden' : 'auto',
           position: 'relative',
         }}
         onClick={(e) => {
@@ -169,7 +171,7 @@ export function SecondarySidebar({
           }
         }}
       >
-        {isLocked ? (
+        {isLoadingContent ? null : isLocked ? (
           <Box
             sx={{
               display: 'flex',

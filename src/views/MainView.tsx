@@ -214,6 +214,7 @@ export function MainView() {
 
             <SecondarySidebar
               isLocked={!activeVault}
+              isLoadingContent={isLoadingContent}
               animationKey={activeVault || undefined}
               notes={sortedVaultNotes}
               loginKeys={loginKeys}

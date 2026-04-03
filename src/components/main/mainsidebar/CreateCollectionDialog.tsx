@@ -80,7 +80,13 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+        }}
+      >
         <ViewModuleIcon />
         Create Collection
       </DialogTitle>
@@ -90,6 +96,7 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
           margin="dense"
           label="Collection Name"
           placeholder="Enter collection name"
+          autoComplete="off"
           fullWidth
           variant="outlined"
           value={collectionName}
@@ -102,13 +109,14 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
             display: 'flex',
             alignItems: 'center',
             gap: 1,
-            mb: 2,
+            mb: 1.5,
           }}
         >
           <TextField
             margin="dense"
             label="Vault Name"
             placeholder="Enter vault name"
+            autoComplete="off"
             fullWidth
             variant="outlined"
             value={vaultNames[0]}
@@ -142,7 +150,7 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
             variant="caption"
             color="text.secondary"
             sx={{
-              mb: 1,
+              mb: 1.5,
               display: 'block',
             }}
           >
@@ -157,6 +165,7 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
               display: 'flex',
               alignItems: 'center',
               gap: 1,
+              mb: 1.5,
             }}
           >
             <TextField
@@ -190,7 +199,7 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
         ))}
 
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ mt: -1.5 }}>
         <Button onClick={handleClose}>Cancel</Button>
         <Button 
           onClick={handleSubmit} 

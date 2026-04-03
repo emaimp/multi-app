@@ -185,6 +185,7 @@ export function SettingsView() {
             type="text"
             label="Username"
             placeholder="Enter username"
+            autoComplete="off"
             fullWidth
             variant="outlined"
             value={username}
@@ -208,6 +209,7 @@ export function SettingsView() {
             type={showNewPassword ? 'text' : 'password'}
             label="New Password"
             placeholder="••••••"
+            autoComplete="off"
             fullWidth
             variant="outlined"
             value={newPassword}
@@ -243,6 +245,7 @@ export function SettingsView() {
             type={showConfirmPassword ? 'text' : 'password'}
             label="Confirm Password"
             placeholder="••••••"
+            autoComplete="off"
             fullWidth
             variant="outlined"
             value={confirmPassword}

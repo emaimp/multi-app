@@ -54,6 +54,7 @@ export function CreateDialog({
           margin="dense"
           label={label}
           placeholder={placeholder}
+          autoComplete="off"
           fullWidth
           variant="outlined"
           value={value}

@@ -106,7 +106,10 @@ export function VaultEditDialog({ open, vault, collections, onClose, onSave, onD
               options={collections}
               getOptionLabel={(option) => option.name}
               renderInput={(params) => (
-                <TextField {...params} label="Collection" variant="outlined" />
+                <TextField {...params}
+                  label="Select Collection"
+                  variant="outlined"
+                />
               )}
               disableClearable={false}
             />
