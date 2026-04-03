@@ -99,11 +99,17 @@ export function useCollections(): UseCollectionsReturn {
   };
 
   const setVaultIds = async (collectionId: string, newVaultIds: string[]) => {
+    const collection = collections.find((c) => c.id === collectionId);
+
+    if (newVaultIds.length === 0 && collection) {
+      await deleteCollection(collectionId);
+      return;
+    }
+
     setCollections((prev) =>
       prev.map((c) => (c.id === collectionId ? { ...c, vault_ids: newVaultIds } : c))
     );
 
-    const collection = collections.find((c) => c.id === collectionId);
     if (collection) {
       await invoke('update_collection', {
         collection: JSON.stringify({ ...collection, vault_ids: newVaultIds }),

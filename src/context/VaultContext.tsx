@@ -131,11 +131,10 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const deleteVault = async (vaultId: string) => {
     const collectionWithVault = collections.find((c) => c.vault_ids.includes(vaultId));
+
     if (collectionWithVault) {
       const updatedVaultIds = collectionWithVault.vault_ids.filter((id) => id !== vaultId);
-      await invoke('update_collection', {
-        collection: JSON.stringify({ ...collectionWithVault, vault_ids: updatedVaultIds }),
-      });
+      await setVaultIdsHook(collectionWithVault.id, updatedVaultIds);
     }
 
     const remainingUnassignedVaults = vaults
@@ -156,13 +155,6 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         return v;
       });
     });
-
-    setCollections((prev) =>
-      prev.map((c) => ({
-        ...c,
-        vault_ids: c.vault_ids.filter((id) => id !== vaultId),
-      }))
-    );
 
     await deleteVaultHook(vaultId);
     setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
