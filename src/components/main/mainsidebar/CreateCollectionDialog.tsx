@@ -157,7 +157,6 @@ export function CreateCollectionDialog({ open, onClose }: CreateCollectionDialog
               display: 'flex',
               alignItems: 'center',
               gap: 1,
-              mb: 2,
             }}
           >
             <TextField

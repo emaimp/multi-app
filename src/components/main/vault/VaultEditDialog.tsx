@@ -31,6 +31,7 @@ export function VaultEditDialog({ open, vault, collections, onClose, onSave, onD
   const [color, setColor] = useState(vault?.color || 'blue');
   const [image, setImage] = useState<string | null>(vault?.image || null);
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
+  const [originalCollection, setOriginalCollection] = useState<Collection | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
@@ -40,6 +41,7 @@ export function VaultEditDialog({ open, vault, collections, onClose, onSave, onD
       setImage(vault.image || null);
       const vaultCollection = collections.find(c => c.vault_ids.includes(vault.id)) || null;
       setSelectedCollection(vaultCollection);
+      setOriginalCollection(vaultCollection);
     }
   }, [vault, collections]);
 
@@ -54,6 +56,11 @@ export function VaultEditDialog({ open, vault, collections, onClose, onSave, onD
       },
       image
       );
+
+      if (originalCollection?.id !== selectedCollection?.id) {
+        onUpdateCollection(vault.id, selectedCollection?.id || null);
+      }
+
       onClose();
     }
   };
@@ -95,9 +102,6 @@ export function VaultEditDialog({ open, vault, collections, onClose, onSave, onD
               value={selectedCollection}
               onChange={(_, newValue) => {
                 setSelectedCollection(newValue);
-                if (vault) {
-                  onUpdateCollection(vault.id, newValue?.id || null);
-                }
               }}
               options={collections}
               getOptionLabel={(option) => option.name}

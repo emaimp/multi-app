@@ -106,13 +106,17 @@ export function useCollections(): UseCollectionsReturn {
       return;
     }
 
+    const updatedCollection = collection 
+      ? { ...collection, vault_ids: newVaultIds }
+      : { id: collectionId, vault_ids: newVaultIds };
+
     setCollections((prev) =>
       prev.map((c) => (c.id === collectionId ? { ...c, vault_ids: newVaultIds } : c))
     );
 
     if (collection) {
       await invoke('update_collection', {
-        collection: JSON.stringify({ ...collection, vault_ids: newVaultIds }),
+        collection: JSON.stringify(updatedCollection),
       });
     }
   };
