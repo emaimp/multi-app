@@ -34,7 +34,6 @@ interface MainSidebarProps {
   activeVault?: string | null;
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
-  onEditCollection?: (collection: Collection) => void;
   onCollectionReorder?: (collections: Collection[]) => void;
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
   unassignedVaults?: Vault[];
@@ -55,7 +54,6 @@ export function MainSidebar({
   activeVault,
   onVaultClick,
   onEditVault,
-  onEditCollection,
   onCollectionReorder,
   onVaultReorderInCollection,
   unassignedVaults,
@@ -156,7 +154,6 @@ export function MainSidebar({
                       vaults={vaultsOrEmpty}
                       onVaultClick={onVaultClick}
                       onEditVault={onEditVault}
-                      onEditCollection={onEditCollection}
                       activeVault={activeVault ?? null}
                       onVaultReorderInCollection={onVaultReorderInCollection}
                       defaultExpanded={activeVault ? collection.vault_ids.includes(activeVault) : collection.vault_ids.length > 0}
@@ -198,7 +195,6 @@ interface SortableCollectionProps {
   vaults: Vault[];
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
-  onEditCollection?: (collection: Collection) => void;
   activeVault: string | null;
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
   defaultExpanded?: boolean;
@@ -209,7 +205,6 @@ function SortableCollection({
   vaults,
   onVaultClick,
   onEditVault,
-  onEditCollection,
   activeVault,
   onVaultReorderInCollection,
   defaultExpanded = false,
@@ -238,7 +233,6 @@ function SortableCollection({
         vaults={collectionVaults}
         onVaultClick={onVaultClick}
         onEditVault={onEditVault}
-        onEditCollection={onEditCollection}
         activeVault={activeVault}
         dragAttributes={attributes}
         dragListeners={listeners}

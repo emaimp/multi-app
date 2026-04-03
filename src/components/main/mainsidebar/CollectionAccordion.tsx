@@ -7,7 +7,7 @@ import {
   Box,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import MoreVertIcon from '@mui/icons-material/MoreVert';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import {
   DndContext,
   closestCenter,
@@ -25,7 +25,6 @@ interface CollectionAccordionProps {
   vaults?: Vault[];
   onVaultClick: (vaultId: string) => void;
   onEditVault: (vault: Vault) => void;
-  onEditCollection?: (collection: Collection) => void;
   activeVault: string | null;
   dragAttributes?: any;
   dragListeners?: any;
@@ -38,7 +37,6 @@ export function CollectionAccordion({
   vaults = [],
   onVaultClick,
   onEditVault,
-  onEditCollection,
   activeVault,
   dragAttributes,
   dragListeners,
@@ -90,26 +88,8 @@ export function CollectionAccordion({
           pl: 1,
         }}
       >
-        {onEditCollection ? (
-          <Box
-            component="span"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEditCollection(collection);
-            }}
-            sx={{ 
-              mr: 1, 
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              '&:hover': { bgcolor: 'action.hover', borderRadius: 1 },
-              p: 0.5,
-            }}
-          >
-            <MoreVertIcon fontSize="small" />
-          </Box>
-        ) : null}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+          <ViewModuleIcon fontSize="small" />
           <Typography variant="subtitle1" fontWeight="medium">
             {collection.name}
           </Typography>

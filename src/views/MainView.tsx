@@ -14,12 +14,11 @@ import {
   VaultEditDialog,
   VaultTypeSelector,
 } from '../components/main/vault';
-import { MainSidebar, CollectionEditDialog } from '../components/main/mainsidebar';
+import { MainSidebar } from '../components/main/mainsidebar';
 import { SecondarySidebar } from '../components/main/secondarysidebar';
 import { NoteEditDialog } from '../components/main/vault/note';
 import { LoginkeyEditDialog } from '../components/main/vault/loginkey';
 import { Vault } from '../types/vault';
-import { Collection } from '../types/collection';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
 import { VaultContent } from '../components/main/vault';
@@ -53,8 +52,6 @@ export function MainView() {
     updateLoginKey,
     deleteLoginKey,
     reorderLoginKeys,
-    updateCollection,
-    deleteCollection,
     reorderCollections,
   } = useVaults();
 
@@ -95,7 +92,6 @@ export function MainView() {
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [editingLoginKey, setEditingLoginKey] = useState<LoginKey | null>(null);
-  const [editingCollection, setEditingCollection] = useState<Collection | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'loginKeys' | 'notes'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -208,7 +204,6 @@ export function MainView() {
               activeVault={activeVault}
               onVaultClick={handleVaultClick}
               onEditVault={(vault) => setEditingVault(vault)}
-              onEditCollection={(collection) => setEditingCollection(collection)}
               onCollectionReorder={reorderCollections}
               onVaultReorderInCollection={reorderVaultsInCollection}
               unassignedVaults={vaults.filter(v => !collections.some(c => c.vault_ids.includes(v.id)))}
@@ -351,14 +346,6 @@ export function MainView() {
                 );
               }}
               onDelete={deleteLoginKey}
-            />
-
-            <CollectionEditDialog
-              open={!!editingCollection}
-              collection={editingCollection}
-              onClose={() => setEditingCollection(null)}
-              onSave={updateCollection}
-              onDelete={deleteCollection}
             />
 
             <VaultTypeSelector
