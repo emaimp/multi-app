@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { motion } from 'framer-motion';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Note } from '../../../../types/note';
@@ -7,6 +8,7 @@ import { NoteItem } from './NoteItem';
 interface NoteListProps {
   notes: Note[];
   isLockedByDefault?: boolean;
+  animationKey?: string;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
 }
@@ -16,7 +18,16 @@ interface SortableNoteItemCallbacks {
   onDeleteNote: (noteId: string) => void;
 }
 
-function SortableNoteItem({ note, isLockedByDefault, onUpdateNote, onDeleteNote }: SortableNoteItemCallbacks & { note: Note; isLockedByDefault?: boolean }) {
+const variants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.25 },
+  },
+} as const;
+
+function SortableNoteItem({ note, isLockedByDefault, onUpdateNote, onDeleteNote, animationKey }: SortableNoteItemCallbacks & { note: Note; isLockedByDefault?: boolean; animationKey?: string }) {
   const {
     attributes,
     listeners,
@@ -33,24 +44,31 @@ function SortableNoteItem({ note, isLockedByDefault, onUpdateNote, onDeleteNote 
   };
 
   return (
-    <Box
-      ref={setNodeRef}
-      style={style}
-      sx={{ cursor: isDragging ? 'grabbing' : 'default' }}
+    <motion.div
+      key={`${animationKey}-${note.id}`}
+      initial="hidden"
+      animate="visible"
+      variants={variants}
     >
-      <NoteItem
-        note={note}
-        isLockedByDefault={isLockedByDefault}
-        onUpdate={onUpdateNote}
-        onDelete={onDeleteNote}
-        dragAttributes={attributes as any}
-        dragListeners={listeners as any}
-      />
-    </Box>
+      <Box
+        ref={setNodeRef}
+        style={style}
+        sx={{ cursor: isDragging ? 'grabbing' : 'default' }}
+      >
+        <NoteItem
+          note={note}
+          isLockedByDefault={isLockedByDefault}
+          onUpdate={onUpdateNote}
+          onDelete={onDeleteNote}
+          dragAttributes={attributes as any}
+          dragListeners={listeners as any}
+        />
+      </Box>
+    </motion.div>
   );
 }
 
-export function NoteList({ notes, isLockedByDefault, onUpdateNote, onDeleteNote }: NoteListProps) {
+export function NoteList({ notes, isLockedByDefault, animationKey, onUpdateNote, onDeleteNote }: NoteListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {notes.map((note) => (
@@ -58,6 +76,7 @@ export function NoteList({ notes, isLockedByDefault, onUpdateNote, onDeleteNote 
           key={note.id}
           note={note}
           isLockedByDefault={isLockedByDefault}
+          animationKey={animationKey}
           onUpdateNote={onUpdateNote}
           onDeleteNote={onDeleteNote}
         />

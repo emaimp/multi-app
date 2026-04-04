@@ -20,6 +20,7 @@ import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { Note } from '../../../types/note';
 import { LoginKey } from '../../../types/loginkey';
 import { Vault } from '../../../types/vault';
+import { useMemo } from 'react';
 
 interface VaultContentProps {
   selectedVault: Vault | undefined;
@@ -85,6 +86,11 @@ export function VaultContent({
     })
   );
 
+  const animationKey = useMemo(() => 
+    `vault-${selectedVault?.id}-${vaultNotes.length}-${vaultLoginKeys.length}-${filterType}`,
+    [selectedVault?.id, vaultNotes.length, vaultLoginKeys.length, filterType]
+  );
+
   const handleDragEndNotes = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -120,7 +126,7 @@ export function VaultContent({
     <Box
       sx={{
         flex: 1,
-        overflow: 'hidden',
+        overflow: 'auto',
         height: '100vh',
         boxSizing: 'border-box',
         p: 3
@@ -161,6 +167,7 @@ export function VaultContent({
                       <LoginkeyList
                         loginKeys={displayedLoginKeys}
                         isLockedByDefault={isLockedByDefault}
+                        animationKey={animationKey}
                         onUpdateLoginKey={onUpdateLoginKey}
                         onDeleteLoginKey={onDeleteLoginKey}
                       />
@@ -181,12 +188,13 @@ export function VaultContent({
                     items={displayedNotes.map((n) => n.id)} 
                     strategy={verticalListSortingStrategy}
                   >
-                    <NoteList
-                      notes={displayedNotes}
-                      isLockedByDefault={isLockedByDefault}
-                      onUpdateNote={onUpdateNote}
-                      onDeleteNote={onDeleteNote}
-                    />
+                      <NoteList
+                        notes={displayedNotes}
+                        isLockedByDefault={isLockedByDefault}
+                        animationKey={animationKey}
+                        onUpdateNote={onUpdateNote}
+                        onDeleteNote={onDeleteNote}
+                      />
                   </SortableContext>
                 </DndContext>
               )}

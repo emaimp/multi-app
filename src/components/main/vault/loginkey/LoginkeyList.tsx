@@ -1,4 +1,5 @@
 import { Box } from '@mui/material';
+import { motion } from 'framer-motion';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { LoginKey } from '../../../../types/loginkey';
@@ -7,6 +8,7 @@ import { LoginkeyItem } from './LoginkeyItem';
 interface LoginkeyListProps {
   loginKeys: LoginKey[];
   isLockedByDefault?: boolean;
+  animationKey?: string;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
@@ -16,7 +18,16 @@ interface SortableLoginKeyItemCallbacks {
   onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
-function SortableLoginKeyItem({ loginkey, isLockedByDefault, onUpdateLoginKey, onDeleteLoginKey }: SortableLoginKeyItemCallbacks & { loginkey: LoginKey; isLockedByDefault?: boolean }) {
+const variants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.25 },
+  },
+} as const;
+
+function SortableLoginKeyItem({ loginkey, isLockedByDefault, onUpdateLoginKey, onDeleteLoginKey, animationKey }: SortableLoginKeyItemCallbacks & { loginkey: LoginKey; isLockedByDefault?: boolean; animationKey?: string }) {
   const {
     attributes,
     listeners,
@@ -33,24 +44,31 @@ function SortableLoginKeyItem({ loginkey, isLockedByDefault, onUpdateLoginKey, o
   };
 
   return (
-    <Box
-      ref={setNodeRef}
-      style={style}
-      sx={{ cursor: isDragging ? 'grabbing' : 'default' }}
+    <motion.div
+      key={`${animationKey}-${loginkey.id}`}
+      initial="hidden"
+      animate="visible"
+      variants={variants}
     >
-      <LoginkeyItem
-        loginkey={loginkey}
-        isLockedByDefault={isLockedByDefault}
-        onUpdate={onUpdateLoginKey}
-        onDelete={onDeleteLoginKey}
-        dragAttributes={attributes as any}
-        dragListeners={listeners as any}
-      />
-    </Box>
+      <Box
+        ref={setNodeRef}
+        style={style}
+        sx={{ cursor: isDragging ? 'grabbing' : 'default' }}
+      >
+        <LoginkeyItem
+          loginkey={loginkey}
+          isLockedByDefault={isLockedByDefault}
+          onUpdate={onUpdateLoginKey}
+          onDelete={onDeleteLoginKey}
+          dragAttributes={attributes as any}
+          dragListeners={listeners as any}
+        />
+      </Box>
+    </motion.div>
   );
 }
 
-export function LoginkeyList({ loginKeys, isLockedByDefault, onUpdateLoginKey, onDeleteLoginKey }: LoginkeyListProps) {
+export function LoginkeyList({ loginKeys, isLockedByDefault, animationKey, onUpdateLoginKey, onDeleteLoginKey }: LoginkeyListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {loginKeys.map((loginkey) => (
@@ -58,6 +76,7 @@ export function LoginkeyList({ loginKeys, isLockedByDefault, onUpdateLoginKey, o
           key={loginkey.id}
           loginkey={loginkey}
           isLockedByDefault={isLockedByDefault}
+          animationKey={animationKey}
           onUpdateLoginKey={onUpdateLoginKey}
           onDeleteLoginKey={onDeleteLoginKey}
         />

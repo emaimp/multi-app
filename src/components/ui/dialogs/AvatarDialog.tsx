@@ -70,6 +70,7 @@ export function AvatarDialog({ open, onClose, onSelect }: AvatarDialogProps) {
           <TextField
             fullWidth
             placeholder="Search icons..."
+            autoComplete="off"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             slotProps={{
