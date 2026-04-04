@@ -176,10 +176,6 @@ export function MainView() {
     updateLoginKey(loginKeyId, siteName, url, username, password, details || null, 'blue');
   };
 
-  const handleDeleteLoginKey = (loginKeyId: string) => {
-    deleteLoginKey(loginKeyId);
-  };
-
   const handleReorderLoginKeys = (loginKeys: LoginKey[]) => {
     reorderLoginKeys(loginKeys);
   };
@@ -243,9 +239,7 @@ export function MainView() {
               isLockedByDefault={itemsLocked}
               isLoading={isLoadingContent}
               onUpdateNote={updateNote}
-              onDeleteNote={deleteNote}
               onUpdateLoginKey={handleUpdateLoginKey}
-              onDeleteLoginKey={handleDeleteLoginKey}
             />
 
             <CreateDialog

@@ -8,7 +8,6 @@ interface LoginkeyListProps {
   isLockedByDefault?: boolean;
   animationKey?: string;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
-  onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
 const variants = {
@@ -20,7 +19,7 @@ const variants = {
   },
 } as const;
 
-function LoginkeyItemComponent({ loginkey, isLockedByDefault, onUpdateLoginKey, onDeleteLoginKey, animationKey }: { loginkey: LoginKey; isLockedByDefault?: boolean; animationKey?: string; onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void; onDeleteLoginKey: (loginKeyId: string) => void }) {
+function LoginkeyItemComponent({ loginkey, isLockedByDefault, onUpdateLoginKey, animationKey }: { loginkey: LoginKey; isLockedByDefault?: boolean; animationKey?: string; onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void }) {
   return (
     <motion.div
       key={`${animationKey}-${loginkey.id}`}
@@ -32,13 +31,12 @@ function LoginkeyItemComponent({ loginkey, isLockedByDefault, onUpdateLoginKey, 
         loginkey={loginkey}
         isLockedByDefault={isLockedByDefault}
         onUpdate={onUpdateLoginKey}
-        onDelete={onDeleteLoginKey}
       />
     </motion.div>
   );
 }
 
-export function LoginkeyList({ loginKeys, isLockedByDefault, animationKey, onUpdateLoginKey, onDeleteLoginKey }: LoginkeyListProps) {
+export function LoginkeyList({ loginKeys, isLockedByDefault, animationKey, onUpdateLoginKey }: LoginkeyListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {loginKeys.map((loginkey) => (
@@ -48,7 +46,6 @@ export function LoginkeyList({ loginKeys, isLockedByDefault, animationKey, onUpd
           isLockedByDefault={isLockedByDefault}
           animationKey={animationKey}
           onUpdateLoginKey={onUpdateLoginKey}
-          onDeleteLoginKey={onDeleteLoginKey}
         />
       ))}
     </Box>

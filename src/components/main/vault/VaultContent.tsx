@@ -16,9 +16,7 @@ interface VaultContentProps {
   isLockedByDefault?: boolean;
   isLoading?: boolean;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
-  onDeleteNote: (noteId: string) => void;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details?: string | null) => void;
-  onDeleteLoginKey: (loginKeyId: string) => void;
 }
 
 export function VaultContent({
@@ -31,9 +29,7 @@ export function VaultContent({
   isLockedByDefault = true,
   isLoading,
   onUpdateNote,
-  onDeleteNote,
   onUpdateLoginKey,
-  onDeleteLoginKey,
 }: VaultContentProps) {
   const searchLower = searchQuery.toLowerCase();
 
@@ -109,7 +105,6 @@ export function VaultContent({
                     isLockedByDefault={isLockedByDefault}
                     animationKey={animationKey}
                     onUpdateLoginKey={onUpdateLoginKey}
-                    onDeleteLoginKey={onDeleteLoginKey}
                   />
                   {hasDisplayedNotes && <Divider sx={{ my: 3 }} />}
                 </>
@@ -121,7 +116,6 @@ export function VaultContent({
                   isLockedByDefault={isLockedByDefault}
                   animationKey={animationKey}
                   onUpdateNote={onUpdateNote}
-                  onDeleteNote={onDeleteNote}
                 />
               )}
             </Box>
