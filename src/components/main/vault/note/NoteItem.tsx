@@ -8,20 +8,17 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { Note, NOTE_COLORS_HEX } from '../../../../types/note';
 import { ConfirmDialog } from '../../../ui';
 
 interface NoteItemProps {
   note: Note;
   isLockedByDefault?: boolean;
-  dragAttributes?: Record<string, unknown>;
-  dragListeners?: Record<string, unknown>;
   onUpdate: (noteId: string, title: string, content: string) => void;
   onDelete: (noteId: string) => void;
 }
 
-export function NoteItem({ note, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: NoteItemProps) {
+export function NoteItem({ note, isLockedByDefault = false, onUpdate, onDelete }: NoteItemProps) {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [title, setTitle] = useState(note.title);
   const [content, setContent] = useState(note.content);
@@ -186,18 +183,6 @@ export function NoteItem({ note, isLockedByDefault = false, dragAttributes, drag
           <IconButton size="small" onClick={handleDeleteClick} sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}>
             <DeleteOutlineIcon fontSize="small" />
           </IconButton>
-
-          {dragListeners && (
-            <DragIndicatorIcon
-              sx={{
-                color: 'action.active',
-                cursor: 'grab',
-                ml: 1,
-              }}
-              {...dragAttributes}
-              {...dragListeners}
-            />
-          )}
         </Box>
 
         <Box sx={{

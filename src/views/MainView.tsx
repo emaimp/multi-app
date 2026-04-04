@@ -244,10 +244,8 @@ export function MainView() {
               isLoading={isLoadingContent}
               onUpdateNote={updateNote}
               onDeleteNote={deleteNote}
-              onReorderNotes={reorderNotes}
               onUpdateLoginKey={handleUpdateLoginKey}
               onDeleteLoginKey={handleDeleteLoginKey}
-              onReorderLoginKeys={handleReorderLoginKeys}
             />
 
             <CreateDialog

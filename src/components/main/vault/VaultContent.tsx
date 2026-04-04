@@ -1,22 +1,6 @@
 import { Box, Typography, Divider } from '@mui/material';
 import { NoteList } from './note';
 import { LoginkeyList } from './loginkey';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy
-} from '@dnd-kit/sortable';
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { Note } from '../../../types/note';
 import { LoginKey } from '../../../types/loginkey';
 import { Vault } from '../../../types/vault';
@@ -33,10 +17,8 @@ interface VaultContentProps {
   isLoading?: boolean;
   onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
   onDeleteNote: (noteId: string) => void;
-  onReorderNotes: (notes: Note[]) => void;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details?: string | null) => void;
   onDeleteLoginKey: (loginKeyId: string) => void;
-  onReorderLoginKeys: (loginKeys: LoginKey[]) => void;
 }
 
 export function VaultContent({
@@ -50,10 +32,8 @@ export function VaultContent({
   isLoading,
   onUpdateNote,
   onDeleteNote,
-  onReorderNotes,
   onUpdateLoginKey,
   onDeleteLoginKey,
-  onReorderLoginKeys,
 }: VaultContentProps) {
   const searchLower = searchQuery.toLowerCase();
 
@@ -75,41 +55,11 @@ export function VaultContent({
 
   const filteredVaultLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
   const filteredVaultNotes = filteredByTypeNotes.filter(matchesNoteSearch);
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
 
   const animationKey = useMemo(() => 
     `vault-${selectedVault?.id}-${vaultNotes.length}-${vaultLoginKeys.length}-${filterType}`,
     [selectedVault?.id, vaultNotes.length, vaultLoginKeys.length, filterType]
   );
-
-  const handleDragEndNotes = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = vaultNotes.findIndex((n) => n.id === active.id);
-      const newIndex = vaultNotes.findIndex((n) => n.id === over.id);
-      const newNotes = arrayMove(vaultNotes, oldIndex, newIndex);
-      onReorderNotes(newNotes);
-    }
-  };
-
-  const handleDragEndLoginKeys = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      const oldIndex = vaultLoginKeys.findIndex((lk) => lk.id === active.id);
-      const newIndex = vaultLoginKeys.findIndex((lk) => lk.id === over.id);
-      const newLoginKeys = arrayMove(vaultLoginKeys, oldIndex, newIndex);
-      onReorderLoginKeys(newLoginKeys);
-    }
-  };
 
   const displayedLoginKeys = selectedItemId
     ? filteredVaultLoginKeys.filter((lk) => lk.id === selectedItemId)
@@ -154,49 +104,25 @@ export function VaultContent({
             <Box>
               {hasDisplayedLoginKeys && (
                 <>
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEndLoginKeys}
-                    modifiers={[restrictToVerticalAxis]}
-                  >
-                    <SortableContext 
-                      items={displayedLoginKeys.map((lk) => lk.id)} 
-                      strategy={verticalListSortingStrategy}
-                    >
-                      <LoginkeyList
-                        loginKeys={displayedLoginKeys}
-                        isLockedByDefault={isLockedByDefault}
-                        animationKey={animationKey}
-                        onUpdateLoginKey={onUpdateLoginKey}
-                        onDeleteLoginKey={onDeleteLoginKey}
-                      />
-                    </SortableContext>
-                  </DndContext>
+                  <LoginkeyList
+                    loginKeys={displayedLoginKeys}
+                    isLockedByDefault={isLockedByDefault}
+                    animationKey={animationKey}
+                    onUpdateLoginKey={onUpdateLoginKey}
+                    onDeleteLoginKey={onDeleteLoginKey}
+                  />
                   {hasDisplayedNotes && <Divider sx={{ my: 3 }} />}
                 </>
               )}
 
               {hasDisplayedNotes && (
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEndNotes}
-                  modifiers={[restrictToVerticalAxis]}
-                >
-                  <SortableContext 
-                    items={displayedNotes.map((n) => n.id)} 
-                    strategy={verticalListSortingStrategy}
-                  >
-                      <NoteList
-                        notes={displayedNotes}
-                        isLockedByDefault={isLockedByDefault}
-                        animationKey={animationKey}
-                        onUpdateNote={onUpdateNote}
-                        onDeleteNote={onDeleteNote}
-                      />
-                  </SortableContext>
-                </DndContext>
+                <NoteList
+                  notes={displayedNotes}
+                  isLockedByDefault={isLockedByDefault}
+                  animationKey={animationKey}
+                  onUpdateNote={onUpdateNote}
+                  onDeleteNote={onDeleteNote}
+                />
               )}
             </Box>
           )}

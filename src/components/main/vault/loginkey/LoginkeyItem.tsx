@@ -8,7 +8,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { openUrl } from '@tauri-apps/plugin-opener';
 import { LoginKey } from '../../../../types/loginkey';
 import { ConfirmDialog } from '../../../ui';
@@ -17,13 +16,11 @@ import { LOGINKEY_COLORS_HEX } from '../../../../types/loginkey';
 interface LoginkeyItemProps {
   loginkey: LoginKey;
   isLockedByDefault?: boolean;
-  dragAttributes?: Record<string, unknown>;
-  dragListeners?: Record<string, unknown>;
   onUpdate: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
   onDelete: (loginKeyId: string) => void;
 }
 
-export function LoginkeyItem({ loginkey, isLockedByDefault = false, dragAttributes, dragListeners, onUpdate, onDelete }: LoginkeyItemProps) {
+export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate, onDelete }: LoginkeyItemProps) {
   const [isEditingSiteName, setIsEditingSiteName] = useState(false);
   const [siteName, setSiteName] = useState(loginkey.site_name);
   const [url, setUrl] = useState(loginkey.url || '');
@@ -189,18 +186,6 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, dragAttribut
           <IconButton size="small" onClick={handleDeleteClick} sx={{ opacity: 0.6, '&:hover': { opacity: 1 } }}>
             <DeleteOutlineIcon fontSize="small" />
           </IconButton>
-
-          {dragListeners && (
-            <DragIndicatorIcon
-              sx={{
-                color: 'action.active',
-                cursor: 'grab',
-                ml: 1,
-              }}
-              {...dragAttributes}
-              {...dragListeners}
-            />
-          )}
         </Box>
 
         <Box sx={{ p: 2 }}>
