@@ -132,17 +132,23 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
 
       <Box sx={{ p: 2 }}>
         {isLocked ? (
-          <Box sx={{ mb: 1 }}>
+          <Box sx={{ mt: 1.5, mb: 3 }}>
             <Typography variant="caption" color="text.secondary">URL</Typography>
             <Link
               component="button"
               onClick={handleUrlClick}
               sx={{
                 display: 'block',
-                color: 'primary.main',
+                color: colorHex,
                 textDecoration: 'none',
                 cursor: url ? 'pointer' : 'default',
                 opacity: url ? 1 : 0.5,
+                fontFamily: 'monospace',
+                fontSize: '0.9rem',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: '100%',
                 '&:hover': url ? {
                   textDecoration: 'underline',
                 } : {},
@@ -154,36 +160,32 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
         ) : (
           <TextField
             fullWidth
-            variant="standard"
+            variant="outlined"
             label="URL"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com"
             InputProps={{
-              disableUnderline: true,
               sx: {
                 fontSize: '0.9rem',
-                mb: 1,
               },
             }}
-            sx={{ mb: 1 }}
+            sx={{ mt: 1.5, mb: 3 }}
           />
         )}
 
         <TextField
           fullWidth
-          variant="standard"
+          variant="outlined"
           type={showUsername ? 'text' : 'password'}
-          label="Username / Email"
+          label="Email"
           value={username}
           onChange={(e) => !isLocked && setUsername(e.target.value)}
-          placeholder="Username / Email"
+          placeholder="Email / Username"
           disabled={isLocked}
           InputProps={{
-            disableUnderline: true,
             sx: {
               fontSize: '0.9rem',
-              mb: 1,
             },
             endAdornment: (
               <InputAdornment position="end" sx={{ ml: 1, mr: -1 }}>
@@ -209,12 +211,12 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
               </InputAdornment>
             ),
           }}
-          sx={{ mb: 1 }}
+          sx={{ mb: 3 }}
         />
 
         <TextField
           fullWidth
-          variant="standard"
+          variant="outlined"
           type={showPassword ? 'text' : 'password'}
           label="Password"
           value={password}
@@ -222,7 +224,6 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
           placeholder="Password"
           disabled={isLocked}
           InputProps={{
-            disableUnderline: true,
             sx: {
               fontSize: '0.9rem',
             },
@@ -250,11 +251,12 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
               </InputAdornment>
             ),
           }}
+          sx={{ mb: 3 }}
         />
 
         <TextField
           fullWidth
-          variant="standard"
+          variant="outlined"
           label="Details"
           value={details}
           onChange={(e) => !isLocked && setDetails(e.target.value)}
@@ -263,13 +265,11 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
           multiline
           rows={2}
           InputProps={{
-            disableUnderline: true,
             sx: {
-              fontSize: '0.9rem',
-              mt: 1,
+              fontSize: '0.8rem',
             },
           }}
-          sx={{ mt: 1 }}
+          sx={{ mb: 1 }}
         />
       </Box>
     </Box>
