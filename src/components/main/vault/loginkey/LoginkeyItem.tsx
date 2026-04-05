@@ -14,7 +14,7 @@ import { LOGINKEY_COLORS_HEX } from '../../../../types/loginkey';
 interface LoginkeyItemProps {
   loginkey: LoginKey;
   isLockedByDefault?: boolean;
-  onUpdate: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
+  onUpdate: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
 }
 
 export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: LoginkeyItemProps) {
@@ -39,7 +39,7 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
   const colorHex = LOGINKEY_COLORS_HEX[loginkey.color] || LOGINKEY_COLORS_HEX.blue;
 
   const handleSave = () => {
-    onUpdate(loginkey.id, loginkey.site_name, url || null, username, password, details || null);
+    onUpdate(loginkey.id, loginkey.site_name, url || null, username, password, details || null, loginkey.color);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };

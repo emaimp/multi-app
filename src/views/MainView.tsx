@@ -172,8 +172,8 @@ export function MainView() {
     }
   };
 
-  const handleUpdateLoginKey = (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details?: string | null) => {
-    updateLoginKey(loginKeyId, siteName, url, username, password, details || null, 'blue');
+  const handleUpdateLoginKey = (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => {
+    updateLoginKey(loginKeyId, siteName, url, username, password, details, color);
   };
 
   const handleReorderLoginKeys = (loginKeys: LoginKey[]) => {

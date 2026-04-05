@@ -7,7 +7,7 @@ interface LoginkeyListProps {
   loginKeys: LoginKey[];
   isLockedByDefault?: boolean;
   animationKey?: string;
-  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void;
+  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
 }
 
 const variants = {
@@ -19,7 +19,14 @@ const variants = {
   },
 } as const;
 
-function LoginkeyItemComponent({ loginkey, isLockedByDefault, onUpdateLoginKey, animationKey }: { loginkey: LoginKey; isLockedByDefault?: boolean; animationKey?: string; onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null) => void }) {
+interface LoginkeyItemComponentProps {
+  loginkey: LoginKey;
+  isLockedByDefault?: boolean;
+  animationKey?: string;
+  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
+}
+
+function LoginkeyItemComponent({ loginkey, isLockedByDefault, onUpdateLoginKey, animationKey }: LoginkeyItemComponentProps) {
   return (
     <motion.div
       key={`${animationKey}-${loginkey.id}`}

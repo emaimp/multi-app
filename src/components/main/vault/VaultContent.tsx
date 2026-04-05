@@ -15,8 +15,8 @@ interface VaultContentProps {
   selectedItemId?: string | null;
   isLockedByDefault?: boolean;
   isLoading?: boolean;
-  onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
-  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details?: string | null) => void;
+  onUpdateNote: (noteId: string, title: string, content: string, color: string) => void;
+  onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
 }
 
 export function VaultContent({

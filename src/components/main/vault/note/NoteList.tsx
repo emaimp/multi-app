@@ -7,7 +7,7 @@ interface NoteListProps {
   notes: Note[];
   isLockedByDefault?: boolean;
   animationKey?: string;
-  onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void;
+  onUpdateNote: (noteId: string, title: string, content: string, color: string) => void;
 }
 
 const variants = {
@@ -19,7 +19,14 @@ const variants = {
   },
 } as const;
 
-function NoteItemComponent({ note, isLockedByDefault, onUpdateNote, animationKey }: { note: Note; isLockedByDefault?: boolean; animationKey?: string; onUpdateNote: (noteId: string, title: string, content: string, color?: string) => void }) {
+interface NoteItemComponentProps {
+  note: Note;
+  isLockedByDefault?: boolean;
+  animationKey?: string;
+  onUpdateNote: (noteId: string, title: string, content: string, color: string) => void;
+}
+
+function NoteItemComponent({ note, isLockedByDefault, onUpdateNote, animationKey }: NoteItemComponentProps) {
   return (
     <motion.div
       key={`${animationKey}-${note.id}`}
@@ -30,7 +37,7 @@ function NoteItemComponent({ note, isLockedByDefault, onUpdateNote, animationKey
       <NoteItem
         note={note}
         isLockedByDefault={isLockedByDefault}
-        onUpdate={(noteId, title, content) => onUpdateNote(noteId, title, content)}
+        onUpdate={(noteId, title, content, color) => onUpdateNote(noteId, title, content, color)}
       />
     </motion.div>
   );

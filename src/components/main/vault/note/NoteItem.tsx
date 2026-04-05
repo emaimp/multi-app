@@ -12,7 +12,7 @@ import { Note, NOTE_COLORS_HEX } from '../../../../types/note';
 interface NoteItemProps {
   note: Note;
   isLockedByDefault?: boolean;
-  onUpdate: (noteId: string, title: string, content: string) => void;
+  onUpdate: (noteId: string, title: string, content: string, color: string) => void;
 }
 
 export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItemProps) {
@@ -30,7 +30,7 @@ export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItem
   const noteColor = NOTE_COLORS_HEX[note.color] || NOTE_COLORS_HEX.blue;
 
   const handleSave = () => {
-    onUpdate(note.id, note.title, content);
+    onUpdate(note.id, note.title, content, note.color);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -40,7 +40,7 @@ export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItem
     if (text) {
       setContent(text);
       setPasted(true);
-      onUpdate(note.id, note.title, text);
+      onUpdate(note.id, note.title, text, note.color);
       setTimeout(() => setPasted(false), 3000);
     }
   };
@@ -50,7 +50,7 @@ export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItem
       await navigator.clipboard.writeText(content);
       setContent('');
       setCut(true);
-      onUpdate(note.id, note.title, '');
+      onUpdate(note.id, note.title, '', note.color);
       setTimeout(() => setCut(false), 3000);
     }
   };
