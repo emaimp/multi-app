@@ -51,6 +51,7 @@ pub struct Vault {
 pub struct IdCard {
     pub id: String,
     pub vault_id: String,
+    pub id_name: String,
     pub id_type: String,
     pub full_name: String,
     pub id_number: String,

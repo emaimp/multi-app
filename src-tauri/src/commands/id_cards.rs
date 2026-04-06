@@ -14,6 +14,7 @@ pub fn get_id_card_with_content(card_id: String, user_id: i32, state: tauri::Sta
 #[tauri::command]
 pub fn create_id_card(
     vault_id: String,
+    id_name: String,
     id_type: String,
     full_name: String,
     id_number: String,
@@ -22,12 +23,13 @@ pub fn create_id_card(
     user_id: i32,
     state: tauri::State<Database>,
 ) -> Result<IdCard, String> {
-    state.create_id_card(&vault_id, &id_type, &full_name, &id_number, &color, image.as_deref(), user_id)
+    state.create_id_card(&vault_id, &id_name, &id_type, &full_name, &id_number, &color, image.as_deref(), user_id)
 }
 
 #[tauri::command]
 pub fn update_id_card(
     card_id: String,
+    id_name: String,
     id_type: String,
     full_name: String,
     id_number: String,
@@ -36,7 +38,7 @@ pub fn update_id_card(
     user_id: i32,
     state: tauri::State<Database>,
 ) -> Result<(), String> {
-    state.update_id_card(&card_id, &id_type, &full_name, &id_number, &color, image.as_deref(), user_id)
+    state.update_id_card(&card_id, &id_name, &id_type, &full_name, &id_number, &color, image.as_deref(), user_id)
 }
 
 #[tauri::command]

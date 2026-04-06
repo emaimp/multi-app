@@ -75,7 +75,7 @@ export function IdCardItem({ idCard, isLockedByDefault = false, onUpdate }: IdCa
             px: 0.5,
           }}
         >
-          {idCard.id_type || 'Untitled ID Card'}
+          {idCard.id_name || 'Untitled ID Card'}
         </Typography>
 
         <IconButton

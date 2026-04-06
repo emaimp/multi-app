@@ -47,6 +47,8 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
         "CREATE TABLE IF NOT EXISTS id_cards (
             id TEXT PRIMARY KEY,
             vault_id TEXT NOT NULL,
+            id_name_encrypted TEXT NOT NULL,
+            id_name_nonce TEXT NOT NULL,
             id_type_encrypted TEXT NOT NULL,
             id_type_nonce TEXT NOT NULL,
             full_name_encrypted TEXT NOT NULL,

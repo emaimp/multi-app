@@ -27,14 +27,14 @@ interface IdCardEditDialogProps {
 }
 
 export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: IdCardEditDialogProps) {
-  const [idType, setIdType] = useState(idCard?.id_type || '');
+  const [idName, setIdName] = useState(idCard?.id_name || '');
   const [color, setColor] = useState(idCard?.color || 'blue');
   const [image, setImage] = useState<string | null>(idCard?.image || null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (idCard) {
-      setIdType(idCard.id_type);
+      setIdName(idCard.id_name);
       setColor(idCard.color);
       setImage(idCard.image || null);
     }
@@ -43,10 +43,10 @@ export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: Id
   if (!idCard) return null;
 
   const handleSubmit = () => {
-    if (idType.trim()) {
+    if (idName.trim()) {
       onSave({
         ...idCard,
-        id_type: idType.trim(),
+        id_name: idName.trim(),
       }, image);
       onClose();
     }
@@ -73,17 +73,17 @@ export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: Id
                 value={image}
                 onChange={setImage}
                 size={100}
-                label={idType.charAt(0).toUpperCase() || 'I'}
+                label={idName.charAt(0).toUpperCase() || 'I'}
               />
             </Box>
 
             <TextField
-              label="ID Type"
+              label="ID Name"
               fullWidth
               variant="outlined"
-              value={idType}
-              onChange={(e) => setIdType(e.target.value)}
-              placeholder="DNI, Passport, License..."
+              value={idName}
+              onChange={(e) => setIdName(e.target.value)}
+              placeholder="Name on ID"
             />
 
             <Box>
@@ -128,7 +128,7 @@ export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: Id
           </Button>
           <Box sx={{ flexGrow: 1 }} />
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={!idType.trim()}>
+          <Button onClick={handleSubmit} variant="contained" disabled={!idName.trim()}>
             Save
           </Button>
         </DialogActions>

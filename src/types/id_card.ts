@@ -1,6 +1,7 @@
 export interface IdCard {
   id: string;
   vault_id: string;
+  id_name: string;
   id_type: string;
   full_name: string;
   id_number: string;

@@ -12,7 +12,7 @@ impl Database {
         let key = self.get_encryption_key(user_id)?;
 
         let mut stmt = conn.prepare(
-            "SELECT id, vault_id, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image, image_nonce, created_at, position FROM id_cards WHERE vault_id = ? ORDER BY position ASC, created_at ASC"
+            "SELECT id, vault_id, id_name_encrypted, id_name_nonce, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image, image_nonce, created_at, position FROM id_cards WHERE vault_id = ? ORDER BY position ASC, created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let mut result = Vec::new();
@@ -31,16 +31,19 @@ impl Database {
                 row.get(10)?,
                 row.get(11)?,
                 row.get(12)?,
+                row.get(13)?,
+                row.get(14)?,
             ))
         }).map_err(|e| e.to_string())?;
 
         for card_data in card_iter {
             let (
-                id, vault_id, id_type_encrypted, id_type_nonce,
+                id, vault_id, id_name_encrypted, id_name_nonce, id_type_encrypted, id_type_nonce,
                 full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce,
                 color, image_encrypted, image_nonce, created_at, position
-            ): (String, String, String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = card_data.map_err(|e| e.to_string())?;
+            ): (String, String, String, String, String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = card_data.map_err(|e| e.to_string())?;
 
+            let id_name = decrypt_from_base64(&id_name_encrypted, &id_name_nonce, &key)?;
             let id_type = decrypt_from_base64(&id_type_encrypted, &id_type_nonce, &key)?;
             let full_name = decrypt_from_base64(&full_name_encrypted, &full_name_nonce, &key)?;
             let id_number = decrypt_from_base64(&id_number_encrypted, &id_number_nonce, &key)?;
@@ -85,6 +88,7 @@ impl Database {
             result.push(IdCard {
                 id,
                 vault_id,
+                id_name,
                 id_type,
                 full_name,
                 id_number,
@@ -102,8 +106,8 @@ impl Database {
 
         let key = self.get_encryption_key(user_id)?;
 
-        let (id, vault_id, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image_encrypted, image_nonce, created_at, position): (String, String, String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = conn.query_row(
-            "SELECT id, vault_id, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image, image_nonce, created_at, position
+        let (id, vault_id, id_name_encrypted, id_name_nonce, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image_encrypted, image_nonce, created_at, position): (String, String, String, String, String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = conn.query_row(
+            "SELECT id, vault_id, id_name_encrypted, id_name_nonce, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image, image_nonce, created_at, position
              FROM id_cards
              WHERE id = ?",
             [card_id],
@@ -121,9 +125,12 @@ impl Database {
                 row.get(10)?,
                 row.get(11)?,
                 row.get(12)?,
+                row.get(13)?,
+                row.get(14)?,
             ))
         ).map_err(|e| e.to_string())?;
 
+        let id_name = decrypt_from_base64(&id_name_encrypted, &id_name_nonce, &key)?;
         let id_type = decrypt_from_base64(&id_type_encrypted, &id_type_nonce, &key)?;
         let full_name = decrypt_from_base64(&full_name_encrypted, &full_name_nonce, &key)?;
         let id_number = decrypt_from_base64(&id_number_encrypted, &id_number_nonce, &key)?;
@@ -168,6 +175,7 @@ impl Database {
         Ok(Some(IdCard {
             id,
             vault_id,
+            id_name,
             id_type,
             full_name,
             id_number,
@@ -181,6 +189,7 @@ impl Database {
     pub fn create_id_card(
         &self,
         vault_id: &str,
+        id_name: &str,
         id_type: &str,
         full_name: &str,
         id_number: &str,
@@ -193,6 +202,7 @@ impl Database {
         let created_at = Utc::now().timestamp_millis();
 
         let key = self.get_encryption_key(user_id)?;
+        let (id_name_encrypted, id_name_nonce) = encrypt_to_base64(id_name, &key)?;
         let (id_type_encrypted, id_type_nonce) = encrypt_to_base64(id_type, &key)?;
         let (full_name_encrypted, full_name_nonce) = encrypt_to_base64(full_name, &key)?;
         let (id_number_encrypted, id_number_nonce) = encrypt_to_base64(id_number, &key)?;
@@ -212,15 +222,16 @@ impl Database {
         ).unwrap_or(0);
 
         conn.execute(
-            "INSERT INTO id_cards (id, vault_id, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image, image_nonce, created_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO id_cards (id, vault_id, id_name_encrypted, id_name_nonce, id_type_encrypted, id_type_nonce, full_name_encrypted, full_name_nonce, id_number_encrypted, id_number_nonce, color, image, image_nonce, created_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             rusqlite::params![
-                &id, vault_id, &id_type_encrypted, &id_type_nonce, &full_name_encrypted, &full_name_nonce, &id_number_encrypted, &id_number_nonce, color, &image_encrypted, &image_nonce, created_at, max_position
+                &id, vault_id, &id_name_encrypted, &id_name_nonce, &id_type_encrypted, &id_type_nonce, &full_name_encrypted, &full_name_nonce, &id_number_encrypted, &id_number_nonce, color, &image_encrypted, &image_nonce, created_at, max_position
             ],
         ).map_err(|e| e.to_string())?;
 
         Ok(IdCard {
             id,
             vault_id: vault_id.to_string(),
+            id_name: id_name.to_string(),
             id_type: id_type.to_string(),
             full_name: full_name.to_string(),
             id_number: id_number.to_string(),
@@ -234,6 +245,7 @@ impl Database {
     pub fn update_id_card(
         &self,
         card_id: &str,
+        id_name: &str,
         id_type: &str,
         full_name: &str,
         id_number: &str,
@@ -245,6 +257,7 @@ impl Database {
 
         let key = self.get_encryption_key(user_id)?;
 
+        let (id_name_encrypted, id_name_nonce) = encrypt_to_base64(id_name, &key)?;
         let (id_type_encrypted, id_type_nonce) = encrypt_to_base64(id_type, &key)?;
         let (full_name_encrypted, full_name_nonce) = encrypt_to_base64(full_name, &key)?;
         let (id_number_encrypted, id_number_nonce) = encrypt_to_base64(id_number, &key)?;
@@ -258,8 +271,8 @@ impl Database {
         };
 
         conn.execute(
-            "UPDATE id_cards SET id_type_encrypted = ?, id_type_nonce = ?, full_name_encrypted = ?, full_name_nonce = ?, id_number_encrypted = ?, id_number_nonce = ?, color = ?, image = ?, image_nonce = ? WHERE id = ?",
-            rusqlite::params![&id_type_encrypted, &id_type_nonce, &full_name_encrypted, &full_name_nonce, &id_number_encrypted, &id_number_nonce, color, &image_encrypted, &image_nonce, card_id],
+            "UPDATE id_cards SET id_name_encrypted = ?, id_name_nonce = ?, id_type_encrypted = ?, id_type_nonce = ?, full_name_encrypted = ?, full_name_nonce = ?, id_number_encrypted = ?, id_number_nonce = ?, color = ?, image = ?, image_nonce = ? WHERE id = ?",
+            rusqlite::params![&id_name_encrypted, &id_name_nonce, &id_type_encrypted, &id_type_nonce, &full_name_encrypted, &full_name_nonce, &id_number_encrypted, &id_number_nonce, color, &image_encrypted, &image_nonce, card_id],
         ).map_err(|e| e.to_string())?;
 
         Ok(())
