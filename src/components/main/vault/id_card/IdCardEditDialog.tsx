@@ -28,8 +28,6 @@ interface IdCardEditDialogProps {
 
 export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: IdCardEditDialogProps) {
   const [idType, setIdType] = useState(idCard?.id_type || '');
-  const [fullName, setFullName] = useState(idCard?.full_name || '');
-  const [idNumber, setIdNumber] = useState(idCard?.id_number || '');
   const [color, setColor] = useState(idCard?.color || 'blue');
   const [image, setImage] = useState<string | null>(idCard?.image || null);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -37,8 +35,6 @@ export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: Id
   useEffect(() => {
     if (idCard) {
       setIdType(idCard.id_type);
-      setFullName(idCard.full_name);
-      setIdNumber(idCard.id_number);
       setColor(idCard.color);
       setImage(idCard.image || null);
     }
@@ -51,9 +47,6 @@ export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: Id
       onSave({
         ...idCard,
         id_type: idType.trim(),
-        full_name: fullName.trim(),
-        id_number: idNumber.trim(),
-        color,
       }, image);
       onClose();
     }
@@ -91,24 +84,6 @@ export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: Id
               value={idType}
               onChange={(e) => setIdType(e.target.value)}
               placeholder="DNI, Passport, License..."
-            />
-
-            <TextField
-              label="Full Name"
-              fullWidth
-              variant="outlined"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Full name on ID"
-            />
-
-            <TextField
-              label="ID Number"
-              fullWidth
-              variant="outlined"
-              value={idNumber}
-              onChange={(e) => setIdNumber(e.target.value)}
-              placeholder="ID number"
             />
 
             <Box>
