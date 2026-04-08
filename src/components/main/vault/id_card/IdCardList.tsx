@@ -7,7 +7,7 @@ interface IdCardListProps {
   idCards: IdCard[];
   isLockedByDefault?: boolean;
   animationKey?: string;
-  onUpdateIdCard: (idCardId: string, idType: string, fullName: string, idNumber: string, color: string) => void;
+  onUpdateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
 }
 
 const variants = {
@@ -23,7 +23,7 @@ interface IdCardItemComponentProps {
   idCard: IdCard;
   isLockedByDefault?: boolean;
   animationKey?: string;
-  onUpdateIdCard: (idCardId: string, idType: string, fullName: string, idNumber: string, color: string) => void;
+  onUpdateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
 }
 
 function IdCardItemComponent({ idCard, isLockedByDefault, onUpdateIdCard, animationKey }: IdCardItemComponentProps) {

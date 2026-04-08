@@ -47,6 +47,7 @@ export function IdCardEditDialog({ open, idCard, onClose, onSave, onDelete }: Id
       onSave({
         ...idCard,
         id_name: idName.trim(),
+        color,
       }, image);
       onClose();
     }

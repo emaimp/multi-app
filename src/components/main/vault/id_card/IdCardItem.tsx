@@ -10,7 +10,7 @@ import { IdCard, IDCARD_COLORS_HEX } from '../../../../types/id_card';
 interface IdCardItemProps {
   idCard: IdCard;
   isLockedByDefault?: boolean;
-  onUpdate: (idCardId: string, idType: string, fullName: string, idNumber: string, color: string) => void;
+  onUpdate: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
 }
 
 export function IdCardItem({ idCard, isLockedByDefault = false, onUpdate }: IdCardItemProps) {
@@ -30,7 +30,7 @@ export function IdCardItem({ idCard, isLockedByDefault = false, onUpdate }: IdCa
   const colorHex = IDCARD_COLORS_HEX[idCard.color] || IDCARD_COLORS_HEX.blue;
 
   const handleSave = () => {
-    onUpdate(idCard.id, idType, fullName, idNumber, idCard.color);
+    onUpdate(idCard.id, idCard.id_name, idType, fullName, idNumber, idCard.color);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };

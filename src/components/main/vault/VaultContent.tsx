@@ -20,7 +20,7 @@ interface VaultContentProps {
   isLoading?: boolean;
   onUpdateNote: (noteId: string, title: string, content: string, color: string) => void;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
-  onUpdateIdCard: (idCardId: string, idType: string, fullName: string, idNumber: string, color: string) => void;
+  onUpdateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
 }
 
 export function VaultContent({
