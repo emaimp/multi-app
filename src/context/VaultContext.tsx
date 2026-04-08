@@ -2,10 +2,12 @@ import { createContext, useContext, ReactNode, useCallback } from 'react';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
+import { IdCard } from '../types/id_card';
 import { Collection } from '../types/collection';
 import { useVaults as useVaultsHook } from '../hooks/useVaults';
 import { useNotes as useNotesHook } from '../hooks/useNotes';
 import { useLoginKeys as useLoginKeysHook } from '../hooks/useLoginKeys';
+import { useIdCards as useIdCardsHook } from '../hooks/useIdCards';
 import { useCollections as useCollectionsHook } from '../hooks/useCollections';
 import { useBackend } from '../hooks/useBackend';
 
@@ -14,6 +16,7 @@ interface VaultContextType {
   vaults: Vault[];
   notes: Note[];
   loginKeys: LoginKey[];
+  idCards: IdCard[];
   collections: Collection[];
   
   // Active states
@@ -43,6 +46,12 @@ interface VaultContextType {
   updateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => Promise<void>;
   deleteLoginKey: (loginKeyId: string) => Promise<void>;
   reorderLoginKeys: (loginKeys: LoginKey[]) => Promise<void>;
+
+  // CRUD IdCards
+  createIdCard: (vaultId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string) => Promise<IdCard | undefined>;
+  updateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string, image?: string | null) => Promise<void>;
+  deleteIdCard: (idCardId: string) => Promise<void>;
+  reorderIdCards: (idCards: IdCard[]) => Promise<void>;
   
   // CRUD Collections
   createCollection: (name: string) => Promise<Collection | undefined>;
@@ -92,6 +101,17 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     setLoginKeys,
     clearLoginKeys,
   } = useLoginKeysHook();
+
+  const {
+    idCards,
+    loadIdCards: loadIdCardsHook,
+    createIdCard: createIdCardHook,
+    updateIdCard: updateIdCardHook,
+    deleteIdCard: deleteIdCardHook,
+    reorderIdCards: reorderIdCardsHook,
+    setIdCards,
+    clearIdCards,
+  } = useIdCardsHook();
 
   const {
     collections,
@@ -159,18 +179,22 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     await deleteVaultHook(vaultId);
     setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
     setLoginKeys((prev) => prev.filter((lk) => lk.vault_id !== vaultId));
+    setIdCards((prev) => prev.filter((ic) => ic.vault_id !== vaultId));
     if (activeVault === vaultId) {
       clearNotes();
       clearLoginKeys();
+      clearIdCards();
     }
   };
 
   const selectVault = async (vaultId: string) => {
     clearNotes();
     clearLoginKeys();
+    clearIdCards();
     await selectVaultHook(vaultId);
     await loadNotesHook(vaultId);
     await loadLoginKeysHook(vaultId);
+    await loadIdCardsHook(vaultId);
   };
 
   const reorderVaultsUnassigned = async (reorderedVaults: Vault[], collectionVaultIds: string[]) => {
@@ -216,6 +240,23 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const reorderLoginKeys = async (reorderedLoginKeys: LoginKey[]) => {
     await reorderLoginKeysHook(reorderedLoginKeys);
+  };
+
+  // CRUD IdCards
+  const createIdCard = async (vaultId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string): Promise<IdCard | undefined> => {
+    return await createIdCardHook(vaultId, idName, idType, fullName, idNumber, color);
+  };
+
+  const updateIdCard = async (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string, image?: string | null) => {
+    await updateIdCardHook(idCardId, idName, idType, fullName, idNumber, color, image);
+  };
+
+  const deleteIdCard = async (idCardId: string) => {
+    await deleteIdCardHook(idCardId);
+  };
+
+  const reorderIdCards = async (reorderedIdCards: IdCard[]) => {
+    await reorderIdCardsHook(reorderedIdCards);
   };
 
   // CRUD Collections
@@ -316,6 +357,11 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         updateLoginKey,
         deleteLoginKey,
         reorderLoginKeys,
+        idCards,
+        createIdCard,
+        updateIdCard,
+        deleteIdCard,
+        reorderIdCards,
         createCollection,
         updateCollection,
         deleteCollection,

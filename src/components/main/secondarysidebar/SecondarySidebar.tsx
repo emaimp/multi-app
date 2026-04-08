@@ -8,25 +8,30 @@ import { FilterHeader } from './FilterHeader';
 import { CategoryAccordion } from './CategoryAccordion';
 import { Note } from '../../../types/note';
 import { LoginKey } from '../../../types/loginkey';
+import { IdCard } from '../../../types/id_card';
 
 interface SecondarySidebarProps {
   isLocked?: boolean;
   isLoadingContent?: boolean;
   notes: Note[];
   loginKeys: LoginKey[];
-  filterType?: 'all' | 'loginKeys' | 'notes';
+  idCards: IdCard[];
+  filterType?: 'all' | 'loginKeys' | 'notes' | 'idCards';
   selectedItemId?: string | null;
-  onFilterChange?: (filter: 'all' | 'loginKeys' | 'notes') => void;
+  onFilterChange?: (filter: 'all' | 'loginKeys' | 'notes' | 'idCards') => void;
   onSelectItem?: (itemId: string | null) => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   onSortClick?: () => void;
   onCreateNote?: () => void;
   onCreateLoginKey?: () => void;
+  onCreateIdCard?: () => void;
   onEditNote?: (note: Note) => void;
   onEditLoginKey?: (loginkey: LoginKey) => void;
+  onEditIdCard?: (idCard: IdCard) => void;
   onReorderNotes?: (notes: Note[]) => void;
   onReorderLoginKeys?: (loginKeys: LoginKey[]) => void;
+  onReorderIdCards?: (idCards: IdCard[]) => void;
   animationKey?: string;
 }
 
@@ -35,6 +40,7 @@ export function SecondarySidebar({
   isLoadingContent = false,
   notes,
   loginKeys,
+  idCards,
   filterType = 'all',
   selectedItemId,
   onFilterChange,
@@ -44,23 +50,31 @@ export function SecondarySidebar({
   onSortClick,
   onCreateNote,
   onCreateLoginKey,
+  onCreateIdCard,
   onEditNote,
   onEditLoginKey,
+  onEditIdCard,
   onReorderNotes,
   onReorderLoginKeys,
+  onReorderIdCards,
   animationKey,
 }: SecondarySidebarProps) {
   const [loginKeysExpanded, setLoginKeysExpanded] = useState(false);
   const [notesExpanded, setNotesExpanded] = useState(false);
+  const [idCardsExpanded, setIdCardsExpanded] = useState(false);
 
   useEffect(() => {
     if (!isLocked && animationKey) {
       setLoginKeysExpanded(true);
-      const timer = setTimeout(() => setNotesExpanded(true), 150);
+      const timer = setTimeout(() => {
+        setNotesExpanded(true);
+        setIdCardsExpanded(true);
+      }, 150);
       return () => clearTimeout(timer);
     } else if (isLocked) {
       setLoginKeysExpanded(false);
       setNotesExpanded(false);
+      setIdCardsExpanded(false);
     }
   }, [isLocked, animationKey]);
 
@@ -79,14 +93,24 @@ export function SecondarySidebar({
            note.content.toLowerCase().includes(searchLower);
   };
 
-  const filteredByTypeLoginKeys = filterType === 'notes' ? [] : loginKeys;
-  const filteredByTypeNotes = filterType === 'loginKeys' ? [] : notes;
+  const matchesIdCardSearch = (idCard: IdCard) => {
+    if (!searchQuery) return true;
+    return idCard.id_name.toLowerCase().includes(searchLower) ||
+           idCard.id_type.toLowerCase().includes(searchLower) ||
+           idCard.full_name.toLowerCase().includes(searchLower) ||
+           idCard.id_number.toLowerCase().includes(searchLower);
+  };
+
+  const filteredByTypeLoginKeys = filterType === 'notes' || filterType === 'idCards' ? [] : loginKeys;
+  const filteredByTypeNotes = filterType === 'loginKeys' || filterType === 'idCards' ? [] : notes;
+  const filteredByTypeIdCards = filterType === 'loginKeys' || filterType === 'notes' ? [] : idCards;
 
   const filteredLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
   const filteredNotes = filteredByTypeNotes.filter(matchesNoteSearch);
+  const filteredIdCards = filteredByTypeIdCards.filter(matchesIdCardSearch);
 
   const buttons = [
-    { icon: <BadgeIcon />, label: 'ID', onClick: undefined },
+    { icon: <BadgeIcon />, label: 'ID', onClick: onCreateIdCard },
     { icon: <CreditCardIcon />, label: 'Credit Card', onClick: undefined },
     { icon: <LoginIcon />, label: 'Login Key', onClick: onCreateLoginKey },
     { icon: <NoteIcon />, label: 'Note', onClick: onCreateNote },
@@ -121,6 +145,7 @@ export function SecondarySidebar({
           onFilterChange={onFilterChange}
           hasLoginKeys={loginKeys.length > 0}
           hasNotes={notes.length > 0}
+          hasIdCards={idCards.length > 0}
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
         />
@@ -190,6 +215,19 @@ export function SecondarySidebar({
           </Box>
         ) : (
           <>
+            <CategoryAccordion
+              title="ID Cards"
+              icon={<BadgeIcon sx={{ fontSize: 20 }} />}
+              items={filteredIdCards}
+              type="idCards"
+              selectedItemId={selectedItemId}
+              onSelectItem={onSelectItem}
+              onEditItem={onEditIdCard}
+              onReorder={onReorderIdCards}
+              defaultExpanded={idCardsExpanded}
+              animationKey={animationKey}
+            />
+
             <CategoryAccordion
               title="Login Keys"
               icon={<LoginIcon sx={{ fontSize: 20 }} />}
