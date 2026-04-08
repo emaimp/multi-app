@@ -2,9 +2,11 @@ import { Box, Typography, Divider } from '@mui/material';
 import { NoteList } from './note';
 import { LoginkeyList } from './loginkey';
 import { IdCardList } from './id_card';
+import { CreditCardList } from './credit_card';
 import { Note } from '../../../types/note';
 import { LoginKey } from '../../../types/loginkey';
 import { IdCard } from '../../../types/id_card';
+import { CreditCard } from '../../../types/credit_card';
 import { Vault } from '../../../types/vault';
 import { useMemo } from 'react';
 
@@ -13,7 +15,8 @@ interface VaultContentProps {
   vaultNotes: Note[];
   vaultLoginKeys: LoginKey[];
   vaultIdCards: IdCard[];
-  filterType?: 'all' | 'loginKeys' | 'notes' | 'idCards';
+  vaultCreditCards: CreditCard[];
+  filterType?: 'all' | 'loginKeys' | 'notes' | 'idCards' | 'creditCards';
   searchQuery?: string;
   selectedItemId?: string | null;
   isLockedByDefault?: boolean;
@@ -21,6 +24,7 @@ interface VaultContentProps {
   onUpdateNote: (noteId: string, title: string, content: string, color: string) => void;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
   onUpdateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
+  onUpdateCreditCard: (creditCardId: string, cardName: string, holderName: string, cardNumber: string, expiry: string, cvv: string, color: string) => void;
 }
 
 export function VaultContent({
@@ -28,6 +32,7 @@ export function VaultContent({
   vaultNotes,
   vaultLoginKeys,
   vaultIdCards,
+  vaultCreditCards,
   filterType = 'all',
   searchQuery = '',
   selectedItemId,
@@ -36,6 +41,7 @@ export function VaultContent({
   onUpdateNote,
   onUpdateLoginKey,
   onUpdateIdCard,
+  onUpdateCreditCard,
 }: VaultContentProps) {
   const searchLower = searchQuery.toLowerCase();
 
@@ -60,17 +66,26 @@ export function VaultContent({
            idCard.id_number.toLowerCase().includes(searchLower);
   };
 
-  const filteredByTypeLoginKeys = filterType === 'notes' || filterType === 'idCards' ? [] : vaultLoginKeys;
-  const filteredByTypeNotes = filterType === 'loginKeys' || filterType === 'idCards' ? [] : vaultNotes;
-  const filteredByTypeIdCards = filterType === 'loginKeys' || filterType === 'notes' ? [] : vaultIdCards;
+  const matchesCreditCardSearch = (creditCard: CreditCard) => {
+    if (!searchQuery) return true;
+    return creditCard.card_name.toLowerCase().includes(searchLower) ||
+           creditCard.holder_name.toLowerCase().includes(searchLower) ||
+           creditCard.card_number.toLowerCase().includes(searchLower);
+  };
+
+  const filteredByTypeLoginKeys = filterType === 'notes' || filterType === 'idCards' || filterType === 'creditCards' ? [] : vaultLoginKeys;
+  const filteredByTypeNotes = filterType === 'loginKeys' || filterType === 'idCards' || filterType === 'creditCards' ? [] : vaultNotes;
+  const filteredByTypeIdCards = filterType === 'loginKeys' || filterType === 'notes' || filterType === 'creditCards' ? [] : vaultIdCards;
+  const filteredByTypeCreditCards = filterType === 'loginKeys' || filterType === 'notes' || filterType === 'idCards' ? [] : vaultCreditCards;
 
   const filteredVaultLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
   const filteredVaultNotes = filteredByTypeNotes.filter(matchesNoteSearch);
   const filteredVaultIdCards = filteredByTypeIdCards.filter(matchesIdCardSearch);
+  const filteredVaultCreditCards = filteredByTypeCreditCards.filter(matchesCreditCardSearch);
 
   const animationKey = useMemo(() => 
-    `vault-${selectedVault?.id}-${vaultNotes.length}-${vaultLoginKeys.length}-${vaultIdCards.length}-${filterType}`,
-    [selectedVault?.id, vaultNotes.length, vaultLoginKeys.length, vaultIdCards.length, filterType]
+    `vault-${selectedVault?.id}-${vaultNotes.length}-${vaultLoginKeys.length}-${vaultIdCards.length}-${vaultCreditCards.length}-${filterType}`,
+    [selectedVault?.id, vaultNotes.length, vaultLoginKeys.length, vaultIdCards.length, vaultCreditCards.length, filterType]
   );
 
   const displayedLoginKeys = selectedItemId
@@ -85,9 +100,14 @@ export function VaultContent({
     ? filteredVaultIdCards.filter((ic) => ic.id === selectedItemId)
     : filteredVaultIdCards;
 
+  const displayedCreditCards = selectedItemId
+    ? filteredVaultCreditCards.filter((cc) => cc.id === selectedItemId)
+    : filteredVaultCreditCards;
+
   const hasDisplayedLoginKeys = displayedLoginKeys.length > 0;
   const hasDisplayedNotes = displayedNotes.length > 0;
   const hasDisplayedIdCards = displayedIdCards.length > 0;
+  const hasDisplayedCreditCards = displayedCreditCards.length > 0;
 
   return (
     <Box
@@ -105,7 +125,7 @@ export function VaultContent({
 
           <Divider sx={{ my: 3 }} />
 
-          {(!hasDisplayedLoginKeys && !hasDisplayedNotes && !hasDisplayedIdCards) ? (
+          {(!hasDisplayedLoginKeys && !hasDisplayedNotes && !hasDisplayedIdCards && !hasDisplayedCreditCards) ? (
             <Box sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -126,6 +146,18 @@ export function VaultContent({
                     isLockedByDefault={isLockedByDefault}
                     animationKey={animationKey}
                     onUpdateIdCard={onUpdateIdCard}
+                  />
+                  {(hasDisplayedCreditCards || hasDisplayedLoginKeys || hasDisplayedNotes) && <Divider sx={{ my: 3 }} />}
+                </>
+              )}
+
+              {hasDisplayedCreditCards && (
+                <>
+                  <CreditCardList
+                    creditCards={displayedCreditCards}
+                    isLockedByDefault={isLockedByDefault}
+                    animationKey={animationKey}
+                    onUpdateCreditCard={onUpdateCreditCard}
                   />
                   {(hasDisplayedLoginKeys || hasDisplayedNotes) && <Divider sx={{ my: 3 }} />}
                 </>

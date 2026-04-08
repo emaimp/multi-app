@@ -23,6 +23,7 @@ import { Vault } from '../types/vault';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
 import { IdCard } from '../types/id_card';
+import { CreditCard } from '../types/credit_card';
 import { VaultContent } from '../components/main/vault';
 import { SettingsView } from './user/SettingsView';
 
