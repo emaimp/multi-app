@@ -6,8 +6,9 @@ import LoginIcon from '@mui/icons-material/Login';
 import NoteIcon from '@mui/icons-material/Note';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
 import BadgeIcon from '@mui/icons-material/Badge';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
 
-type FilterType = 'all' | 'loginKeys' | 'notes' | 'idCards';
+type FilterType = 'all' | 'loginKeys' | 'notes' | 'idCards' | 'creditCards';
 
 interface FilterHeaderProps {
   onSortClick?: () => void;
@@ -16,6 +17,7 @@ interface FilterHeaderProps {
   hasLoginKeys?: boolean;
   hasNotes?: boolean;
   hasIdCards?: boolean;
+  hasCreditCards?: boolean;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
 }
@@ -27,6 +29,7 @@ export function FilterHeader({
   hasLoginKeys = true,
   hasNotes = true,
   hasIdCards = true,
+  hasCreditCards = true,
   searchQuery = '',
   onSearchChange,
 }: FilterHeaderProps) {
@@ -54,6 +57,8 @@ export function FilterHeader({
         return <NoteIcon sx={{ fontSize: 20 }} />;
       case 'idCards':
         return <BadgeIcon sx={{ fontSize: 20 }} />;
+      case 'creditCards':
+        return <CreditCardIcon sx={{ fontSize: 20 }} />;
       default:
         return <FilterListIcon sx={{ fontSize: 20 }} />;
     }
@@ -129,6 +134,17 @@ export function FilterHeader({
               <BadgeIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>ID Cards</ListItemText>
+          </MenuItem>
+        )}
+        {hasCreditCards && (
+          <MenuItem 
+            onClick={() => handleSelectFilter('creditCards')}
+            selected={filterType === 'creditCards'}
+          >
+            <ListItemIcon>
+              <CreditCardIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Credit Cards</ListItemText>
           </MenuItem>
         )}
       </Menu>

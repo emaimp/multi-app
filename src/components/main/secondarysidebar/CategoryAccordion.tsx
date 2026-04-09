@@ -11,6 +11,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Note, NOTE_COLORS_HEX } from '../../../types/note';
 import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
 import { IdCard, IDCARD_COLORS_HEX } from '../../../types/id_card';
+import { CreditCard, CREDITCARD_COLORS_HEX } from '../../../types/credit_card';
 import { useSortableSensors } from '../../../hooks/useSortableSensors';
 import {
   DndContext,
@@ -64,7 +65,20 @@ interface CategoryAccordionIdCardsProps {
   animationKey?: string;
 }
 
-type CategoryAccordionProps = CategoryAccordionLoginKeysProps | CategoryAccordionNotesProps | CategoryAccordionIdCardsProps;
+interface CategoryAccordionCreditCardsProps {
+  title: string;
+  icon?: React.ReactNode;
+  items: CreditCard[];
+  type: 'creditCards';
+  selectedItemId?: string | null;
+  onSelectItem?: (itemId: string | null) => void;
+  onEditItem?: (item: CreditCard) => void;
+  onReorder?: (items: CreditCard[]) => void;
+  defaultExpanded?: boolean;
+  animationKey?: string;
+}
+
+type CategoryAccordionProps = CategoryAccordionLoginKeysProps | CategoryAccordionNotesProps | CategoryAccordionIdCardsProps | CategoryAccordionCreditCardsProps;
 
 export function CategoryAccordion({
   title,
@@ -109,8 +123,11 @@ export function CategoryAccordion({
         } else if (type === 'notes') {
           const reorderedItems = arrayMove(items as Note[], oldIndex, newIndex);
           onReorder(reorderedItems as any);
-        } else {
+        } else if (type === 'idCards') {
           const reorderedItems = arrayMove(items as IdCard[], oldIndex, newIndex);
+          onReorder(reorderedItems as any);
+        } else {
+          const reorderedItems = arrayMove(items as CreditCard[], oldIndex, newIndex);
           onReorder(reorderedItems as any);
         }
       }
@@ -119,9 +136,10 @@ export function CategoryAccordion({
 
   const renderItems = () => {
     if (items.length === 0) {
+      const itemTypeLabel = type === 'loginKeys' ? 'login keys' : type === 'notes' ? 'notes' : type === 'idCards' ? 'id cards' : 'credit cards';
       return (
         <Typography variant="body2" color="text.secondary" sx={{ py: 1, pl: 4 }}>
-          No {type === 'loginKeys' ? 'login keys' : type === 'notes' ? 'notes' : 'id cards'} yet
+          No {itemTypeLabel} yet
         </Typography>
       );
     }
@@ -179,7 +197,7 @@ export function CategoryAccordion({
                 />
               </motion.div>
             ))
-          ) : (
+          ) : type === 'idCards' ? (
             (items as IdCard[]).map((idCard) => (
               <motion.div
                 key={`${animationKey}-${idCard.id}`}
@@ -197,6 +215,27 @@ export function CategoryAccordion({
                   isSelected={selectedItemId === idCard.id}
                   onClick={() => onSelectItem?.(idCard.id)}
                   onEdit={onEditItem as (item: IdCard) => void}
+                />
+              </motion.div>
+            ))
+          ) : (
+            (items as CreditCard[]).map((creditCard) => (
+              <motion.div
+                key={`${animationKey}-${creditCard.id}`}
+                initial="hidden"
+                animate="visible"
+                variants={variants}
+              >
+                <SortableItemCard
+                  item={creditCard}
+                  title={creditCard.card_name}
+                  color={creditCard.color}
+                  colorPalette={CREDITCARD_COLORS_HEX}
+                  avatarSrc={creditCard.image}
+                  avatarFallback={creditCard.card_name.charAt(0).toUpperCase()}
+                  isSelected={selectedItemId === creditCard.id}
+                  onClick={() => onSelectItem?.(creditCard.id)}
+                  onEdit={onEditItem as (item: CreditCard) => void}
                 />
               </motion.div>
             ))

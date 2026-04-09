@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import KeyIcon from '@mui/icons-material/Key';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
 import { LoadingDialog, CreateDialog } from '../components/ui';
 import { CreateCollectionDialog } from '../components/main/mainsidebar/CreateCollectionDialog';
 import { useUser } from '../context/AuthContext';
@@ -19,6 +20,7 @@ import { SecondarySidebar } from '../components/main/secondarysidebar';
 import { NoteEditDialog } from '../components/main/vault/note';
 import { LoginkeyEditDialog } from '../components/main/vault/loginkey';
 import { IdCardEditDialog } from '../components/main/vault/id_card';
+import { CreditCardEditDialog } from '../components/main/vault/credit_card';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
@@ -37,6 +39,7 @@ export function MainView() {
     notes,
     loginKeys,
     idCards,
+    creditCards,
     collections,
     activeVault,
     selectVault,
@@ -60,6 +63,10 @@ export function MainView() {
     updateIdCard,
     deleteIdCard,
     reorderIdCards,
+    createCreditCard,
+    updateCreditCard,
+    deleteCreditCard,
+    reorderCreditCards,
     reorderCollections,
   } = useVaults();
 
@@ -97,13 +104,15 @@ export function MainView() {
   const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
   const [createLoginKeyDialogOpen, setCreateLoginKeyDialogOpen] = useState(false);
   const [createIdCardDialogOpen, setCreateIdCardDialogOpen] = useState(false);
+  const [createCreditCardDialogOpen, setCreateCreditCardDialogOpen] = useState(false);
   const [vaultTypeSelectorOpen, setVaultTypeSelectorOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [editingLoginKey, setEditingLoginKey] = useState<LoginKey | null>(null);
   const [editingIdCard, setEditingIdCard] = useState<IdCard | null>(null);
+  const [editingCreditCard, setEditingCreditCard] = useState<CreditCard | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
-  const [filterType, setFilterType] = useState<'all' | 'loginKeys' | 'notes' | 'idCards'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'loginKeys' | 'notes' | 'idCards' | 'creditCards'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [itemsLocked, setItemsLocked] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -225,6 +234,7 @@ export function MainView() {
               notes={sortedVaultNotes}
               loginKeys={loginKeys}
               idCards={idCards}
+              creditCards={creditCards}
               filterType={filterType}
               selectedItemId={selectedItemId}
               onFilterChange={setFilterType}
@@ -235,12 +245,15 @@ export function MainView() {
               onCreateNote={() => setCreateNoteDialogOpen(true)}
               onCreateLoginKey={() => setCreateLoginKeyDialogOpen(true)}
               onCreateIdCard={() => setCreateIdCardDialogOpen(true)}
+              onCreateCreditCard={() => setCreateCreditCardDialogOpen(true)}
               onEditNote={handleEditNote}
               onEditLoginKey={handleEditLoginKey}
               onEditIdCard={(idCard) => setEditingIdCard(idCard)}
+              onEditCreditCard={(creditCard) => setEditingCreditCard(creditCard)}
               onReorderNotes={reorderNotes}
               onReorderLoginKeys={handleReorderLoginKeys}
               onReorderIdCards={reorderIdCards}
+              onReorderCreditCards={reorderCreditCards}
             />
 
             <VaultContent
@@ -248,6 +261,7 @@ export function MainView() {
               vaultNotes={sortedVaultNotes}
               vaultLoginKeys={loginKeys}
               vaultIdCards={idCards}
+              vaultCreditCards={creditCards}
               filterType={filterType}
               searchQuery={searchQuery}
               selectedItemId={selectedItemId}
@@ -256,6 +270,7 @@ export function MainView() {
               onUpdateNote={updateNote}
               onUpdateLoginKey={handleUpdateLoginKey}
               onUpdateIdCard={updateIdCard}
+              onUpdateCreditCard={updateCreditCard}
             />
 
             <CreateDialog
@@ -301,6 +316,16 @@ export function MainView() {
               titleIcon={<KeyIcon />}
               onClose={() => setCreateIdCardDialogOpen(false)}
               onCreate={(idName) => createIdCard(activeVault || '', idName, '', '', '', 'blue')}
+            />
+
+            <CreateDialog
+              open={createCreditCardDialogOpen}
+              title="Create Credit Card"
+              label="Card Name"
+              placeholder="Enter card name"
+              titleIcon={<CreditCardIcon />}
+              onClose={() => setCreateCreditCardDialogOpen(false)}
+              onCreate={(cardName) => createCreditCard(activeVault || '', cardName, '', '', '', '', 'blue')}
             />
 
             <VaultEditDialog
@@ -383,6 +408,25 @@ export function MainView() {
                 );
               }}
               onDelete={deleteIdCard}
+            />
+
+            <CreditCardEditDialog
+              open={!!editingCreditCard}
+              creditCard={editingCreditCard}
+              onClose={() => setEditingCreditCard(null)}
+              onSave={(creditCard, image) => {
+                updateCreditCard(
+                  creditCard.id,
+                  creditCard.card_name,
+                  creditCard.holder_name,
+                  creditCard.card_number,
+                  creditCard.expiry,
+                  creditCard.cvv,
+                  creditCard.color,
+                  image
+                );
+              }}
+              onDelete={deleteCreditCard}
             />
 
             <VaultTypeSelector

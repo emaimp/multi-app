@@ -3,11 +3,13 @@ import { Vault } from '../types/vault';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
 import { IdCard } from '../types/id_card';
+import { CreditCard } from '../types/credit_card';
 import { Collection } from '../types/collection';
 import { useVaults as useVaultsHook } from '../hooks/useVaults';
 import { useNotes as useNotesHook } from '../hooks/useNotes';
 import { useLoginKeys as useLoginKeysHook } from '../hooks/useLoginKeys';
 import { useIdCards as useIdCardsHook } from '../hooks/useIdCards';
+import { useCreditCards as useCreditCardsHook } from '../hooks/useCreditCards';
 import { useCollections as useCollectionsHook } from '../hooks/useCollections';
 import { useBackend } from '../hooks/useBackend';
 
@@ -17,6 +19,7 @@ interface VaultContextType {
   notes: Note[];
   loginKeys: LoginKey[];
   idCards: IdCard[];
+  creditCards: CreditCard[];
   collections: Collection[];
   
   // Active states
@@ -52,6 +55,12 @@ interface VaultContextType {
   updateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string, image?: string | null) => Promise<void>;
   deleteIdCard: (idCardId: string) => Promise<void>;
   reorderIdCards: (idCards: IdCard[]) => Promise<void>;
+
+  // CRUD CreditCards
+  createCreditCard: (vaultId: string, cardName: string, holderName: string, cardNumber: string, expiry: string, cvv: string, color?: string) => Promise<CreditCard | undefined>;
+  updateCreditCard: (creditCardId: string, cardName: string, holderName: string, cardNumber: string, expiry: string, cvv: string, color?: string, image?: string | null) => Promise<void>;
+  deleteCreditCard: (creditCardId: string) => Promise<void>;
+  reorderCreditCards: (creditCards: CreditCard[]) => Promise<void>;
   
   // CRUD Collections
   createCollection: (name: string) => Promise<Collection | undefined>;
@@ -112,6 +121,17 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     setIdCards,
     clearIdCards,
   } = useIdCardsHook();
+
+  const {
+    creditCards,
+    loadCreditCards: loadCreditCardsHook,
+    createCreditCard: createCreditCardHook,
+    updateCreditCard: updateCreditCardHook,
+    deleteCreditCard: deleteCreditCardHook,
+    reorderCreditCards: reorderCreditCardsHook,
+    setCreditCards,
+    clearCreditCards,
+  } = useCreditCardsHook();
 
   const {
     collections,
@@ -180,10 +200,12 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     setNotes((prev) => prev.filter((n) => n.vault_id !== vaultId));
     setLoginKeys((prev) => prev.filter((lk) => lk.vault_id !== vaultId));
     setIdCards((prev) => prev.filter((ic) => ic.vault_id !== vaultId));
+    setCreditCards((prev) => prev.filter((cc) => cc.vault_id !== vaultId));
     if (activeVault === vaultId) {
       clearNotes();
       clearLoginKeys();
       clearIdCards();
+      clearCreditCards();
     }
   };
 
@@ -191,10 +213,12 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     clearNotes();
     clearLoginKeys();
     clearIdCards();
+    clearCreditCards();
     await selectVaultHook(vaultId);
     await loadNotesHook(vaultId);
     await loadLoginKeysHook(vaultId);
     await loadIdCardsHook(vaultId);
+    await loadCreditCardsHook(vaultId);
   };
 
   const reorderVaultsUnassigned = async (reorderedVaults: Vault[], collectionVaultIds: string[]) => {
@@ -257,6 +281,40 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const reorderIdCards = async (reorderedIdCards: IdCard[]) => {
     await reorderIdCardsHook(reorderedIdCards);
+  };
+
+  // CRUD CreditCards
+  const createCreditCard = async (
+    vaultId: string,
+    cardName: string,
+    holderName: string,
+    cardNumber: string,
+    expiry: string,
+    cvv: string,
+    color?: string
+  ) => {
+    return await createCreditCardHook(vaultId, cardName, holderName, cardNumber, expiry, cvv, color);
+  };
+
+  const updateCreditCard = async (
+    creditCardId: string,
+    cardName: string,
+    holderName: string,
+    cardNumber: string,
+    expiry: string,
+    cvv: string,
+    color?: string,
+    image?: string | null
+  ) => {
+    await updateCreditCardHook(creditCardId, cardName, holderName, cardNumber, expiry, cvv, color, image);
+  };
+
+  const deleteCreditCard = async (creditCardId: string) => {
+    await deleteCreditCardHook(creditCardId);
+  };
+
+  const reorderCreditCards = async (reorderedCreditCards: CreditCard[]) => {
+    await reorderCreditCardsHook(reorderedCreditCards);
   };
 
   // CRUD Collections
@@ -362,6 +420,11 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         updateIdCard,
         deleteIdCard,
         reorderIdCards,
+        creditCards,
+        createCreditCard,
+        updateCreditCard,
+        deleteCreditCard,
+        reorderCreditCards,
         createCollection,
         updateCollection,
         deleteCollection,
