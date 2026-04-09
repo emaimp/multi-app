@@ -19,13 +19,13 @@ import { MainSidebar } from '../components/main/mainsidebar';
 import { SecondarySidebar } from '../components/main/secondarysidebar';
 import { NoteEditDialog } from '../components/main/vault/note';
 import { LoginkeyEditDialog } from '../components/main/vault/loginkey';
-import { IdCardEditDialog } from '../components/main/vault/id_card';
 import { CreditCardEditDialog } from '../components/main/vault/credit_card';
+import { IdCardEditDialog } from '../components/main/vault/id_card';
 import { Vault } from '../types/vault';
 import { Note } from '../types/note';
 import { LoginKey } from '../types/loginkey';
-import { IdCard } from '../types/id_card';
 import { CreditCard } from '../types/credit_card';
+import { IdCard } from '../types/id_card';
 import { VaultContent } from '../components/main/vault';
 import { SettingsView } from './user/SettingsView';
 
@@ -36,11 +36,11 @@ export function MainView() {
   const [avatarLoading, setAvatarLoading] = useState(false);
   const {
     vaults,
-    notes,
-    loginKeys,
+    collections,
     idCards,
     creditCards,
-    collections,
+    loginKeys,
+    notes,
     activeVault,
     selectVault,
     clearVaultSelect,
@@ -51,14 +51,6 @@ export function MainView() {
     deleteVault,
     reorderVaultsUnassigned,
     reorderVaultsInCollection,
-    createNote,
-    updateNote,
-    deleteNote,
-    reorderNotes,
-    createLoginKey,
-    updateLoginKey,
-    deleteLoginKey,
-    reorderLoginKeys,
     createIdCard,
     updateIdCard,
     deleteIdCard,
@@ -67,6 +59,14 @@ export function MainView() {
     updateCreditCard,
     deleteCreditCard,
     reorderCreditCards,
+    createLoginKey,
+    updateLoginKey,
+    deleteLoginKey,
+    reorderLoginKeys,
+    createNote,
+    updateNote,
+    deleteNote,
+    reorderNotes,
     reorderCollections,
   } = useVaults();
 
@@ -101,16 +101,16 @@ export function MainView() {
 
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [createCollectionDialogOpen, setCreateCollectionDialogOpen] = useState(false);
-  const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
-  const [createLoginKeyDialogOpen, setCreateLoginKeyDialogOpen] = useState(false);
   const [createIdCardDialogOpen, setCreateIdCardDialogOpen] = useState(false);
   const [createCreditCardDialogOpen, setCreateCreditCardDialogOpen] = useState(false);
+  const [createLoginKeyDialogOpen, setCreateLoginKeyDialogOpen] = useState(false);
+  const [createNoteDialogOpen, setCreateNoteDialogOpen] = useState(false);
   const [vaultTypeSelectorOpen, setVaultTypeSelectorOpen] = useState(false);
   const [editingVault, setEditingVault] = useState<Vault | null>(null);
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const [editingLoginKey, setEditingLoginKey] = useState<LoginKey | null>(null);
   const [editingIdCard, setEditingIdCard] = useState<IdCard | null>(null);
   const [editingCreditCard, setEditingCreditCard] = useState<CreditCard | null>(null);
+  const [editingLoginKey, setEditingLoginKey] = useState<LoginKey | null>(null);
+  const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [filterType, setFilterType] = useState<'all' | 'loginKeys' | 'notes' | 'idCards' | 'creditCards'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -143,12 +143,20 @@ export function MainView() {
     selectVault(vaultId);
   };
 
-  const handleEditNote = (note: Note) => {
-    setEditingNote(note);
+  const handleEditIdCard = (idCard: IdCard) => {
+    setEditingIdCard(idCard);
+  };
+
+  const handleEditCreditCard = (creditCard: CreditCard) => {
+    setEditingCreditCard(creditCard);
   };
 
   const handleEditLoginKey = (loginkey: LoginKey) => {
     setEditingLoginKey(loginkey);
+  };
+
+  const handleEditNote = (note: Note) => {
+    setEditingNote(note);
   };
 
   const handleSortNotes = () => {
@@ -171,11 +179,21 @@ export function MainView() {
     setCreateCollectionDialogOpen(true);
   };
 
-  const handleCreateNote = async (title: string) => {
+  const handleCreateIdCard = async (idName: string) => {
     if (activeVault && selectedVault) {
-      const newNote = await createNote(activeVault, title, '', selectedVault.color);
-      if (newNote) {
-        setSelectedItemId(newNote.id);
+      const newIdCard = await createIdCard(activeVault, idName, '', '', '', selectedVault.color);
+      if (newIdCard) {
+        setSelectedItemId(newIdCard.id);
+        setItemsLocked(false);
+      }
+    }
+  };
+
+  const handleCreateCreditCard = async (cardName: string) => {
+    if (activeVault && selectedVault) {
+      const newCreditCard = await createCreditCard(activeVault, cardName, '', '', '', '', selectedVault.color);
+      if (newCreditCard) {
+        setSelectedItemId(newCreditCard.id);
         setItemsLocked(false);
       }
     }
@@ -199,21 +217,11 @@ export function MainView() {
     reorderLoginKeys(loginKeys);
   };
 
-  const handleCreateIdCard = async (idName: string) => {
+  const handleCreateNote = async (title: string) => {
     if (activeVault && selectedVault) {
-      const newIdCard = await createIdCard(activeVault, idName, '', '', '', selectedVault.color);
-      if (newIdCard) {
-        setSelectedItemId(newIdCard.id);
-        setItemsLocked(false);
-      }
-    }
-  };
-
-  const handleCreateCreditCard = async (cardName: string) => {
-    if (activeVault && selectedVault) {
-      const newCreditCard = await createCreditCard(activeVault, cardName, '', '', '', '', selectedVault.color);
-      if (newCreditCard) {
-        setSelectedItemId(newCreditCard.id);
+      const newNote = await createNote(activeVault, title, '', selectedVault.color);
+      if (newNote) {
+        setSelectedItemId(newNote.id);
         setItemsLocked(false);
       }
     }
@@ -251,10 +259,10 @@ export function MainView() {
               isLocked={!activeVault}
               isLoadingContent={isLoadingContent}
               animationKey={activeVault || undefined}
-              notes={sortedVaultNotes}
-              loginKeys={loginKeys}
               idCards={idCards}
               creditCards={creditCards}
+              loginKeys={loginKeys}
+              notes={sortedVaultNotes}
               filterType={filterType}
               selectedItemId={selectedItemId}
               onFilterChange={setFilterType}
@@ -262,35 +270,35 @@ export function MainView() {
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
               onSortClick={handleSortNotes}
-              onCreateNote={() => setCreateNoteDialogOpen(true)}
-              onCreateLoginKey={() => setCreateLoginKeyDialogOpen(true)}
               onCreateIdCard={() => setCreateIdCardDialogOpen(true)}
               onCreateCreditCard={() => setCreateCreditCardDialogOpen(true)}
-              onEditNote={handleEditNote}
+              onCreateLoginKey={() => setCreateLoginKeyDialogOpen(true)}
+              onCreateNote={() => setCreateNoteDialogOpen(true)}
+              onEditIdCard={handleEditIdCard}
+              onEditCreditCard={handleEditCreditCard}
               onEditLoginKey={handleEditLoginKey}
-              onEditIdCard={(idCard) => setEditingIdCard(idCard)}
-              onEditCreditCard={(creditCard) => setEditingCreditCard(creditCard)}
-              onReorderNotes={reorderNotes}
-              onReorderLoginKeys={handleReorderLoginKeys}
+              onEditNote={handleEditNote}
               onReorderIdCards={reorderIdCards}
               onReorderCreditCards={reorderCreditCards}
+              onReorderLoginKeys={handleReorderLoginKeys}
+              onReorderNotes={reorderNotes}
             />
 
             <VaultContent
               selectedVault={selectedVault}
-              vaultNotes={sortedVaultNotes}
-              vaultLoginKeys={loginKeys}
               vaultIdCards={idCards}
               vaultCreditCards={creditCards}
+              vaultLoginKeys={loginKeys}
+              vaultNotes={sortedVaultNotes}
               filterType={filterType}
               searchQuery={searchQuery}
               selectedItemId={selectedItemId}
               isLockedByDefault={itemsLocked}
               isLoading={isLoadingContent}
-              onUpdateNote={updateNote}
-              onUpdateLoginKey={handleUpdateLoginKey}
               onUpdateIdCard={updateIdCard}
               onUpdateCreditCard={updateCreditCard}
+              onUpdateLoginKey={handleUpdateLoginKey}
+              onUpdateNote={updateNote}
             />
 
             <CreateDialog
@@ -306,26 +314,6 @@ export function MainView() {
             <CreateCollectionDialog
               open={createCollectionDialogOpen}
               onClose={() => setCreateCollectionDialogOpen(false)}
-            />
-
-            <CreateDialog
-              open={createNoteDialogOpen}
-              title="Create Note"
-              label="Note Title"
-              placeholder="Enter note title"
-              titleIcon={<EventNoteIcon />}
-              onClose={() => setCreateNoteDialogOpen(false)}
-              onCreate={handleCreateNote}
-            />
-
-            <CreateDialog
-              open={createLoginKeyDialogOpen}
-              title="Create Login Key"
-              label="Site Name"
-              placeholder="Enter site name"
-              titleIcon={<KeyIcon />}
-              onClose={() => setCreateLoginKeyDialogOpen(false)}
-              onCreate={handleCreateLoginKey}
             />
 
             <CreateDialog
@@ -346,6 +334,26 @@ export function MainView() {
               titleIcon={<CreditCardIcon />}
               onClose={() => setCreateCreditCardDialogOpen(false)}
               onCreate={handleCreateCreditCard}
+            />
+
+            <CreateDialog
+              open={createLoginKeyDialogOpen}
+              title="Create Login Key"
+              label="Site Name"
+              placeholder="Enter site name"
+              titleIcon={<KeyIcon />}
+              onClose={() => setCreateLoginKeyDialogOpen(false)}
+              onCreate={handleCreateLoginKey}
+            />
+
+            <CreateDialog
+              open={createNoteDialogOpen}
+              title="Create Note"
+              label="Note Title"
+              placeholder="Enter note title"
+              titleIcon={<EventNoteIcon />}
+              onClose={() => setCreateNoteDialogOpen(false)}
+              onCreate={handleCreateNote}
             />
 
             <VaultEditDialog
@@ -375,41 +383,6 @@ export function MainView() {
                   }
                 }
               }}
-            />
-
-            <NoteEditDialog
-              open={!!editingNote}
-              note={editingNote}
-              onClose={() => setEditingNote(null)}
-              onSave={(note, image) => {
-                updateNote(
-                  note.id,
-                  note.title,
-                  note.content,
-                  note.color,
-                  image
-                );
-              }}
-              onDelete={deleteNote}
-            />
-
-            <LoginkeyEditDialog
-              open={!!editingLoginKey}
-              loginkey={editingLoginKey}
-              onClose={() => setEditingLoginKey(null)}
-              onSave={(loginkey, image) => {
-                updateLoginKey(
-                  loginkey.id,
-                  loginkey.site_name,
-                  loginkey.url,
-                  loginkey.username,
-                  loginkey.password,
-                  loginkey.details,
-                  loginkey.color,
-                  image
-                );
-              }}
-              onDelete={deleteLoginKey}
             />
 
             <IdCardEditDialog
@@ -447,6 +420,41 @@ export function MainView() {
                 );
               }}
               onDelete={deleteCreditCard}
+            />
+
+            <LoginkeyEditDialog
+              open={!!editingLoginKey}
+              loginkey={editingLoginKey}
+              onClose={() => setEditingLoginKey(null)}
+              onSave={(loginkey, image) => {
+                updateLoginKey(
+                  loginkey.id,
+                  loginkey.site_name,
+                  loginkey.url,
+                  loginkey.username,
+                  loginkey.password,
+                  loginkey.details,
+                  loginkey.color,
+                  image
+                );
+              }}
+              onDelete={deleteLoginKey}
+            />
+
+            <NoteEditDialog
+              open={!!editingNote}
+              note={editingNote}
+              onClose={() => setEditingNote(null)}
+              onSave={(note, image) => {
+                updateNote(
+                  note.id,
+                  note.title,
+                  note.content,
+                  note.color,
+                  image
+                );
+              }}
+              onDelete={deleteNote}
             />
 
             <VaultTypeSelector
