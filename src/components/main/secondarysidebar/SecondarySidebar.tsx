@@ -6,47 +6,47 @@ import LoginIcon from '@mui/icons-material/Login';
 import NoteIcon from '@mui/icons-material/Note';
 import { FilterHeader } from './FilterHeader';
 import { CategoryAccordion } from './CategoryAccordion';
-import { Note } from '../../../types/note';
-import { LoginKey } from '../../../types/loginkey';
 import { IdCard } from '../../../types/id_card';
 import { CreditCard } from '../../../types/credit_card';
+import { LoginKey } from '../../../types/loginkey';
+import { Note } from '../../../types/note';
 
 interface SecondarySidebarProps {
   isLocked?: boolean;
   isLoadingContent?: boolean;
-  notes: Note[];
-  loginKeys: LoginKey[];
   idCards: IdCard[];
   creditCards: CreditCard[];
-  filterType?: 'all' | 'loginKeys' | 'notes' | 'idCards' | 'creditCards';
+  loginKeys: LoginKey[];
+  notes: Note[];
+  filterType?: 'all' | 'idCards' | 'creditCards' | 'loginKeys' | 'notes';
   selectedItemId?: string | null;
-  onFilterChange?: (filter: 'all' | 'loginKeys' | 'notes' | 'idCards' | 'creditCards') => void;
+  onFilterChange?: (filter: 'all' | 'idCards' | 'creditCards' | 'loginKeys' | 'notes') => void;
   onSelectItem?: (itemId: string | null) => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
   onSortClick?: () => void;
-  onCreateNote?: () => void;
-  onCreateLoginKey?: () => void;
   onCreateIdCard?: () => void;
   onCreateCreditCard?: () => void;
-  onEditNote?: (note: Note) => void;
-  onEditLoginKey?: (loginkey: LoginKey) => void;
+  onCreateLoginKey?: () => void;
+  onCreateNote?: () => void;
   onEditIdCard?: (idCard: IdCard) => void;
   onEditCreditCard?: (creditCard: CreditCard) => void;
-  onReorderNotes?: (notes: Note[]) => void;
-  onReorderLoginKeys?: (loginKeys: LoginKey[]) => void;
+  onEditLoginKey?: (loginkey: LoginKey) => void;
+  onEditNote?: (note: Note) => void;
   onReorderIdCards?: (idCards: IdCard[]) => void;
   onReorderCreditCards?: (creditCards: CreditCard[]) => void;
+  onReorderLoginKeys?: (loginKeys: LoginKey[]) => void;
+  onReorderNotes?: (notes: Note[]) => void;
   animationKey?: string;
 }
 
 export function SecondarySidebar({
   isLocked = false,
   isLoadingContent = false,
-  notes,
-  loginKeys,
   idCards,
   creditCards,
+  loginKeys,
+  notes,
   filterType = 'all',
   selectedItemId,
   onFilterChange,
@@ -54,56 +54,43 @@ export function SecondarySidebar({
   searchQuery = '',
   onSearchChange,
   onSortClick,
-  onCreateNote,
-  onCreateLoginKey,
   onCreateIdCard,
   onCreateCreditCard,
-  onEditNote,
-  onEditLoginKey,
+  onCreateLoginKey,
+  onCreateNote,
   onEditIdCard,
   onEditCreditCard,
-  onReorderNotes,
-  onReorderLoginKeys,
+  onEditLoginKey,
+  onEditNote,
   onReorderIdCards,
   onReorderCreditCards,
+  onReorderLoginKeys,
+  onReorderNotes,
   animationKey,
 }: SecondarySidebarProps) {
-  const [loginKeysExpanded, setLoginKeysExpanded] = useState(false);
-  const [notesExpanded, setNotesExpanded] = useState(false);
   const [idCardsExpanded, setIdCardsExpanded] = useState(false);
   const [creditCardsExpanded, setCreditCardsExpanded] = useState(false);
+  const [loginKeysExpanded, setLoginKeysExpanded] = useState(false);
+  const [notesExpanded, setNotesExpanded] = useState(false);
 
   useEffect(() => {
     if (!isLocked && animationKey) {
-      setLoginKeysExpanded(true);
+      setIdCardsExpanded(true);
       const timer = setTimeout(() => {
-        setNotesExpanded(true);
-        setIdCardsExpanded(true);
         setCreditCardsExpanded(true);
+        setLoginKeysExpanded(true);
+        setNotesExpanded(true);
       }, 150);
       return () => clearTimeout(timer);
     } else if (isLocked) {
-      setLoginKeysExpanded(false);
-      setNotesExpanded(false);
       setIdCardsExpanded(false);
       setCreditCardsExpanded(false);
+      setLoginKeysExpanded(false);
+      setNotesExpanded(false);
     }
   }, [isLocked, animationKey]);
 
   const searchLower = searchQuery.toLowerCase();
-
-  const matchesLoginKeySearch = (lk: LoginKey) => {
-    if (!searchQuery) return true;
-    return lk.site_name.toLowerCase().includes(searchLower) ||
-           lk.username.toLowerCase().includes(searchLower) ||
-           (lk.url?.toLowerCase().includes(searchLower) ?? false);
-  };
-
-  const matchesNoteSearch = (note: Note) => {
-    if (!searchQuery) return true;
-    return note.title.toLowerCase().includes(searchLower) ||
-           note.content.toLowerCase().includes(searchLower);
-  };
 
   const matchesIdCardSearch = (idCard: IdCard) => {
     if (!searchQuery) return true;
@@ -120,15 +107,28 @@ export function SecondarySidebar({
            creditCard.card_number.toLowerCase().includes(searchLower);
   };
 
-  const filteredByTypeLoginKeys = filterType === 'notes' || filterType === 'idCards' || filterType === 'creditCards' ? [] : loginKeys;
-  const filteredByTypeNotes = filterType === 'loginKeys' || filterType === 'idCards' || filterType === 'creditCards' ? [] : notes;
-  const filteredByTypeIdCards = filterType === 'loginKeys' || filterType === 'notes' || filterType === 'creditCards' ? [] : idCards;
-  const filteredByTypeCreditCards = filterType === 'loginKeys' || filterType === 'notes' || filterType === 'idCards' ? [] : creditCards;
+  const matchesLoginKeySearch = (lk: LoginKey) => {
+    if (!searchQuery) return true;
+    return lk.site_name.toLowerCase().includes(searchLower) ||
+           lk.username.toLowerCase().includes(searchLower) ||
+           (lk.url?.toLowerCase().includes(searchLower) ?? false);
+  };
 
-  const filteredLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
-  const filteredNotes = filteredByTypeNotes.filter(matchesNoteSearch);
+  const matchesNoteSearch = (note: Note) => {
+    if (!searchQuery) return true;
+    return note.title.toLowerCase().includes(searchLower) ||
+           note.content.toLowerCase().includes(searchLower);
+  };
+
+  const filteredByTypeIdCards = filterType === 'creditCards' || filterType === 'loginKeys' || filterType === 'notes' ? [] : idCards;
+  const filteredByTypeCreditCards = filterType === 'idCards' || filterType === 'loginKeys' || filterType === 'notes' ? [] : creditCards;
+  const filteredByTypeLoginKeys = filterType === 'idCards' || filterType === 'creditCards' || filterType === 'notes' ? [] : loginKeys;
+  const filteredByTypeNotes = filterType === 'idCards' || filterType === 'creditCards' || filterType === 'loginKeys' ? [] : notes;
+
   const filteredIdCards = filteredByTypeIdCards.filter(matchesIdCardSearch);
   const filteredCreditCards = filteredByTypeCreditCards.filter(matchesCreditCardSearch);
+  const filteredLoginKeys = filteredByTypeLoginKeys.filter(matchesLoginKeySearch);
+  const filteredNotes = filteredByTypeNotes.filter(matchesNoteSearch);
 
   const buttons = [
     { icon: <BadgeIcon />, label: 'ID', onClick: onCreateIdCard },
