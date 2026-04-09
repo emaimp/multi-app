@@ -1,23 +1,32 @@
 import { useState } from 'react';
-import { Box, IconButton, TextField, Tooltip, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  TextField,
+  Tooltip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText
+} from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
-import LoginIcon from '@mui/icons-material/Login';
-import NoteIcon from '@mui/icons-material/Note';
 import SelectAllIcon from '@mui/icons-material/SelectAll';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LoginIcon from '@mui/icons-material/Login';
+import NoteIcon from '@mui/icons-material/Note';
 
-type FilterType = 'all' | 'loginKeys' | 'notes' | 'idCards' | 'creditCards';
+type FilterType = 'all' | 'idCards' | 'creditCards' | 'loginKeys' | 'notes';
 
 interface FilterHeaderProps {
   onSortClick?: () => void;
   filterType?: FilterType;
   onFilterChange?: (filter: FilterType) => void;
-  hasLoginKeys?: boolean;
-  hasNotes?: boolean;
   hasIdCards?: boolean;
   hasCreditCards?: boolean;
+  hasLoginKeys?: boolean;
+  hasNotes?: boolean;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
 }
@@ -26,10 +35,10 @@ export function FilterHeader({
   onSortClick,
   filterType = 'all',
   onFilterChange,
-  hasLoginKeys = true,
-  hasNotes = true,
   hasIdCards = true,
   hasCreditCards = true,
+  hasLoginKeys = true,
+  hasNotes = true,
   searchQuery = '',
   onSearchChange,
 }: FilterHeaderProps) {
@@ -51,14 +60,14 @@ export function FilterHeader({
 
   const getFilterIcon = () => {
     switch (filterType) {
-      case 'loginKeys':
-        return <LoginIcon sx={{ fontSize: 20 }} />;
-      case 'notes':
-        return <NoteIcon sx={{ fontSize: 20 }} />;
       case 'idCards':
         return <BadgeIcon sx={{ fontSize: 20 }} />;
       case 'creditCards':
         return <CreditCardIcon sx={{ fontSize: 20 }} />;
+      case 'loginKeys':
+        return <LoginIcon sx={{ fontSize: 20 }} />;
+      case 'notes':
+        return <NoteIcon sx={{ fontSize: 20 }} />;
       default:
         return <FilterListIcon sx={{ fontSize: 20 }} />;
     }
@@ -103,28 +112,6 @@ export function FilterHeader({
           </ListItemIcon>
           <ListItemText>All</ListItemText>
         </MenuItem>
-        {hasLoginKeys && (
-          <MenuItem 
-            onClick={() => handleSelectFilter('loginKeys')}
-            selected={filterType === 'loginKeys'}
-          >
-            <ListItemIcon>
-              <LoginIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Login Keys</ListItemText>
-          </MenuItem>
-        )}
-        {hasNotes && (
-          <MenuItem 
-            onClick={() => handleSelectFilter('notes')}
-            selected={filterType === 'notes'}
-          >
-            <ListItemIcon>
-              <NoteIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>Notes</ListItemText>
-          </MenuItem>
-        )}
         {hasIdCards && (
           <MenuItem 
             onClick={() => handleSelectFilter('idCards')}
@@ -145,6 +132,28 @@ export function FilterHeader({
               <CreditCardIcon fontSize="small" />
             </ListItemIcon>
             <ListItemText>Credit Cards</ListItemText>
+          </MenuItem>
+        )}
+        {hasLoginKeys && (
+          <MenuItem 
+            onClick={() => handleSelectFilter('loginKeys')}
+            selected={filterType === 'loginKeys'}
+          >
+            <ListItemIcon>
+              <LoginIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Login Keys</ListItemText>
+          </MenuItem>
+        )}
+        {hasNotes && (
+          <MenuItem 
+            onClick={() => handleSelectFilter('notes')}
+            selected={filterType === 'notes'}
+          >
+            <ListItemIcon>
+              <NoteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Notes</ListItemText>
           </MenuItem>
         )}
       </Menu>

@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Box, Divider, IconButton, Tooltip, Typography } from '@mui/material';
+import {
+  Box,
+  Divider,
+  IconButton,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LoginIcon from '@mui/icons-material/Login';
@@ -164,10 +170,10 @@ export function SecondarySidebar({
           onSortClick={onSortClick}
           filterType={filterType}
           onFilterChange={onFilterChange}
-          hasLoginKeys={loginKeys.length > 0}
-          hasNotes={notes.length > 0}
           hasIdCards={idCards.length > 0}
           hasCreditCards={creditCards.length > 0}
+          hasLoginKeys={loginKeys.length > 0}
+          hasNotes={notes.length > 0}
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
         />
