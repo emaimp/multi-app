@@ -8,10 +8,10 @@ import {
 } from '@mui/material';
 import { motion } from 'framer-motion';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Note, NOTE_COLORS_HEX } from '../../../types/note';
-import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
 import { IdCard, IDCARD_COLORS_HEX } from '../../../types/id_card';
 import { CreditCard, CREDITCARD_COLORS_HEX } from '../../../types/credit_card';
+import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
+import { Note, NOTE_COLORS_HEX } from '../../../types/note';
 import { useSortableSensors } from '../../../hooks/useSortableSensors';
 import {
   DndContext,
@@ -25,32 +25,6 @@ import {
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { SortableItemCard } from '../cards/SortableItemCard';
-
-interface CategoryAccordionLoginKeysProps {
-  title: string;
-  icon?: React.ReactNode;
-  items: LoginKey[];
-  type: 'loginKeys';
-  selectedItemId?: string | null;
-  onSelectItem?: (itemId: string | null) => void;
-  onEditItem?: (item: LoginKey) => void;
-  onReorder?: (items: LoginKey[]) => void;
-  defaultExpanded?: boolean;
-  animationKey?: string;
-}
-
-interface CategoryAccordionNotesProps {
-  title: string;
-  icon?: React.ReactNode;
-  items: Note[];
-  type: 'notes';
-  selectedItemId?: string | null;
-  onSelectItem?: (itemId: string | null) => void;
-  onEditItem?: (item: Note) => void;
-  onReorder?: (items: Note[]) => void;
-  defaultExpanded?: boolean;
-  animationKey?: string;
-}
 
 interface CategoryAccordionIdCardsProps {
   title: string;
@@ -78,7 +52,33 @@ interface CategoryAccordionCreditCardsProps {
   animationKey?: string;
 }
 
-type CategoryAccordionProps = CategoryAccordionLoginKeysProps | CategoryAccordionNotesProps | CategoryAccordionIdCardsProps | CategoryAccordionCreditCardsProps;
+interface CategoryAccordionLoginKeysProps {
+  title: string;
+  icon?: React.ReactNode;
+  items: LoginKey[];
+  type: 'loginKeys';
+  selectedItemId?: string | null;
+  onSelectItem?: (itemId: string | null) => void;
+  onEditItem?: (item: LoginKey) => void;
+  onReorder?: (items: LoginKey[]) => void;
+  defaultExpanded?: boolean;
+  animationKey?: string;
+}
+
+interface CategoryAccordionNotesProps {
+  title: string;
+  icon?: React.ReactNode;
+  items: Note[];
+  type: 'notes';
+  selectedItemId?: string | null;
+  onSelectItem?: (itemId: string | null) => void;
+  onEditItem?: (item: Note) => void;
+  onReorder?: (items: Note[]) => void;
+  defaultExpanded?: boolean;
+  animationKey?: string;
+}
+
+type CategoryAccordionProps = CategoryAccordionIdCardsProps | CategoryAccordionCreditCardsProps | CategoryAccordionLoginKeysProps | CategoryAccordionNotesProps;
 
 export function CategoryAccordion({
   title,
@@ -117,17 +117,17 @@ export function CategoryAccordion({
       const oldIndex = items.findIndex((item) => item.id === active.id);
       const newIndex = items.findIndex((item) => item.id === over.id);
       if (oldIndex !== -1 && newIndex !== -1) {
-        if (type === 'loginKeys') {
-          const reorderedItems = arrayMove(items as LoginKey[], oldIndex, newIndex);
-          onReorder(reorderedItems as any);
-        } else if (type === 'notes') {
-          const reorderedItems = arrayMove(items as Note[], oldIndex, newIndex);
-          onReorder(reorderedItems as any);
-        } else if (type === 'idCards') {
+        if (type === 'idCards') {
           const reorderedItems = arrayMove(items as IdCard[], oldIndex, newIndex);
           onReorder(reorderedItems as any);
-        } else {
+        } else if (type === 'creditCards') {
           const reorderedItems = arrayMove(items as CreditCard[], oldIndex, newIndex);
+          onReorder(reorderedItems as any);
+        } else if (type === 'loginKeys') {
+          const reorderedItems = arrayMove(items as LoginKey[], oldIndex, newIndex);
+          onReorder(reorderedItems as any);
+        } else {
+          const reorderedItems = arrayMove(items as Note[], oldIndex, newIndex);
           onReorder(reorderedItems as any);
         }
       }
@@ -136,7 +136,7 @@ export function CategoryAccordion({
 
   const renderItems = () => {
     if (items.length === 0) {
-      const itemTypeLabel = type === 'loginKeys' ? 'login keys' : type === 'notes' ? 'notes' : type === 'idCards' ? 'id cards' : 'credit cards';
+      const itemTypeLabel = type === 'idCards' ? 'id cards' : type === 'creditCards' ? 'credit cards' : type === 'loginKeys' ? 'login keys' : 'notes';
       return (
         <Typography variant="body2" color="text.secondary" sx={{ py: 1, pl: 4 }}>
           No {itemTypeLabel} yet
@@ -155,49 +155,7 @@ export function CategoryAccordion({
           items={items.map((item) => item.id)}
           strategy={verticalListSortingStrategy}
         >
-          {type === 'loginKeys' ? (
-            (items as LoginKey[]).map((loginkey) => (
-              <motion.div
-                key={`${animationKey}-${loginkey.id}`}
-                initial="hidden"
-                animate="visible"
-                variants={variants}
-              >
-                <SortableItemCard
-                  item={loginkey}
-                  title={loginkey.site_name}
-                  color={loginkey.color}
-                  colorPalette={LOGINKEY_COLORS_HEX}
-                  avatarSrc={loginkey.image}
-                  avatarFallback={loginkey.site_name.charAt(0).toUpperCase()}
-                  isSelected={selectedItemId === loginkey.id}
-                  onClick={() => onSelectItem?.(loginkey.id)}
-                  onEdit={onEditItem as (item: LoginKey) => void}
-                />
-              </motion.div>
-            ))
-          ) : type === 'notes' ? (
-            (items as Note[]).map((note) => (
-              <motion.div
-                key={`${animationKey}-${note.id}`}
-                initial="hidden"
-                animate="visible"
-                variants={variants}
-              >
-                <SortableItemCard
-                  item={note}
-                  title={note.title}
-                  color={note.color}
-                  colorPalette={NOTE_COLORS_HEX}
-                  avatarSrc={note.image}
-                  avatarFallback={note.title.charAt(0).toUpperCase()}
-                  isSelected={selectedItemId === note.id}
-                  onClick={() => onSelectItem?.(note.id)}
-                  onEdit={onEditItem as (item: Note) => void}
-                />
-              </motion.div>
-            ))
-          ) : type === 'idCards' ? (
+          {type === 'idCards' ? (
             (items as IdCard[]).map((idCard) => (
               <motion.div
                 key={`${animationKey}-${idCard.id}`}
@@ -218,7 +176,7 @@ export function CategoryAccordion({
                 />
               </motion.div>
             ))
-          ) : (
+          ) : type === 'creditCards' ? (
             (items as CreditCard[]).map((creditCard) => (
               <motion.div
                 key={`${animationKey}-${creditCard.id}`}
@@ -236,6 +194,48 @@ export function CategoryAccordion({
                   isSelected={selectedItemId === creditCard.id}
                   onClick={() => onSelectItem?.(creditCard.id)}
                   onEdit={onEditItem as (item: CreditCard) => void}
+                />
+              </motion.div>
+            ))
+          ) : type === 'loginKeys' ? (
+            (items as LoginKey[]).map((loginkey) => (
+              <motion.div
+                key={`${animationKey}-${loginkey.id}`}
+                initial="hidden"
+                animate="visible"
+                variants={variants}
+              >
+                <SortableItemCard
+                  item={loginkey}
+                  title={loginkey.site_name}
+                  color={loginkey.color}
+                  colorPalette={LOGINKEY_COLORS_HEX}
+                  avatarSrc={loginkey.image}
+                  avatarFallback={loginkey.site_name.charAt(0).toUpperCase()}
+                  isSelected={selectedItemId === loginkey.id}
+                  onClick={() => onSelectItem?.(loginkey.id)}
+                  onEdit={onEditItem as (item: LoginKey) => void}
+                />
+              </motion.div>
+            ))
+          ) : (
+            (items as Note[]).map((note) => (
+              <motion.div
+                key={`${animationKey}-${note.id}`}
+                initial="hidden"
+                animate="visible"
+                variants={variants}
+              >
+                <SortableItemCard
+                  item={note}
+                  title={note.title}
+                  color={note.color}
+                  colorPalette={NOTE_COLORS_HEX}
+                  avatarSrc={note.image}
+                  avatarFallback={note.title.charAt(0).toUpperCase()}
+                  isSelected={selectedItemId === note.id}
+                  onClick={() => onSelectItem?.(note.id)}
+                  onEdit={onEditItem as (item: Note) => void}
                 />
               </motion.div>
             ))
