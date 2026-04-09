@@ -199,6 +199,26 @@ export function MainView() {
     reorderLoginKeys(loginKeys);
   };
 
+  const handleCreateIdCard = async (idName: string) => {
+    if (activeVault && selectedVault) {
+      const newIdCard = await createIdCard(activeVault, idName, '', '', '', selectedVault.color);
+      if (newIdCard) {
+        setSelectedItemId(newIdCard.id);
+        setItemsLocked(false);
+      }
+    }
+  };
+
+  const handleCreateCreditCard = async (cardName: string) => {
+    if (activeVault && selectedVault) {
+      const newCreditCard = await createCreditCard(activeVault, cardName, '', '', '', '', selectedVault.color);
+      if (newCreditCard) {
+        setSelectedItemId(newCreditCard.id);
+        setItemsLocked(false);
+      }
+    }
+  };
+
   return (
     <>
     <Routes>
@@ -315,7 +335,7 @@ export function MainView() {
               placeholder="Enter ID name"
               titleIcon={<KeyIcon />}
               onClose={() => setCreateIdCardDialogOpen(false)}
-              onCreate={(idName) => createIdCard(activeVault || '', idName, '', '', '', 'blue')}
+              onCreate={handleCreateIdCard}
             />
 
             <CreateDialog
@@ -325,7 +345,7 @@ export function MainView() {
               placeholder="Enter card name"
               titleIcon={<CreditCardIcon />}
               onClose={() => setCreateCreditCardDialogOpen(false)}
-              onCreate={(cardName) => createCreditCard(activeVault || '', cardName, '', '', '', '', 'blue')}
+              onCreate={handleCreateCreditCard}
             />
 
             <VaultEditDialog
