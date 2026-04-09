@@ -1,26 +1,26 @@
 import { createContext, useContext, ReactNode, useCallback } from 'react';
 import { Vault } from '../types/vault';
-import { Note } from '../types/note';
-import { LoginKey } from '../types/loginkey';
 import { IdCard } from '../types/id_card';
 import { CreditCard } from '../types/credit_card';
+import { LoginKey } from '../types/loginkey';
+import { Note } from '../types/note';
 import { Collection } from '../types/collection';
 import { useVaults as useVaultsHook } from '../hooks/useVaults';
-import { useNotes as useNotesHook } from '../hooks/useNotes';
-import { useLoginKeys as useLoginKeysHook } from '../hooks/useLoginKeys';
 import { useIdCards as useIdCardsHook } from '../hooks/useIdCards';
 import { useCreditCards as useCreditCardsHook } from '../hooks/useCreditCards';
+import { useLoginKeys as useLoginKeysHook } from '../hooks/useLoginKeys';
+import { useNotes as useNotesHook } from '../hooks/useNotes';
 import { useCollections as useCollectionsHook } from '../hooks/useCollections';
 import { useBackend } from '../hooks/useBackend';
 
 interface VaultContextType {
   // States
   vaults: Vault[];
-  notes: Note[];
-  loginKeys: LoginKey[];
+  collections: Collection[];
   idCards: IdCard[];
   creditCards: CreditCard[];
-  collections: Collection[];
+  loginKeys: LoginKey[];
+  notes: Note[];
   
   // Active states
   activeVault: string | null;
@@ -38,18 +38,6 @@ interface VaultContextType {
   reorderVaultsUnassigned: (vaults: Vault[], collectionVaultIds: string[]) => Promise<void>;
   reorderVaultsInCollection: (collectionId: string, vault_ids: string[]) => void;
   
-  // CRUD Notes
-  createNote: (vaultId: string, title: string, content: string, color?: string) => Promise<Note | undefined>;
-  updateNote: (noteId: string, title: string, content: string, color?: string, image?: string | null) => Promise<void>;
-  deleteNote: (noteId: string) => Promise<void>;
-  reorderNotes: (notes: Note[]) => Promise<void>;
-
-  // CRUD LoginKeys
-  createLoginKey: (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string) => Promise<LoginKey | undefined>;
-  updateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => Promise<void>;
-  deleteLoginKey: (loginKeyId: string) => Promise<void>;
-  reorderLoginKeys: (loginKeys: LoginKey[]) => Promise<void>;
-
   // CRUD IdCards
   createIdCard: (vaultId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string) => Promise<IdCard | undefined>;
   updateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string, image?: string | null) => Promise<void>;
@@ -61,7 +49,19 @@ interface VaultContextType {
   updateCreditCard: (creditCardId: string, cardName: string, holderName: string, cardNumber: string, expiry: string, cvv: string, color?: string, image?: string | null) => Promise<void>;
   deleteCreditCard: (creditCardId: string) => Promise<void>;
   reorderCreditCards: (creditCards: CreditCard[]) => Promise<void>;
-  
+
+  // CRUD LoginKeys
+  createLoginKey: (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string) => Promise<LoginKey | undefined>;
+  updateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => Promise<void>;
+  deleteLoginKey: (loginKeyId: string) => Promise<void>;
+  reorderLoginKeys: (loginKeys: LoginKey[]) => Promise<void>;
+
+  // CRUD Notes
+  createNote: (vaultId: string, title: string, content: string, color?: string) => Promise<Note | undefined>;
+  updateNote: (noteId: string, title: string, content: string, color?: string, image?: string | null) => Promise<void>;
+  deleteNote: (noteId: string) => Promise<void>;
+  reorderNotes: (notes: Note[]) => Promise<void>;
+
   // CRUD Collections
   createCollection: (name: string) => Promise<Collection | undefined>;
   updateCollection: (collection: Collection) => Promise<void>;
@@ -90,26 +90,15 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   } = useVaultsHook();
 
   const {
-    notes,
-    loadNotes: loadNotesHook,
-    createNote: createNoteHook,
-    updateNote: updateNoteHook,
-    deleteNote: deleteNoteHook,
-    reorderNotes: reorderNotesHook,
-    setNotes,
-    clearNotes,
-  } = useNotesHook();
-
-  const {
-    loginKeys,
-    loadLoginKeys: loadLoginKeysHook,
-    createLoginKey: createLoginKeyHook,
-    updateLoginKey: updateLoginKeyHook,
-    deleteLoginKey: deleteLoginKeyHook,
-    reorderLoginKeys: reorderLoginKeysHook,
-    setLoginKeys,
-    clearLoginKeys,
-  } = useLoginKeysHook();
+    collections,
+    loadCollections: loadCollectionsHook,
+    createCollection: createCollectionHook,
+    updateCollection: updateCollectionHook,
+    deleteCollection: deleteCollectionHook,
+    reorderCollections: reorderCollectionsHook,
+    setVaultIds: setVaultIdsHook,
+    setCollections,
+  } = useCollectionsHook();
 
   const {
     idCards,
@@ -134,15 +123,26 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   } = useCreditCardsHook();
 
   const {
-    collections,
-    loadCollections: loadCollectionsHook,
-    createCollection: createCollectionHook,
-    updateCollection: updateCollectionHook,
-    deleteCollection: deleteCollectionHook,
-    reorderCollections: reorderCollectionsHook,
-    setVaultIds: setVaultIdsHook,
-    setCollections,
-  } = useCollectionsHook();
+    loginKeys,
+    loadLoginKeys: loadLoginKeysHook,
+    createLoginKey: createLoginKeyHook,
+    updateLoginKey: updateLoginKeyHook,
+    deleteLoginKey: deleteLoginKeyHook,
+    reorderLoginKeys: reorderLoginKeysHook,
+    setLoginKeys,
+    clearLoginKeys,
+  } = useLoginKeysHook();
+
+  const {
+    notes,
+    loadNotes: loadNotesHook,
+    createNote: createNoteHook,
+    updateNote: updateNoteHook,
+    deleteNote: deleteNoteHook,
+    reorderNotes: reorderNotesHook,
+    setNotes,
+    clearNotes,
+  } = useNotesHook();
 
   // Load function
   const loadVaults = useCallback(async () => {
@@ -232,46 +232,27 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     ]);
   };
 
-  // CRUD Notes
-  const createNote = async (vaultId: string, title: string, content: string, color?: string): Promise<Note | undefined> => {
-    return await createNoteHook(vaultId, title, content, color);
-  };
-
-  const updateNote = async (noteId: string, title: string, content: string, color?: string, image?: string | null) => {
-    await updateNoteHook(noteId, title, content, color, image);
-  };
-
-  const deleteNote = async (noteId: string) => {
-    await deleteNoteHook(noteId);
-  };
-
-  const reorderNotes = async (reorderedNotes: Note[]) => {
-    await reorderNotesHook(reorderedNotes);
-  };
-
-  // CRUD LoginKeys
-  const createLoginKey = async (vaultId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string): Promise<LoginKey | undefined> => {
-    return await createLoginKeyHook(vaultId, siteName, url, username, password, details, color);
-  };
-
-  const updateLoginKey = async (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color?: string, image?: string | null) => {
-    await updateLoginKeyHook(loginKeyId, siteName, url, username, password, details, color, image);
-  };
-
-  const deleteLoginKey = async (loginKeyId: string) => {
-    await deleteLoginKeyHook(loginKeyId);
-  };
-
-  const reorderLoginKeys = async (reorderedLoginKeys: LoginKey[]) => {
-    await reorderLoginKeysHook(reorderedLoginKeys);
-  };
-
   // CRUD IdCards
-  const createIdCard = async (vaultId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string): Promise<IdCard | undefined> => {
+  const createIdCard = async (
+    vaultId: string,
+    idName: string,
+    idType: string,
+    fullName: string,
+    idNumber: string,
+    color?: string
+  ): Promise<IdCard | undefined> => {
     return await createIdCardHook(vaultId, idName, idType, fullName, idNumber, color);
   };
 
-  const updateIdCard = async (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color?: string, image?: string | null) => {
+  const updateIdCard = async (
+    idCardId: string,
+    idName: string,
+    idType: string,
+    fullName: string,
+    idNumber: string,
+    color?: string,
+    image?: string | null
+  ) => {
     await updateIdCardHook(idCardId, idName, idType, fullName, idNumber, color, image);
   };
 
@@ -292,7 +273,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     expiry: string,
     cvv: string,
     color?: string
-  ) => {
+  ): Promise<CreditCard | undefined> => {
     return await createCreditCardHook(vaultId, cardName, holderName, cardNumber, expiry, cvv, color);
   };
 
@@ -315,6 +296,68 @@ export function VaultProvider({ children }: { children: ReactNode }) {
 
   const reorderCreditCards = async (reorderedCreditCards: CreditCard[]) => {
     await reorderCreditCardsHook(reorderedCreditCards);
+  };
+
+  // CRUD LoginKeys
+  const createLoginKey = async (
+    vaultId: string,
+    siteName: string,
+    url: string | null,
+    username: string,
+    password: string,
+    details: string | null,
+    color?: string
+  ): Promise<LoginKey | undefined> => {
+    return await createLoginKeyHook(vaultId, siteName, url, username, password, details, color);
+  };
+
+  const updateLoginKey = async (
+    loginKeyId: string,
+    siteName: string,
+    url: string | null,
+    username: string,
+    password: string,
+    details: string | null,
+    color?: string,
+    image?: string | null
+  ) => {
+    await updateLoginKeyHook(loginKeyId, siteName, url, username, password, details, color, image);
+  };
+
+  const deleteLoginKey = async (loginKeyId: string) => {
+    await deleteLoginKeyHook(loginKeyId);
+  };
+
+  const reorderLoginKeys = async (reorderedLoginKeys: LoginKey[]) => {
+    await reorderLoginKeysHook(reorderedLoginKeys);
+  };
+
+  // CRUD Notes
+  const createNote = async (
+    vaultId: string,
+    title: string,
+    content: string,
+    color?: string
+  ): Promise<Note | undefined> => {
+    return await createNoteHook(vaultId, title, content, color);
+  };
+
+  const updateNote = async (
+    noteId: string,
+    title: string,
+    content: string,
+    color?: string,
+    image?: string | null
+  ) => {
+    await updateNoteHook(noteId, title, content, color, image);
+  };
+
+  const deleteNote = async (noteId: string) => {
+    await deleteNoteHook(noteId);
+  };
+
+  const reorderNotes = async (reorderedNotes: Note[]) => {
+    await reorderNotesHook(reorderedNotes);
   };
 
   // CRUD Collections
@@ -394,8 +437,11 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     <VaultContext.Provider
       value={{
         vaults,
-        notes,
         collections,
+        idCards,
+        creditCards,
+        loginKeys,
+        notes,
         activeVault,
         selectVault,
         clearVaultSelect,
@@ -406,25 +452,22 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         deleteVault,
         reorderVaultsUnassigned,
         reorderVaultsInCollection,
-        createNote,
-        updateNote,
-        deleteNote,
-        reorderNotes,
-        loginKeys,
-        createLoginKey,
-        updateLoginKey,
-        deleteLoginKey,
-        reorderLoginKeys,
-        idCards,
         createIdCard,
         updateIdCard,
         deleteIdCard,
         reorderIdCards,
-        creditCards,
         createCreditCard,
         updateCreditCard,
         deleteCreditCard,
         reorderCreditCards,
+        createLoginKey,
+        updateLoginKey,
+        deleteLoginKey,
+        reorderLoginKeys,
+        createNote,
+        updateNote,
+        deleteNote,
+        reorderNotes,
         createCollection,
         updateCollection,
         deleteCollection,

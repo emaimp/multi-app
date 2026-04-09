@@ -22,10 +22,10 @@ import { LoginkeyEditDialog } from '../components/main/vault/loginkey';
 import { CreditCardEditDialog } from '../components/main/vault/credit_card';
 import { IdCardEditDialog } from '../components/main/vault/id_card';
 import { Vault } from '../types/vault';
-import { Note } from '../types/note';
-import { LoginKey } from '../types/loginkey';
-import { CreditCard } from '../types/credit_card';
 import { IdCard } from '../types/id_card';
+import { CreditCard } from '../types/credit_card';
+import { LoginKey } from '../types/loginkey';
+import { Note } from '../types/note';
 import { VaultContent } from '../components/main/vault';
 import { SettingsView } from './user/SettingsView';
 
@@ -209,14 +209,6 @@ export function MainView() {
     }
   };
 
-  const handleUpdateLoginKey = (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => {
-    updateLoginKey(loginKeyId, siteName, url, username, password, details, color);
-  };
-
-  const handleReorderLoginKeys = (loginKeys: LoginKey[]) => {
-    reorderLoginKeys(loginKeys);
-  };
-
   const handleCreateNote = async (title: string) => {
     if (activeVault && selectedVault) {
       const newNote = await createNote(activeVault, title, '', selectedVault.color);
@@ -280,7 +272,7 @@ export function MainView() {
               onEditNote={handleEditNote}
               onReorderIdCards={reorderIdCards}
               onReorderCreditCards={reorderCreditCards}
-              onReorderLoginKeys={handleReorderLoginKeys}
+              onReorderLoginKeys={reorderLoginKeys}
               onReorderNotes={reorderNotes}
             />
 
@@ -297,7 +289,7 @@ export function MainView() {
               isLoading={isLoadingContent}
               onUpdateIdCard={updateIdCard}
               onUpdateCreditCard={updateCreditCard}
-              onUpdateLoginKey={handleUpdateLoginKey}
+              onUpdateLoginKey={updateLoginKey}
               onUpdateNote={updateNote}
             />
 
