@@ -66,20 +66,22 @@ export function WithoutCollection({
           items={vaults.map((v) => v.id)}
           strategy={verticalListSortingStrategy}
         >
-          {vaults.map((vault) => (
-            <SortableItemCard
-              key={vault.id}
-              item={vault}
-              title={vault.name}
-              color={vault.color}
-              colorPalette={VAULT_COLORS_HEX}
-              avatarSrc={vault.image}
-              avatarFallback={vault.name.charAt(0).toUpperCase()}
-              isSelected={activeVault === vault.id}
-              onClick={() => onVaultClick(vault.id)}
-              onEdit={onEditVault}
-            />
-          ))}
+          <Box sx={{ py: 0.1, px: 0.1, overflow: 'hidden' }}>
+            {vaults.map((vault) => (
+              <SortableItemCard
+                key={vault.id}
+                item={vault}
+                title={vault.name}
+                color={vault.color}
+                colorPalette={VAULT_COLORS_HEX}
+                avatarSrc={vault.image}
+                avatarFallback={vault.name.charAt(0).toUpperCase()}
+                isSelected={activeVault === vault.id}
+                onClick={() => onVaultClick(vault.id)}
+                onEdit={onEditVault}
+              />
+            ))}
+          </Box>
         </SortableContext>
       </DndContext>
     </Box>
