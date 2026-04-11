@@ -134,7 +134,17 @@ export function MainSidebar({
         sx={{
           flex: 1,
           overflow: 'auto',
-          cursor: 'pointer'
+          cursor: 'pointer',
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'action.hover',
+            borderRadius: '3px',
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'transparent',
+          },
         }}
       >
         {hasContent ? (

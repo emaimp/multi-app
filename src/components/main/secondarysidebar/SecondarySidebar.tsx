@@ -217,6 +217,16 @@ export function SecondarySidebar({
           flex: 1,
           overflowY: isLocked || isLoadingContent ? 'hidden' : 'auto',
           position: 'relative',
+          '&::-webkit-scrollbar': {
+            width: '6px',
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'action.hover',
+            borderRadius: '3px',
+          },
+          '&::-webkit-scrollbar-track': {
+            backgroundColor: 'transparent',
+          },
         }}
         onClick={(e) => {
           if (e.target === e.currentTarget && !isLocked) {
