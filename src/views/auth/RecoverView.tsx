@@ -151,7 +151,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
     <>
       <TopBar onBack={onBack} transparent />
 
-      <CenteredCard error={error} onErrorClose={() => setError('')}>
+      <CenteredCard error={error} onErrorClose={() => setError('')} success={success} onSuccessClose={() => setSuccess('')}>
         <Typography
           component="h1"
           variant="h4"
@@ -366,12 +366,6 @@ function RecoverView({ onBack }: RecoverViewProps) {
             {isLoading ? 'Recovering...' : 'Recover Password'}
           </Button>
         </Box>
-
-        {success && (
-          <Typography color="success.main" sx={{ textAlign: 'center', mt: 2 }}>
-            {success}
-          </Typography>
-        )}
       </CenteredCard>
     </>
   );
