@@ -81,11 +81,11 @@ export function SecondarySidebar({
 
   useEffect(() => {
     if (!isLocked && animationKey) {
-      setIdCardsExpanded(true);
+      setIdCardsExpanded(idCards.length > 0);
       const timer = setTimeout(() => {
-        setCreditCardsExpanded(true);
-        setLoginKeysExpanded(true);
-        setNotesExpanded(true);
+        setCreditCardsExpanded(creditCards.length > 0);
+        setLoginKeysExpanded(loginKeys.length > 0);
+        setNotesExpanded(notes.length > 0);
       }, 150);
       return () => clearTimeout(timer);
     } else if (isLocked) {
@@ -94,7 +94,7 @@ export function SecondarySidebar({
       setLoginKeysExpanded(false);
       setNotesExpanded(false);
     }
-  }, [isLocked, animationKey]);
+  }, [isLocked, animationKey, idCards, creditCards, loginKeys, notes]);
 
   const searchLower = searchQuery.toLowerCase();
 

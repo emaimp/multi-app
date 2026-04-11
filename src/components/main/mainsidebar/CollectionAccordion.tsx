@@ -99,7 +99,7 @@ export function CollectionAccordion({
         </Box>
       </AccordionSummary>
       <AccordionDetails sx={{ py: 0.1, px: 0.1, overflow: 'hidden' }}>
-        {vault_ids.length > 0 ? (
+        {vault_ids.length > 0 && (
           <DndContext
             sensors={sensors}
             collisionDetection={closestCenter}
@@ -127,10 +127,6 @@ export function CollectionAccordion({
               })}
             </SortableContext>
           </DndContext>
-        ) : (
-          <Typography variant="body2" color="text.secondary" sx={{ py: 1, pl: 4 }}>
-            No vaults in this collection
-          </Typography>
         )}
       </AccordionDetails>
     </Accordion>

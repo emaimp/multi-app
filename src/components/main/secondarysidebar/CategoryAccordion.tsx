@@ -136,12 +136,7 @@ export function CategoryAccordion({
 
   const renderItems = () => {
     if (items.length === 0) {
-      const itemTypeLabel = type === 'idCards' ? 'id cards' : type === 'creditCards' ? 'credit cards' : type === 'loginKeys' ? 'login keys' : 'notes';
-      return (
-        <Typography variant="body2" color="text.secondary" sx={{ py: 1, pl: 4 }}>
-          No {itemTypeLabel} yet
-        </Typography>
-      );
+      return null;
     }
 
     return (
@@ -249,6 +244,7 @@ export function CategoryAccordion({
     <Accordion
       expanded={expanded}
       onChange={() => setExpanded(!expanded)}
+      disabled={items.length === 0}
       disableGutters
       sx={{
         boxShadow: 'none',
