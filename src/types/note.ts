@@ -1,7 +1,7 @@
 export interface Note {
   id: string;
   vault_id: string;
-  title: string;
+  note_name: string;
   content: string;
   color: string;
   image?: string;

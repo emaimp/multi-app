@@ -122,7 +122,7 @@ export function SecondarySidebar({
 
   const matchesNoteSearch = (note: Note) => {
     if (!searchQuery) return true;
-    return note.title.toLowerCase().includes(searchLower) ||
+    return note.note_name.toLowerCase().includes(searchLower) ||
            note.content.toLowerCase().includes(searchLower);
   };
 

@@ -72,7 +72,7 @@ export function useNotes(): UseNotesReturn {
     });
     setNotes((prev) =>
       prev.map((n) =>
-        n.id === noteId ? { ...n, title, content, color, image: image === null ? undefined : image, updated_at: Date.now() } : n
+        n.id === noteId ? { ...n, note_name: title, content, color, image: image === null ? undefined : image, updated_at: Date.now() } : n
       )
     );
   };

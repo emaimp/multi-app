@@ -134,7 +134,7 @@ export function MainView() {
 
   const sortedVaultNotes = sortOrder 
     ? [...vaultNotes].sort((a, b) => {
-        const comparison = a.title.localeCompare(b.title);
+        const comparison = a.note_name.localeCompare(b.note_name);
         return sortOrder === 'asc' ? comparison : -comparison;
       })
     : vaultNotes;
@@ -440,7 +440,7 @@ export function MainView() {
               onSave={(note, image) => {
                 updateNote(
                   note.id,
-                  note.title,
+                  note.note_name,
                   note.content,
                   note.color,
                   image

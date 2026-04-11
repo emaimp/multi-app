@@ -228,11 +228,11 @@ export function CategoryAccordion({
               >
                 <SortableItemCard
                   item={note}
-                  title={note.title}
+                  title={note.note_name}
                   color={note.color}
                   colorPalette={NOTE_COLORS_HEX}
                   avatarSrc={note.image}
-                  avatarFallback={note.title.charAt(0).toUpperCase()}
+                  avatarFallback={note.note_name.charAt(0).toUpperCase()}
                   isSelected={selectedItemId === note.id}
                   onClick={() => onSelectItem?.(note.id)}
                   onEdit={onEditItem as (item: Note) => void}

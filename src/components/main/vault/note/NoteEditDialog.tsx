@@ -27,14 +27,14 @@ interface NoteEditDialogProps {
 }
 
 export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEditDialogProps) {
-  const [title, setTitle] = useState(note?.title || '');
+  const [title, setTitle] = useState(note?.note_name || '');
   const [color, setColor] = useState(note?.color || 'blue');
   const [image, setImage] = useState<string | null>(note?.image || null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
     if (note) {
-      setTitle(note.title);
+      setTitle(note.note_name);
       setColor(note.color);
       setImage(note.image || null);
     }
@@ -46,7 +46,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
     if (title.trim()) {
       onSave({
         ...note,
-        title: title.trim(),
+        note_name: title.trim(),
         color,
       }, image);
       onClose();
@@ -137,7 +137,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
       <ConfirmDialog
         open={confirmOpen}
         title="Delete Note"
-        message={`Are you sure you want to delete "${note.title}"? This action cannot be undone.`}
+        message={`Are you sure you want to delete "${note.note_name}"? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />

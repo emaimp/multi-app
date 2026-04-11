@@ -30,7 +30,7 @@ export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItem
   const noteColor = NOTE_COLORS_HEX[note.color] || NOTE_COLORS_HEX.blue;
 
   const handleSave = () => {
-    onUpdate(note.id, note.title, content, note.color);
+    onUpdate(note.id, note.note_name, content, note.color);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
@@ -40,7 +40,7 @@ export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItem
     if (text) {
       setContent(text);
       setPasted(true);
-      onUpdate(note.id, note.title, text, note.color);
+      onUpdate(note.id, note.note_name, text, note.color);
       setTimeout(() => setPasted(false), 3000);
     }
   };
@@ -50,7 +50,7 @@ export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItem
       await navigator.clipboard.writeText(content);
       setContent('');
       setCut(true);
-      onUpdate(note.id, note.title, '', note.color);
+      onUpdate(note.id, note.note_name, '', note.color);
       setTimeout(() => setCut(false), 3000);
     }
   };
@@ -95,7 +95,7 @@ export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItem
             px: 0.5,
           }}
         >
-          {note.title || 'Untitled Note'}
+          {note.note_name || 'Untitled Note'}
         </Typography>
 
         <IconButton
