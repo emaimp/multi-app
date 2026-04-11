@@ -12,7 +12,7 @@ impl Database {
         let key = self.get_encryption_key(user_id)?;
 
         let mut stmt = conn.prepare(
-            "SELECT id, vault_id, title_encrypted, title_nonce, content_encrypted, content_nonce, color, image, image_nonce, created_at, position FROM notes WHERE vault_id = ? ORDER BY position ASC, created_at ASC"
+            "SELECT id, vault_id, note_name_encrypted, note_name_nonce, content_encrypted, content_nonce, color, image, image_nonce, created_at, position FROM notes WHERE vault_id = ? ORDER BY position ASC, created_at ASC"
         ).map_err(|e| e.to_string())?;
 
         let mut result = Vec::new();
@@ -33,8 +33,8 @@ impl Database {
         }).map_err(|e| e.to_string())?;
 
         for note_data in note_iter {
-            let (id, vault_id, title_encrypted, title_nonce, content_encrypted, content_nonce, color, image_encrypted, image_nonce, created_at, position): (String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = note_data.map_err(|e| e.to_string())?;
-            let title = decrypt_from_base64(&title_encrypted, &title_nonce, &key)?;
+            let (id, vault_id, note_name_encrypted, note_name_nonce, content_encrypted, content_nonce, color, image_encrypted, image_nonce, created_at, position): (String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = note_data.map_err(|e| e.to_string())?;
+            let note_name = decrypt_from_base64(&note_name_encrypted, &note_name_nonce, &key)?;
             let content = decrypt_from_base64(&content_encrypted, &content_nonce, &key)?;
             
             let image_b64 = match (image_encrypted, image_nonce) {
@@ -77,7 +77,7 @@ impl Database {
             result.push(Note {
                 id,
                 vault_id,
-                title,
+                note_name,
                 content,
                 color,
                 image: image_b64,
@@ -91,8 +91,8 @@ impl Database {
     pub fn get_note_with_content(&self, note_id: &str, user_id: i32) -> Result<Option<Note>, String> {
         let conn = self.conn.lock().unwrap();
 
-        let (id, vault_id, title_encrypted, title_nonce, content_encrypted, content_nonce, color, image_encrypted, image_nonce, created_at, position): (String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = conn.query_row(
-            "SELECT n.id, n.vault_id, n.title_encrypted, n.title_nonce, n.content_encrypted, n.content_nonce, n.color, n.image, n.image_nonce, n.created_at, n.position
+        let (id, vault_id, note_name_encrypted, note_name_nonce, content_encrypted, content_nonce, color, image_encrypted, image_nonce, created_at, position): (String, String, String, String, String, String, String, Option<String>, Option<String>, i64, i32) = conn.query_row(
+            "SELECT n.id, n.vault_id, n.note_name_encrypted, n.note_name_nonce, n.content_encrypted, n.content_nonce, n.color, n.image, n.image_nonce, n.created_at, n.position
              FROM notes n
              WHERE n.id = ?",
             [note_id],
@@ -112,7 +112,7 @@ impl Database {
         ).map_err(|e| e.to_string())?;
 
         let key = self.get_encryption_key(user_id)?;
-        let title = decrypt_from_base64(&title_encrypted, &title_nonce, &key)?;
+        let note_name = decrypt_from_base64(&note_name_encrypted, &note_name_nonce, &key)?;
         let content = decrypt_from_base64(&content_encrypted, &content_nonce, &key)?;
 
         let image_b64 = match (image_encrypted, image_nonce) {
@@ -155,7 +155,7 @@ impl Database {
         Ok(Some(Note {
             id,
             vault_id,
-            title,
+            note_name,
             content,
             color,
             image: image_b64,
@@ -170,7 +170,7 @@ impl Database {
         let created_at = Utc::now().timestamp_millis();
 
         let key = self.get_encryption_key(user_id)?;
-        let (title_encrypted, title_nonce) = encrypt_to_base64(title, &key)?;
+        let (note_name_encrypted, note_name_nonce) = encrypt_to_base64(title, &key)?;
         let (content_encrypted, content_nonce) = encrypt_to_base64(content, &key)?;
 
         let (image_encrypted, image_nonce) = match image {
@@ -188,14 +188,14 @@ impl Database {
         ).unwrap_or(0);
 
         conn.execute(
-            "INSERT INTO notes (id, vault_id, title_encrypted, title_nonce, content_encrypted, content_nonce, color, image, image_nonce, created_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            rusqlite::params![&id, vault_id, &title_encrypted, &title_nonce, &content_encrypted, &content_nonce, color, image_encrypted, image_nonce, created_at, max_position],
+            "INSERT INTO notes (id, vault_id, note_name_encrypted, note_name_nonce, content_encrypted, content_nonce, color, image, image_nonce, created_at, position) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            rusqlite::params![&id, vault_id, &note_name_encrypted, &note_name_nonce, &content_encrypted, &content_nonce, color, image_encrypted, image_nonce, created_at, max_position],
         ).map_err(|e| e.to_string())?;
 
         Ok(Note {
             id,
             vault_id: vault_id.to_string(),
-            title: title.to_string(),
+            note_name: title.to_string(),
             content: content.to_string(),
             color: color.to_string(),
             image: None,
@@ -208,7 +208,7 @@ impl Database {
         let conn = self.conn.lock().unwrap();
 
         let key = self.get_encryption_key(user_id)?;
-        let (title_encrypted, title_nonce) = encrypt_to_base64(title, &key)?;
+        let (note_name_encrypted, note_name_nonce) = encrypt_to_base64(title, &key)?;
         let (content_encrypted, content_nonce) = encrypt_to_base64(content, &key)?;
 
         let (image_encrypted, image_nonce) = match image {
@@ -220,8 +220,8 @@ impl Database {
         };
 
         conn.execute(
-            "UPDATE notes SET title_encrypted = ?, title_nonce = ?, content_encrypted = ?, content_nonce = ?, color = ?, image = ?, image_nonce = ? WHERE id = ?",
-            rusqlite::params![&title_encrypted, &title_nonce, &content_encrypted, &content_nonce, color, image_encrypted, image_nonce, note_id],
+            "UPDATE notes SET note_name_encrypted = ?, note_name_nonce = ?, content_encrypted = ?, content_nonce = ?, color = ?, image = ?, image_nonce = ? WHERE id = ?",
+            rusqlite::params![&note_name_encrypted, &note_name_nonce, &content_encrypted, &content_nonce, color, image_encrypted, image_nonce, note_id],
         ).map_err(|e| e.to_string())?;
 
         Ok(())

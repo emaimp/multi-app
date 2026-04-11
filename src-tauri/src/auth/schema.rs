@@ -119,8 +119,8 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
         "CREATE TABLE IF NOT EXISTS notes (
             id TEXT PRIMARY KEY,
             vault_id TEXT NOT NULL,
-            title_encrypted TEXT NOT NULL,
-            title_nonce TEXT NOT NULL,
+            note_name_encrypted TEXT NOT NULL,
+            note_name_nonce TEXT NOT NULL,
             content_encrypted TEXT NOT NULL,
             content_nonce TEXT NOT NULL,
             color TEXT NOT NULL,

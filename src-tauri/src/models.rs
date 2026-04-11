@@ -97,7 +97,7 @@ pub struct LoginKey {
 pub struct Note {
     pub id: String,
     pub vault_id: String,
-    pub title: String,
+    pub note_name: String,
     pub content: String,
     pub color: String,
     pub image: Option<String>,
