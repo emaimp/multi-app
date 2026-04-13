@@ -38,6 +38,7 @@ interface MainSidebarProps {
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
   unassignedVaults?: Vault[];
   onReorderUnassignedVaults?: (vaults: Vault[]) => void;
+  animationKey?: string;
 }
 
 export function MainSidebar({
@@ -58,6 +59,7 @@ export function MainSidebar({
   onVaultReorderInCollection,
   unassignedVaults,
   onReorderUnassignedVaults,
+  animationKey,
 }: MainSidebarProps) {
   const vaultsOrEmpty = vaults ?? [];
   const collectionsOrEmpty = collections ?? [];
@@ -159,7 +161,7 @@ export function MainSidebar({
                 <SortableContext items={allCollectionIds} strategy={verticalListSortingStrategy}>
                   {collectionsOrEmpty.map((collection) => (
                     <SortableCollection
-                      key={collection.id}
+                      key={`${animationKey}-${collection.id}`}
                       collection={collection}
                       vaults={vaultsOrEmpty}
                       onVaultClick={onVaultClick}
@@ -167,6 +169,7 @@ export function MainSidebar({
                       activeVault={activeVault ?? null}
                       onVaultReorderInCollection={onVaultReorderInCollection}
                       defaultExpanded={activeVault ? collection.vault_ids.includes(activeVault) : collection.vault_ids.length > 0}
+                      animationKey={animationKey}
                     />
                   ))}
                 </SortableContext>
@@ -179,6 +182,7 @@ export function MainSidebar({
                 onEditVault={onEditVault}
                 activeVault={activeVault ?? null}
                 onReorder={onReorderUnassignedVaults ?? (() => {})}
+                animationKey={animationKey}
               />
             )}
           </>
@@ -208,6 +212,7 @@ interface SortableCollectionProps {
   activeVault: string | null;
   onVaultReorderInCollection: (collectionId: string, vaultIds: string[]) => void;
   defaultExpanded?: boolean;
+  animationKey?: string;
 }
 
 function SortableCollection({
@@ -218,6 +223,7 @@ function SortableCollection({
   activeVault,
   onVaultReorderInCollection,
   defaultExpanded = false,
+  animationKey,
 }: SortableCollectionProps) {
   const {
     attributes,
@@ -248,6 +254,7 @@ function SortableCollection({
         dragListeners={listeners}
         onVaultReorder={onVaultReorderInCollection}
         defaultExpanded={defaultExpanded}
+        animationKey={animationKey}
       />
     </Box>
   );

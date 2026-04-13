@@ -6,6 +6,7 @@ import {
   Typography,
   Box,
 } from '@mui/material';
+import { motion } from 'framer-motion';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import {
@@ -30,6 +31,7 @@ interface CollectionAccordionProps {
   dragListeners?: any;
   onVaultReorder?: (collectionId: string, vault_ids: string[]) => void;
   defaultExpanded?: boolean;
+  animationKey?: string;
 }
 
 export function CollectionAccordion({
@@ -42,6 +44,7 @@ export function CollectionAccordion({
   dragListeners,
   onVaultReorder,
   defaultExpanded = false,
+  animationKey,
 }: CollectionAccordionProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
 
@@ -50,6 +53,17 @@ export function CollectionAccordion({
   }, [defaultExpanded]);
   
   const sensors = useSortableSensors();
+
+  const variants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.25,
+      },
+    },
+  } as const;
 
   const handleVaultDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -111,18 +125,24 @@ export function CollectionAccordion({
                 const vault = vaults.find(v => v.id === vaultId);
                 if (!vault) return null;
                 return (
-                  <SortableItemCard
-                    key={vault.id}
-                    item={vault}
-                    title={vault.name}
-                    color={vault.color}
-                    colorPalette={VAULT_COLORS_HEX}
-                    avatarSrc={vault.image}
-                    avatarFallback={vault.name.charAt(0).toUpperCase()}
-                    isSelected={activeVault === vault.id}
-                    onClick={() => onVaultClick(vault.id)}
-                    onEdit={onEditVault}
-                  />
+                  <motion.div
+                    key={`${animationKey}-${vault.id}`}
+                    initial="hidden"
+                    animate="visible"
+                    variants={variants}
+                  >
+                    <SortableItemCard
+                      item={vault}
+                      title={vault.name}
+                      color={vault.color}
+                      colorPalette={VAULT_COLORS_HEX}
+                      avatarSrc={vault.image}
+                      avatarFallback={vault.name.charAt(0).toUpperCase()}
+                      isSelected={activeVault === vault.id}
+                      onClick={() => onVaultClick(vault.id)}
+                      onEdit={onEditVault}
+                    />
+                  </motion.div>
                 );
               })}
             </SortableContext>

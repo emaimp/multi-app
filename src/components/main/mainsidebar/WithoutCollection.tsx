@@ -1,4 +1,5 @@
 import { Box, Typography } from '@mui/material';
+import { motion } from 'framer-motion';
 import {
   DndContext,
   closestCenter,
@@ -20,6 +21,7 @@ interface WithoutCollectionProps {
   onEditVault: (vault: Vault) => void;
   activeVault: string | null;
   onReorder: (vaults: Vault[]) => void;
+  animationKey?: string;
 }
 
 export function WithoutCollection({
@@ -28,8 +30,20 @@ export function WithoutCollection({
   onEditVault,
   activeVault,
   onReorder,
+  animationKey,
 }: WithoutCollectionProps) {
   const sensors = useSortableSensors();
+
+  const variants = {
+    hidden: { opacity: 0, x: 20 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: {
+        duration: 0.25,
+      },
+    },
+  } as const;
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -68,18 +82,24 @@ export function WithoutCollection({
         >
           <Box sx={{ py: 0.1, px: 0.1, overflow: 'hidden' }}>
             {vaults.map((vault) => (
-              <SortableItemCard
-                key={vault.id}
-                item={vault}
-                title={vault.name}
-                color={vault.color}
-                colorPalette={VAULT_COLORS_HEX}
-                avatarSrc={vault.image}
-                avatarFallback={vault.name.charAt(0).toUpperCase()}
-                isSelected={activeVault === vault.id}
-                onClick={() => onVaultClick(vault.id)}
-                onEdit={onEditVault}
-              />
+              <motion.div
+                key={`${animationKey}-${vault.id}`}
+                initial="hidden"
+                animate="visible"
+                variants={variants}
+              >
+                <SortableItemCard
+                  item={vault}
+                  title={vault.name}
+                  color={vault.color}
+                  colorPalette={VAULT_COLORS_HEX}
+                  avatarSrc={vault.image}
+                  avatarFallback={vault.name.charAt(0).toUpperCase()}
+                  isSelected={activeVault === vault.id}
+                  onClick={() => onVaultClick(vault.id)}
+                  onEdit={onEditVault}
+                />
+              </motion.div>
             ))}
           </Box>
         </SortableContext>

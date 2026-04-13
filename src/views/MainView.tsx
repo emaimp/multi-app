@@ -243,6 +243,7 @@ export function MainView() {
               onVaultReorderInCollection={reorderVaultsInCollection}
               unassignedVaults={vaults.filter(v => !collections.some(c => c.vault_ids.includes(v.id)))}
               onReorderUnassignedVaults={(vaults) => reorderVaultsUnassigned(vaults, collections.flatMap(c => c.vault_ids))}
+              animationKey={loadingVaults ? undefined : `${vaults.length}-${collections.length}`}
             >
               {loadingVaults && <VaultListSkeleton />}
             </MainSidebar>
@@ -250,7 +251,6 @@ export function MainView() {
             <SecondarySidebar
               isLocked={!activeVault}
               isLoadingContent={isLoadingContent}
-              animationKey={activeVault || undefined}
               idCards={idCards}
               creditCards={creditCards}
               loginKeys={loginKeys}
@@ -274,6 +274,7 @@ export function MainView() {
               onReorderCreditCards={reorderCreditCards}
               onReorderLoginKeys={reorderLoginKeys}
               onReorderNotes={reorderNotes}
+              animationKey={activeVault || undefined}
             />
 
             <VaultContent
