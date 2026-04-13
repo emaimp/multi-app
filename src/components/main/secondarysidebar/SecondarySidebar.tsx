@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
+import LockIcon from '@mui/icons-material/Lock';
 import LoginIcon from '@mui/icons-material/Login';
 import NoteIcon from '@mui/icons-material/Note';
 import { FilterHeader } from './FilterHeader';
@@ -240,13 +241,13 @@ export function SecondarySidebar({
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              justifyContent: 'flex-start',
+              justifyContent: 'center',
               height: '100%',
-              pt: 4,
               textAlign: 'center',
               color: 'text.secondary',
             }}
           >
+            <LockIcon sx={{ fontSize: 50, mt: -10, mb: 1 }} />
             <Typography variant="body2">
               Select a vault to view its contents.
             </Typography>

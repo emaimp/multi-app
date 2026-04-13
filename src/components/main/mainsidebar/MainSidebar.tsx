@@ -1,5 +1,6 @@
 import { Box, Button, Divider, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import FolderOffIcon from '@mui/icons-material/FolderOff';
 import {
   DndContext,
   closestCenter,
@@ -189,11 +190,16 @@ export function MainSidebar({
         ) : children ? children : (
           <Box
             sx={{
-              pt: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '100%',
               textAlign: 'center',
-              color: 'text.secondary'
+              color: 'text.secondary',
             }}
           >
+            <FolderOffIcon sx={{ fontSize: 50, mt: -10, mb: 1 }} />
             <Typography variant="body2">
               There are no vaults yet.
             </Typography>

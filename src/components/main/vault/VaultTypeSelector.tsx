@@ -1,5 +1,5 @@
 import { Box, Dialog, DialogTitle, Typography } from '@mui/material';
-import InventoryIcon from '@mui/icons-material/Inventory';
+import FolderIcon from '@mui/icons-material/Folder';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 
 interface VaultTypeSelectorProps {
@@ -95,7 +95,7 @@ export function VaultTypeSelector({
         }}
       >
         <VaultTypeCard
-          icon={<InventoryIcon sx={{ fontSize: 32 }} />}
+          icon={<FolderIcon sx={{ fontSize: 32 }} />}
           title="Vault"
           description="Container to organize your notes"
           onClick={handleVaultClick}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Box } from '@mui/material';
-import InventoryIcon from '@mui/icons-material/Inventory';
+import FolderIcon from '@mui/icons-material/Folder';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import KeyIcon from '@mui/icons-material/Key';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -299,7 +299,7 @@ export function MainView() {
               title="Create Vault"
               label="Vault Name"
               placeholder="Enter vault name"
-              titleIcon={<InventoryIcon />}
+              titleIcon={<FolderIcon />}
               onClose={() => setCreateDialogOpen(false)}
               onCreate={(name) => createVault(name, 'blue')}
             />
