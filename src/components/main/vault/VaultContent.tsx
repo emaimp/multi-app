@@ -113,18 +113,27 @@ export function VaultContent({
     <Box
       sx={{
         flex: 1,
-        overflow: 'auto',
+        overflowY: 'auto',
         height: '100vh',
         boxSizing: 'border-box',
-        p: 3
+        p: 3,
+        '&::-webkit-scrollbar': {
+          width: '6px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'gray',
+          borderRadius: '3px',
+        },
+        '&::-webkit-scrollbar-track': {
+          backgroundColor: 'transparent',
+        },
       }}
     >
       {selectedVault ? (
         <>
           <Typography variant="h4">{selectedVault.name}</Typography>
 
-          <Divider sx={{ my: 3 }} />
-
+          <Box sx={{ my: 1 }} />
           {(!hasDisplayedLoginKeys && !hasDisplayedNotes && !hasDisplayedIdCards && !hasDisplayedCreditCards) ? (
             <Box sx={{
               display: 'flex',
@@ -141,47 +150,50 @@ export function VaultContent({
             <Box>
               {hasDisplayedIdCards && (
                 <>
+                  <Divider sx={{ my: 2 }}><Typography variant="h6" component="span">ID Cards</Typography></Divider>
                   <IdCardList
                     idCards={displayedIdCards}
                     isLockedByDefault={isLockedByDefault}
                     animationKey={animationKey}
                     onUpdateIdCard={onUpdateIdCard}
                   />
-                  {(hasDisplayedCreditCards || hasDisplayedLoginKeys || hasDisplayedNotes) && <Divider sx={{ my: 3 }} />}
                 </>
               )}
 
               {hasDisplayedCreditCards && (
                 <>
+                  <Divider sx={{ my: 2 }}><Typography variant="h6" component="span">Credit Cards</Typography></Divider>
                   <CreditCardList
                     creditCards={displayedCreditCards}
                     isLockedByDefault={isLockedByDefault}
                     animationKey={animationKey}
                     onUpdateCreditCard={onUpdateCreditCard}
                   />
-                  {(hasDisplayedLoginKeys || hasDisplayedNotes) && <Divider sx={{ my: 3 }} />}
                 </>
               )}
 
               {hasDisplayedLoginKeys && (
                 <>
+                  <Divider sx={{ my: 2 }}><Typography variant="h6" component="span">Login Keys</Typography></Divider>
                   <LoginkeyList
                     loginKeys={displayedLoginKeys}
                     isLockedByDefault={isLockedByDefault}
                     animationKey={animationKey}
                     onUpdateLoginKey={onUpdateLoginKey}
                   />
-                  {hasDisplayedNotes && <Divider sx={{ my: 3 }} />}
                 </>
               )}
 
               {hasDisplayedNotes && (
-                <NoteList
-                  notes={displayedNotes}
-                  isLockedByDefault={isLockedByDefault}
-                  animationKey={animationKey}
-                  onUpdateNote={onUpdateNote}
-                />
+                <>
+                  <Divider sx={{ my: 2 }}><Typography variant="h6" component="span">Notes</Typography></Divider>
+                  <NoteList
+                    notes={displayedNotes}
+                    isLockedByDefault={isLockedByDefault}
+                    animationKey={animationKey}
+                    onUpdateNote={onUpdateNote}
+                  />
+                </>
               )}
             </Box>
           )}
