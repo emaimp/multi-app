@@ -168,7 +168,7 @@ export function MainSidebar({
                       onEditVault={onEditVault}
                       activeVault={activeVault ?? null}
                       onVaultReorderInCollection={onVaultReorderInCollection}
-                      defaultExpanded={activeVault ? collection.vault_ids.includes(activeVault) : collection.vault_ids.length > 0}
+                      defaultExpanded={collection.vault_ids.length > 0}
                       animationKey={animationKey}
                     />
                   ))}

@@ -14,7 +14,11 @@ import {
   closestCenter,
   DragEndEvent,
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy
+} from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useSortableSensors } from '../../../hooks/useSortableSensors';
 import { Collection } from '../../../types/collection';
@@ -50,7 +54,7 @@ export function CollectionAccordion({
 
   useEffect(() => {
     setExpanded(defaultExpanded);
-  }, [defaultExpanded]);
+  }, []);
   
   const sensors = useSortableSensors();
 
