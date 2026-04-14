@@ -12,9 +12,9 @@ pub struct Database {
 
 impl Database {
     pub fn new() -> Result<Self, rusqlite::Error> {
-        let data_dir = dirs::data_dir().unwrap().join("multi-app");
+        let data_dir = dirs::document_dir().unwrap().join("ncryptex");
         std::fs::create_dir_all(&data_dir).unwrap();
-        let db_path = data_dir.join("users.db");
+        let db_path = data_dir.join("account.db");
         let conn = Connection::open(db_path)?;
         
         create_tables(&conn)?;
