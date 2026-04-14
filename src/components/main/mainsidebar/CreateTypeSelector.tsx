@@ -2,7 +2,7 @@ import { Box, Dialog, DialogTitle, Typography } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 
-interface VaultTypeSelectorProps {
+interface CreateTypeSelectorProps {
   open: boolean;
   onClose: () => void;
   onSelectVault: () => void;
@@ -51,12 +51,12 @@ function VaultTypeCard({ icon, title, description, onClick }: VaultTypeCardProps
   );
 }
 
-export function VaultTypeSelector({
+export function CreateTypeSelector({
   open,
   onClose,
   onSelectVault,
   onSelectCollection,
-}: VaultTypeSelectorProps) {
+}: CreateTypeSelectorProps) {
   const handleVaultClick = () => {
     onClose();
     onSelectVault();
@@ -111,4 +111,4 @@ export function VaultTypeSelector({
   );
 }
 
-export default VaultTypeSelector;
+export default CreateTypeSelector;

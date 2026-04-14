@@ -6,16 +6,18 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import KeyIcon from '@mui/icons-material/Key';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import { LoadingDialog, CreateDialog } from '../components/ui';
-import { CreateCollectionDialog } from '../components/main/mainsidebar/CreateCollectionDialog';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useBackend } from '../hooks/useBackend';
 import {
   VaultListSkeleton,
   VaultEditDialog,
-  VaultTypeSelector,
 } from '../components/main/vault';
-import { MainSidebar } from '../components/main/mainsidebar';
+import {
+  MainSidebar,
+  CreateTypeSelector,
+  CreateCollectionDialog
+} from '../components/main/mainsidebar';
 import { SecondarySidebar } from '../components/main/secondarysidebar';
 import { NoteEditDialog } from '../components/main/vault/note';
 import { LoginkeyEditDialog } from '../components/main/vault/loginkey';
@@ -450,7 +452,7 @@ export function MainView() {
               onDelete={deleteNote}
             />
 
-            <VaultTypeSelector
+            <CreateTypeSelector
               open={vaultTypeSelectorOpen}
               onClose={() => setVaultTypeSelectorOpen(false)}
               onSelectVault={handleSelectVault}
