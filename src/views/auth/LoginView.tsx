@@ -88,13 +88,10 @@ function LoginView() {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       if (errorMessage.includes('User not found')) {
-        setError('User not found. Please check your username.');
         setUsernameNotFoundError(true);
       } else if (errorMessage.includes('Invalid password')) {
-        setError('Invalid password. Please try again.');
         setPasswordInvalidError(true);
       } else if (errorMessage.includes('Invalid master key')) {
-        setError('Invalid master key. Please try again.');
         setMasterKeyInvalidError(true);
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
         setError('Network error. Please check your connection.');
