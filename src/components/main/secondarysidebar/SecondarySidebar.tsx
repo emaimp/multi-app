@@ -4,7 +4,6 @@ import {
   Divider,
   IconButton,
   Tooltip,
-  Typography
 } from '@mui/material';
 import BadgeIcon from '@mui/icons-material/Badge';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
@@ -247,10 +246,14 @@ export function SecondarySidebar({
               color: 'text.secondary',
             }}
           >
-            <LockIcon sx={{ fontSize: 50, mt: -10, mb: 1 }} />
-            <Typography variant="body2">
-              Select a vault to view its contents.
-            </Typography>
+            <LockIcon
+              sx={{
+                fontSize: 60,
+                mt: -10,
+                mb: 1,
+                opacity: 0.3,
+              }}
+            />
           </Box>
         ) : (
           <>

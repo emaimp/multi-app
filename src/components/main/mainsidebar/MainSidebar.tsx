@@ -201,7 +201,7 @@ export function MainSidebar({
           >
             <FolderOffIcon sx={{ fontSize: 50, mt: -10, mb: 1 }} />
             <Typography variant="body2">
-              There are no vaults yet.
+              There are no vaults yet
             </Typography>
           </Box>
         )}
