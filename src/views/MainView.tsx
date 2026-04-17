@@ -19,15 +19,28 @@ import {
   CreateCollectionDialog
 } from '../components/main/mainsidebar';
 import { SecondarySidebar } from '../components/main/secondarysidebar';
-import { NoteEditDialog } from '../components/main/vault/note';
-import { LoginkeyEditDialog } from '../components/main/vault/loginkey';
-import { CreditCardEditDialog } from '../components/main/vault/credit_card';
-import { IdCardEditDialog } from '../components/main/vault/id_card';
+import { ItemCardEditDialog } from '../components/main/cards';
 import { Vault } from '../types/vault';
-import { IdCard } from '../types/id_card';
-import { CreditCard } from '../types/credit_card';
-import { LoginKey } from '../types/loginkey';
-import { Note } from '../types/note';
+import {
+  IdCard,
+  IDCARD_COLORS,
+  IDCARD_COLORS_HEX
+} from '../types/id_card';
+import {
+  CreditCard,
+  CREDITCARD_COLORS,
+  CREDITCARD_COLORS_HEX
+} from '../types/credit_card';
+import {
+  LoginKey,
+  LOGINKEY_COLORS,
+  LOGINKEY_COLORS_HEX
+} from '../types/loginkey';
+import {
+  Note,
+  NOTE_COLORS,
+  NOTE_COLORS_HEX
+} from '../types/note';
 import { VaultContent } from '../components/main/vault';
 import { SettingsView } from './user/SettingsView';
 
@@ -380,72 +393,94 @@ export function MainView() {
               }}
             />
 
-            <IdCardEditDialog
+            <ItemCardEditDialog
               open={!!editingIdCard}
-              idCard={editingIdCard}
+              item={editingIdCard as unknown as Record<string, unknown>}
+              nameField="id_name"
+              colors={IDCARD_COLORS}
+              colorsHex={IDCARD_COLORS_HEX}
+              title="Edit ID Card"
+              label="ID Name"
+              placeholder="Name on ID"
               onClose={() => setEditingIdCard(null)}
               onSave={(idCard, image) => {
                 updateIdCard(
-                  idCard.id,
-                  idCard.id_name,
-                  idCard.id_type,
-                  idCard.full_name,
-                  idCard.id_number,
-                  idCard.color,
+                  idCard.id as string,
+                  idCard.id_name as string,
+                  idCard.id_type as string,
+                  idCard.full_name as string,
+                  idCard.id_number as string,
+                  idCard.color as string,
                   image
                 );
               }}
               onDelete={deleteIdCard}
             />
 
-            <CreditCardEditDialog
+            <ItemCardEditDialog
               open={!!editingCreditCard}
-              creditCard={editingCreditCard}
+              item={editingCreditCard as unknown as Record<string, unknown>}
+              nameField="card_name"
+              colors={CREDITCARD_COLORS}
+              colorsHex={CREDITCARD_COLORS_HEX}
+              title="Edit Credit Card"
+              label="Card Name"
+              placeholder="Name on card"
               onClose={() => setEditingCreditCard(null)}
               onSave={(creditCard, image) => {
                 updateCreditCard(
-                  creditCard.id,
-                  creditCard.card_name,
-                  creditCard.holder_name,
-                  creditCard.card_number,
-                  creditCard.expiry,
-                  creditCard.cvv,
-                  creditCard.color,
+                  creditCard.id as string,
+                  creditCard.card_name as string,
+                  creditCard.holder_name as string,
+                  creditCard.card_number as string,
+                  creditCard.expiry as string,
+                  creditCard.cvv as string,
+                  creditCard.color as string,
                   image
                 );
               }}
               onDelete={deleteCreditCard}
             />
 
-            <LoginkeyEditDialog
+            <ItemCardEditDialog
               open={!!editingLoginKey}
-              loginkey={editingLoginKey}
+              item={editingLoginKey as unknown as Record<string, unknown>}
+              nameField="site_name"
+              colors={LOGINKEY_COLORS}
+              colorsHex={LOGINKEY_COLORS_HEX}
+              title="Edit Login Key"
+              label="Site Name"
               onClose={() => setEditingLoginKey(null)}
               onSave={(loginkey, image) => {
                 updateLoginKey(
-                  loginkey.id,
-                  loginkey.site_name,
-                  loginkey.url,
-                  loginkey.username,
-                  loginkey.password,
-                  loginkey.details,
-                  loginkey.color,
+                  loginkey.id as string,
+                  loginkey.site_name as string,
+                  loginkey.url as string | null,
+                  loginkey.username as string,
+                  loginkey.password as string,
+                  loginkey.details as string | null,
+                  loginkey.color as string,
                   image
                 );
               }}
               onDelete={deleteLoginKey}
             />
 
-            <NoteEditDialog
+            <ItemCardEditDialog
               open={!!editingNote}
-              note={editingNote}
+              item={editingNote as unknown as Record<string, unknown>}
+              nameField="note_name"
+              colors={NOTE_COLORS}
+              colorsHex={NOTE_COLORS_HEX}
+              title="Edit Note"
+              label="Note Title"
               onClose={() => setEditingNote(null)}
               onSave={(note, image) => {
                 updateNote(
-                  note.id,
-                  note.note_name,
-                  note.content,
-                  note.color,
+                  note.id as string,
+                  note.note_name as string,
+                  note.content as string,
+                  note.color as string,
                   image
                 );
               }}

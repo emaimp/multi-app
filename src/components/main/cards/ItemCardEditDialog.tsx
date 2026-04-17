@@ -11,42 +11,56 @@ import {
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  Note,
-  NOTE_COLORS,
-  NOTE_COLORS_HEX
-} from '../../../../types/note';
-import { ConfirmDialog, AvatarPicker } from '../../../ui';
+import { ConfirmDialog, AvatarPicker } from '../../ui';
 
-interface NoteEditDialogProps {
+interface ItemCardEditDialogProps {
   open: boolean;
-  note: Note | null;
+  item: Record<string, unknown> | null;
+  nameField: string;
+  colors: readonly string[];
+  colorsHex: Record<string, string>;
+  title: string;
+  label: string;
+  placeholder?: string;
   onClose: () => void;
-  onSave: (note: Note, image?: string | null) => void;
-  onDelete: (noteId: string) => void;
+  onSave: (item: Record<string, unknown>, image?: string | null) => void;
+  onDelete: (itemId: string) => void;
 }
 
-export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEditDialogProps) {
-  const [title, setTitle] = useState(note?.note_name || '');
-  const [color, setColor] = useState(note?.color || 'blue');
-  const [image, setImage] = useState<string | null>(note?.image || null);
+export function ItemCardEditDialog({
+  open,
+  item,
+  nameField,
+  colors,
+  colorsHex,
+  title,
+  label,
+  placeholder,
+  onClose,
+  onSave,
+  onDelete,
+}: ItemCardEditDialogProps) {
+  const [name, setName] = useState('');
+  const [color, setColor] = useState('blue');
+  const [image, setImage] = useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
-    if (note) {
-      setTitle(note.note_name);
-      setColor(note.color);
-      setImage(note.image || null);
+    if (item) {
+      const itemName = item[nameField];
+      setName(typeof itemName === 'string' ? itemName : '');
+      setColor(typeof item.color === 'string' ? item.color : 'blue');
+      setImage(typeof item.image === 'string' ? item.image : null);
     }
-  }, [note]);
+  }, [item, nameField]);
 
-  if (!note) return null;
+  if (!item) return null;
 
   const handleSubmit = () => {
-    if (title.trim()) {
+    if (name.trim()) {
       onSave({
-        ...note,
-        note_name: title.trim(),
+        ...item,
+        [nameField]: name.trim(),
         color,
       }, image);
       onClose();
@@ -58,15 +72,18 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
   };
 
   const handleConfirmDelete = () => {
-    onDelete(note.id);
+    onDelete(item.id as string);
     setConfirmOpen(false);
     onClose();
   };
 
+  const itemName = item[nameField];
+  const displayName = typeof itemName === 'string' ? itemName : '';
+
   return (
     <>
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>Edit Note</DialogTitle>
+        <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <Stack spacing={3} sx={{ pt: 1 }}>
             <Box sx={{ textAlign: 'center', mb: 2 }}>
@@ -74,16 +91,17 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
                 value={image}
                 onChange={setImage}
                 size={100}
-                label={title.charAt(0).toUpperCase()}
+                label={name.charAt(0).toUpperCase() || title.charAt(0)}
               />
             </Box>
 
             <TextField
-              label="Note Title"
+              label={label}
               fullWidth
               variant="outlined"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={placeholder}
             />
 
             <Box>
@@ -99,7 +117,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
                 borderColor: 'divider',
                 borderRadius: 1,
               }}>
-                {NOTE_COLORS.map((c: string) => (
+                {colors.map((c: string) => (
                   <Box
                     key={c}
                     onClick={() => setColor(c)}
@@ -107,7 +125,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
                       width: 32,
                       height: 32,
                       borderRadius: '50%',
-                      bgcolor: NOTE_COLORS_HEX[c],
+                      bgcolor: colorsHex[c],
                       cursor: 'pointer',
                       border: color === c ? '3px solid' : '2px solid',
                       borderColor: color === c ? 'text.primary' : 'transparent',
@@ -128,7 +146,7 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
           </Button>
           <Box sx={{ flexGrow: 1 }} />
           <Button onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} variant="contained" disabled={!title.trim()}>
+          <Button onClick={handleSubmit} variant="contained" disabled={!name.trim()}>
             Save
           </Button>
         </DialogActions>
@@ -136,8 +154,8 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
 
       <ConfirmDialog
         open={confirmOpen}
-        title="Delete Note"
-        message={`Are you sure you want to delete "${note.note_name}"? This action cannot be undone.`}
+        title={`Delete ${title.replace('Edit ', '')}`}
+        message={`Are you sure you want to delete "${displayName}"? This action cannot be undone.`}
         onConfirm={handleConfirmDelete}
         onCancel={() => setConfirmOpen(false)}
       />
@@ -145,4 +163,4 @@ export function NoteEditDialog({ open, note, onClose, onSave, onDelete }: NoteEd
   );
 }
 
-export default NoteEditDialog;
+export default ItemCardEditDialog;
