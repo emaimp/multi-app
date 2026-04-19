@@ -1,7 +1,9 @@
+import './theme/gradient.css';
 import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
 import { AuthProvider, useUser } from './context/AuthContext';
 import { VaultProvider } from './context/VaultContext';
-import { ThemeProvider } from './theme';
+import { theme } from './theme/theme';
 import { LoginView } from './views/auth';
 import { MainView } from './views/MainView';
 
@@ -17,7 +19,7 @@ function AppContent() {
 
 function App() {
   return (
-    <ThemeProvider>
+    <ThemeProvider theme={theme}>
       <AuthProvider>
         <VaultProvider>
           <BrowserRouter>
