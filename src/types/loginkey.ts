@@ -1,3 +1,5 @@
+import { AppColor, COLORS, COLORS_HEX } from '../theme/colors';
+
 export interface LoginKey {
   id: string;
   vault_id: string;
@@ -13,13 +15,6 @@ export interface LoginKey {
   position: number;
 }
 
-export const LOGINKEY_COLORS = ['blue', 'green', 'orange', 'red', 'purple', 'yellow'] as const;
+export type LoginKeyColor = AppColor;
 
-export const LOGINKEY_COLORS_HEX: Record<string, string> = {
-  blue: '#2563eb',
-  green: '#16a34a',
-  orange: '#ea580c',
-  red: '#dc2626',
-  purple: '#9333ea',
-  yellow: '#ca8a04',
-};
+export { COLORS as LOGINKEY_COLORS, COLORS_HEX as LOGINKEY_COLORS_HEX };

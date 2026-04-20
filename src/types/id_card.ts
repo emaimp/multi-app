@@ -1,3 +1,5 @@
+import { AppColor, COLORS, COLORS_HEX } from '../theme/colors';
+
 export interface IdCard {
   id: string;
   vault_id: string;
@@ -11,26 +13,6 @@ export interface IdCard {
   position: number;
 }
 
-export type IdCardColor = 'blue' | 'cyan' | 'green' | 'yellow' | 'orange' | 'red' | 'pink' | 'purple';
+export type IdCardColor = AppColor;
 
-export const IDCARD_COLORS: IdCardColor[] = [
-  'blue',
-  'cyan',
-  'green',
-  'yellow',
-  'orange',
-  'red',
-  'pink',
-  'purple',
-];
-
-export const IDCARD_COLORS_HEX: Record<string, string> = {
-  blue: '#2563eb',
-  cyan: '#0891b2',
-  green: '#16a34a',
-  yellow: '#facc15',
-  orange: '#f97316',
-  red: '#dc2626',
-  pink: '#ec4899',
-  purple: '#7c3aed',
-};
+export { COLORS as IDCARD_COLORS, COLORS_HEX as IDCARD_COLORS_HEX };
