@@ -13,7 +13,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { CenteredCard } from '../../components/ui';
+import { CenteredCard, TopBar } from '../../components/ui';
 import RegisterView from './RegisterView';
 import RecoverView from './RecoverView';
 
@@ -113,6 +113,7 @@ function LoginView() {
 
   return (
     <>
+      <TopBar showBackButton={false} />
       <CenteredCard error={error} onErrorClose={() => setError('')}>
       <Typography
         component="h1"
