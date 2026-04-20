@@ -150,7 +150,7 @@ export function SettingsView() {
 
   return (
     <>
-      <TopBar onBack={handleBack} transparent />
+      <TopBar onBack={handleBack} />
 
       <CenteredCard 
         success={successMessage} 

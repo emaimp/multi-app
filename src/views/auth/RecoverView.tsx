@@ -149,7 +149,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
 
   return (
     <>
-      <TopBar onBack={onBack} transparent />
+      <TopBar onBack={onBack} />
 
       <CenteredCard error={error} onErrorClose={() => setError('')} success={success} onSuccessClose={() => setSuccess('')}>
         <Typography

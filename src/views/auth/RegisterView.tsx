@@ -165,7 +165,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
 
   return (
     <>
-      <TopBar onBack={onBack} transparent />
+      <TopBar onBack={onBack} />
 
       <CenteredCard error={error} onErrorClose={() => setError('')}>
         <Typography
