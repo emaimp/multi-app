@@ -6,6 +6,7 @@ import { LoginkeyItem } from './LoginkeyItem';
 interface LoginkeyListProps {
   loginKeys: LoginKey[];
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
 }
@@ -22,11 +23,12 @@ const variants = {
 interface LoginkeyItemComponentProps {
   loginkey: LoginKey;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateLoginKey: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
 }
 
-function LoginkeyItemComponent({ loginkey, isLockedByDefault, onUpdateLoginKey, animationKey }: LoginkeyItemComponentProps) {
+function LoginkeyItemComponent({ loginkey, isLockedByDefault, newlyCreatedId, onUpdateLoginKey, animationKey }: LoginkeyItemComponentProps) {
   return (
     <motion.div
       key={`${animationKey}-${loginkey.id}`}
@@ -37,13 +39,14 @@ function LoginkeyItemComponent({ loginkey, isLockedByDefault, onUpdateLoginKey, 
       <LoginkeyItem
         loginkey={loginkey}
         isLockedByDefault={isLockedByDefault}
+        newlyCreatedId={newlyCreatedId}
         onUpdate={onUpdateLoginKey}
       />
     </motion.div>
   );
 }
 
-export function LoginkeyList({ loginKeys, isLockedByDefault, animationKey, onUpdateLoginKey }: LoginkeyListProps) {
+export function LoginkeyList({ loginKeys, isLockedByDefault, newlyCreatedId, animationKey, onUpdateLoginKey }: LoginkeyListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {loginKeys.map((loginkey) => (
@@ -51,6 +54,7 @@ export function LoginkeyList({ loginKeys, isLockedByDefault, animationKey, onUpd
           key={loginkey.id}
           loginkey={loginkey}
           isLockedByDefault={isLockedByDefault}
+          newlyCreatedId={newlyCreatedId}
           animationKey={animationKey}
           onUpdateLoginKey={onUpdateLoginKey}
         />

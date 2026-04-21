@@ -6,6 +6,7 @@ import { NoteItem } from './NoteItem';
 interface NoteListProps {
   notes: Note[];
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateNote: (noteId: string, title: string, content: string, color: string) => void;
 }
@@ -22,11 +23,12 @@ const variants = {
 interface NoteItemComponentProps {
   note: Note;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateNote: (noteId: string, title: string, content: string, color: string) => void;
 }
 
-function NoteItemComponent({ note, isLockedByDefault, onUpdateNote, animationKey }: NoteItemComponentProps) {
+function NoteItemComponent({ note, isLockedByDefault, newlyCreatedId, onUpdateNote, animationKey }: NoteItemComponentProps) {
   return (
     <motion.div
       key={`${animationKey}-${note.id}`}
@@ -37,13 +39,14 @@ function NoteItemComponent({ note, isLockedByDefault, onUpdateNote, animationKey
       <NoteItem
         note={note}
         isLockedByDefault={isLockedByDefault}
+        newlyCreatedId={newlyCreatedId}
         onUpdate={(noteId, title, content, color) => onUpdateNote(noteId, title, content, color)}
       />
     </motion.div>
   );
 }
 
-export function NoteList({ notes, isLockedByDefault, animationKey, onUpdateNote }: NoteListProps) {
+export function NoteList({ notes, isLockedByDefault, newlyCreatedId, animationKey, onUpdateNote }: NoteListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {notes.map((note) => (
@@ -51,6 +54,7 @@ export function NoteList({ notes, isLockedByDefault, animationKey, onUpdateNote 
           key={note.id}
           note={note}
           isLockedByDefault={isLockedByDefault}
+          newlyCreatedId={newlyCreatedId}
           animationKey={animationKey}
           onUpdateNote={onUpdateNote}
         />

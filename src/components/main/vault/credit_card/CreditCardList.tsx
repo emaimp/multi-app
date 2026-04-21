@@ -6,6 +6,7 @@ import { CreditCardItem } from './CreditCardItem';
 interface CreditCardListProps {
   creditCards: CreditCard[];
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateCreditCard: (creditCardId: string, cardName: string, holderName: string, cardNumber: string, expiry: string, cvv: string, color: string) => void;
 }
@@ -22,11 +23,12 @@ const variants = {
 interface CreditCardItemComponentProps {
   creditCard: CreditCard;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateCreditCard: (creditCardId: string, cardName: string, holderName: string, cardNumber: string, expiry: string, cvv: string, color: string) => void;
 }
 
-function CreditCardItemComponent({ creditCard, isLockedByDefault, onUpdateCreditCard, animationKey }: CreditCardItemComponentProps) {
+function CreditCardItemComponent({ creditCard, isLockedByDefault, newlyCreatedId, onUpdateCreditCard, animationKey }: CreditCardItemComponentProps) {
   return (
     <motion.div
       key={`${animationKey}-${creditCard.id}`}
@@ -37,13 +39,14 @@ function CreditCardItemComponent({ creditCard, isLockedByDefault, onUpdateCredit
       <CreditCardItem
         creditCard={creditCard}
         isLockedByDefault={isLockedByDefault}
+        newlyCreatedId={newlyCreatedId}
         onUpdate={onUpdateCreditCard}
       />
     </motion.div>
   );
 }
 
-export function CreditCardList({ creditCards, isLockedByDefault, animationKey, onUpdateCreditCard }: CreditCardListProps) {
+export function CreditCardList({ creditCards, isLockedByDefault, newlyCreatedId, animationKey, onUpdateCreditCard }: CreditCardListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {creditCards.map((creditCard) => (
@@ -51,6 +54,7 @@ export function CreditCardList({ creditCards, isLockedByDefault, animationKey, o
           key={creditCard.id}
           creditCard={creditCard}
           isLockedByDefault={isLockedByDefault}
+          newlyCreatedId={newlyCreatedId}
           animationKey={animationKey}
           onUpdateCreditCard={onUpdateCreditCard}
         />

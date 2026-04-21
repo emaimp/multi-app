@@ -14,10 +14,11 @@ import { LOGINKEY_COLORS_HEX } from '../../../../types/loginkey';
 interface LoginkeyItemProps {
   loginkey: LoginKey;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   onUpdate: (loginKeyId: string, siteName: string, url: string | null, username: string, password: string, details: string | null, color: string) => void;
 }
 
-export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: LoginkeyItemProps) {
+export function LoginkeyItem({ loginkey, isLockedByDefault = false, newlyCreatedId, onUpdate }: LoginkeyItemProps) {
   const [url, setUrl] = useState(loginkey.url || '');
   const [username, setUsername] = useState(loginkey.username);
   const [password, setPassword] = useState(loginkey.password);
@@ -27,7 +28,8 @@ export function LoginkeyItem({ loginkey, isLockedByDefault = false, onUpdate }: 
   const [copiedUsername, setCopiedUsername] = useState(false);
   const [copiedPassword, setCopiedPassword] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [isLocked, setIsLocked] = useState(isLockedByDefault);
+  const isInitiallyUnlocked = newlyCreatedId === loginkey.id;
+  const [isLocked, setIsLocked] = useState(isInitiallyUnlocked ? false : isLockedByDefault);
 
   useEffect(() => {
     setUrl(loginkey.url || '');

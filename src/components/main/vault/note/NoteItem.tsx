@@ -12,16 +12,18 @@ import { Note, NOTE_COLORS_HEX } from '../../../../types/note';
 interface NoteItemProps {
   note: Note;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   onUpdate: (noteId: string, title: string, content: string, color: string) => void;
 }
 
-export function NoteItem({ note, isLockedByDefault = false, onUpdate }: NoteItemProps) {
+export function NoteItem({ note, isLockedByDefault = false, newlyCreatedId, onUpdate }: NoteItemProps) {
   const [content, setContent] = useState(note.content);
   const [pasted, setPasted] = useState(false);
   const [cut, setCut] = useState(false);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [isLocked, setIsLocked] = useState(isLockedByDefault);
+  const isInitiallyUnlocked = newlyCreatedId === note.id;
+  const [isLocked, setIsLocked] = useState(isInitiallyUnlocked ? false : isLockedByDefault);
 
   useEffect(() => {
     setContent(note.content);

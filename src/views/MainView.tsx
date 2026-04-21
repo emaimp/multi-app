@@ -131,6 +131,7 @@ export function MainView() {
   const [searchQuery, setSearchQuery] = useState('');
   const [itemsLocked, setItemsLocked] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [newlyCreatedId, setNewlyCreatedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!activeVault) {
@@ -141,6 +142,12 @@ export function MainView() {
   useEffect(() => {
     setSelectedItemId(null);
   }, [filterType]);
+
+  useEffect(() => {
+    if (selectedItemId !== newlyCreatedId && newlyCreatedId !== null) {
+      setNewlyCreatedId(null);
+    }
+  }, [selectedItemId, newlyCreatedId]);
 
   const selectedVault = vaults.find((v) => v.id === activeVault);
   const vaultNotes = activeVault 
@@ -199,7 +206,7 @@ export function MainView() {
       const newIdCard = await createIdCard(activeVault, idName, '', '', '', selectedVault.color);
       if (newIdCard) {
         setSelectedItemId(newIdCard.id);
-        setItemsLocked(false);
+        setNewlyCreatedId(newIdCard.id);
       }
     }
   };
@@ -209,7 +216,7 @@ export function MainView() {
       const newCreditCard = await createCreditCard(activeVault, cardName, '', '', '', '', selectedVault.color);
       if (newCreditCard) {
         setSelectedItemId(newCreditCard.id);
-        setItemsLocked(false);
+        setNewlyCreatedId(newCreditCard.id);
       }
     }
   };
@@ -219,7 +226,7 @@ export function MainView() {
       const newLoginKey = await createLoginKey(activeVault, siteName, null, '', '', null, selectedVault.color);
       if (newLoginKey) {
         setSelectedItemId(newLoginKey.id);
-        setItemsLocked(false);
+        setNewlyCreatedId(newLoginKey.id);
       }
     }
   };
@@ -229,7 +236,7 @@ export function MainView() {
       const newNote = await createNote(activeVault, title, '', selectedVault.color);
       if (newNote) {
         setSelectedItemId(newNote.id);
-        setItemsLocked(false);
+        setNewlyCreatedId(newNote.id);
       }
     }
   };
@@ -301,6 +308,7 @@ export function MainView() {
               filterType={filterType}
               searchQuery={searchQuery}
               selectedItemId={selectedItemId}
+              newlyCreatedId={newlyCreatedId}
               isLockedByDefault={itemsLocked}
               isLoading={isLoadingContent}
               onUpdateIdCard={updateIdCard}

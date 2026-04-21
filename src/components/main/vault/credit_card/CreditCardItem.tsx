@@ -10,17 +10,19 @@ import { CreditCard, CREDITCARD_COLORS_HEX } from '../../../../types/credit_card
 interface CreditCardItemProps {
   creditCard: CreditCard;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   onUpdate: (creditCardId: string, cardName: string, holderName: string, cardNumber: string, expiry: string, cvv: string, color: string) => void;
 }
 
-export function CreditCardItem({ creditCard, isLockedByDefault = false, onUpdate }: CreditCardItemProps) {
+export function CreditCardItem({ creditCard, isLockedByDefault = false, newlyCreatedId, onUpdate }: CreditCardItemProps) {
   const [holderName, setHolderName] = useState(creditCard.holder_name);
   const [cardNumber, setCardNumber] = useState(creditCard.card_number);
   const [expiry, setExpiry] = useState(creditCard.expiry);
   const [cvv, setCvv] = useState(creditCard.cvv);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [isLocked, setIsLocked] = useState(isLockedByDefault);
+  const isInitiallyUnlocked = newlyCreatedId === creditCard.id;
+  const [isLocked, setIsLocked] = useState(isInitiallyUnlocked ? false : isLockedByDefault);
 
   useEffect(() => {
     setHolderName(creditCard.holder_name);

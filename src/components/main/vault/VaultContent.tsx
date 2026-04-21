@@ -19,6 +19,7 @@ interface VaultContentProps {
   filterType?: 'all' | 'idCards' | 'creditCards' | 'loginKeys' | 'notes';
   searchQuery?: string;
   selectedItemId?: string | null;
+  newlyCreatedId?: string | null;
   isLockedByDefault?: boolean;
   isLoading?: boolean;
   onUpdateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
@@ -36,6 +37,7 @@ export function VaultContent({
   filterType = 'all',
   searchQuery = '',
   selectedItemId,
+  newlyCreatedId,
   isLockedByDefault = true,
   isLoading,
   onUpdateIdCard,
@@ -154,6 +156,7 @@ export function VaultContent({
                   <IdCardList
                     idCards={displayedIdCards}
                     isLockedByDefault={isLockedByDefault}
+                    newlyCreatedId={newlyCreatedId}
                     animationKey={animationKey}
                     onUpdateIdCard={onUpdateIdCard}
                   />
@@ -166,6 +169,7 @@ export function VaultContent({
                   <CreditCardList
                     creditCards={displayedCreditCards}
                     isLockedByDefault={isLockedByDefault}
+                    newlyCreatedId={newlyCreatedId}
                     animationKey={animationKey}
                     onUpdateCreditCard={onUpdateCreditCard}
                   />
@@ -178,6 +182,7 @@ export function VaultContent({
                   <LoginkeyList
                     loginKeys={displayedLoginKeys}
                     isLockedByDefault={isLockedByDefault}
+                    newlyCreatedId={newlyCreatedId}
                     animationKey={animationKey}
                     onUpdateLoginKey={onUpdateLoginKey}
                   />
@@ -190,6 +195,7 @@ export function VaultContent({
                   <NoteList
                     notes={displayedNotes}
                     isLockedByDefault={isLockedByDefault}
+                    newlyCreatedId={newlyCreatedId}
                     animationKey={animationKey}
                     onUpdateNote={onUpdateNote}
                   />

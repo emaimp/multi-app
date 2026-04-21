@@ -6,6 +6,7 @@ import { IdCardItem } from './IdCardItem';
 interface IdCardListProps {
   idCards: IdCard[];
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
 }
@@ -22,11 +23,12 @@ const variants = {
 interface IdCardItemComponentProps {
   idCard: IdCard;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   animationKey?: string;
   onUpdateIdCard: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
 }
 
-function IdCardItemComponent({ idCard, isLockedByDefault, onUpdateIdCard, animationKey }: IdCardItemComponentProps) {
+function IdCardItemComponent({ idCard, isLockedByDefault, newlyCreatedId, onUpdateIdCard, animationKey }: IdCardItemComponentProps) {
   return (
     <motion.div
       key={`${animationKey}-${idCard.id}`}
@@ -37,13 +39,14 @@ function IdCardItemComponent({ idCard, isLockedByDefault, onUpdateIdCard, animat
       <IdCardItem
         idCard={idCard}
         isLockedByDefault={isLockedByDefault}
+        newlyCreatedId={newlyCreatedId}
         onUpdate={onUpdateIdCard}
       />
     </motion.div>
   );
 }
 
-export function IdCardList({ idCards, isLockedByDefault, animationKey, onUpdateIdCard }: IdCardListProps) {
+export function IdCardList({ idCards, isLockedByDefault, newlyCreatedId, animationKey, onUpdateIdCard }: IdCardListProps) {
   return (
     <Box sx={{ width: '100%' }}>
       {idCards.map((idCard) => (
@@ -51,6 +54,7 @@ export function IdCardList({ idCards, isLockedByDefault, animationKey, onUpdateI
           key={idCard.id}
           idCard={idCard}
           isLockedByDefault={isLockedByDefault}
+          newlyCreatedId={newlyCreatedId}
           animationKey={animationKey}
           onUpdateIdCard={onUpdateIdCard}
         />

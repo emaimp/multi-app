@@ -10,16 +10,18 @@ import { IdCard, IDCARD_COLORS_HEX } from '../../../../types/id_card';
 interface IdCardItemProps {
   idCard: IdCard;
   isLockedByDefault?: boolean;
+  newlyCreatedId?: string | null;
   onUpdate: (idCardId: string, idName: string, idType: string, fullName: string, idNumber: string, color: string) => void;
 }
 
-export function IdCardItem({ idCard, isLockedByDefault = false, onUpdate }: IdCardItemProps) {
+export function IdCardItem({ idCard, isLockedByDefault = false, newlyCreatedId, onUpdate }: IdCardItemProps) {
   const [idType, setIdType] = useState(idCard.id_type);
   const [fullName, setFullName] = useState(idCard.full_name);
   const [idNumber, setIdNumber] = useState(idCard.id_number);
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [isLocked, setIsLocked] = useState(isLockedByDefault);
+  const isInitiallyUnlocked = newlyCreatedId === idCard.id;
+  const [isLocked, setIsLocked] = useState(isInitiallyUnlocked ? false : isLockedByDefault);
 
   useEffect(() => {
     setIdType(idCard.id_type);
