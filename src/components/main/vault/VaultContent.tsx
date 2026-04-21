@@ -1,7 +1,7 @@
 import { Box, Typography, Divider } from '@mui/material';
 import { IdCardList } from './id_card';
 import { CreditCardList } from './credit_card';
-import { LoginkeyList } from './loginkey';
+import { LoginkeyList } from './login_key';
 import { NoteList } from './note';
 import { IdCard } from '../../../types/id_card';
 import { CreditCard } from '../../../types/credit_card';
