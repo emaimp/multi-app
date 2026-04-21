@@ -5,7 +5,7 @@ import FolderIcon from '@mui/icons-material/Folder';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import KeyIcon from '@mui/icons-material/Key';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
-import { LoadingDialog, CreateDialog } from '../components/ui';
+import { LoadingDialog, CreateDialog } from '../components/common';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
 import { useBackend } from '../hooks/core/useBackend';

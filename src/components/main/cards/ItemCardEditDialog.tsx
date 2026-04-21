@@ -11,7 +11,7 @@ import {
   Stack,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { ConfirmDialog, AvatarPicker } from '../../ui';
+import { ConfirmDialog, AvatarPicker } from '../../common';
 
 interface ItemCardEditDialogProps {
   open: boolean;

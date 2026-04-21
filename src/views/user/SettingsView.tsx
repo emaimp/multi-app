@@ -13,7 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useUser } from '../../context/AuthContext';
-import { AvatarPicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/ui';
+import { AvatarPicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/common';
 
 export function SettingsView() {
   const navigate = useNavigate();

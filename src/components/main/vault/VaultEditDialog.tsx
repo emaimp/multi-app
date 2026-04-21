@@ -14,7 +14,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Vault, VAULT_COLORS, VAULT_COLORS_HEX } from '../../../types/vault';
 import { Collection } from '../../../types/collection';
-import { ConfirmDialog, AvatarPicker } from '../../ui';
+import { ConfirmDialog, AvatarPicker } from '../../common';
 
 interface VaultEditDialogProps {
   open: boolean;

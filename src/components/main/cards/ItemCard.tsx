@@ -1,6 +1,6 @@
 import { Box, Typography, IconButton } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { AvatarDisplay } from '../../ui/avatar';
+import { AvatarDisplay } from '../../common/avatar';
 
 interface ItemCardProps<T> {
   title: string;

@@ -2,7 +2,7 @@ import { Box, IconButton, Skeleton } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LogoutIcon from '@mui/icons-material/Logout';
-import { AvatarDisplay } from '../../ui/avatar';
+import { AvatarDisplay } from '../../common/avatar';
 
 interface UserHeaderProps {
   avatar?: string | null;

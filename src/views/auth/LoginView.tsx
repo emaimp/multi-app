@@ -13,7 +13,7 @@ import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { CenteredCard, TopBar } from '../../components/ui';
+import { CenteredCard, TopBar } from '../../components/common';
 import RegisterView from './RegisterView';
 import RecoverView from './RecoverView';
 
