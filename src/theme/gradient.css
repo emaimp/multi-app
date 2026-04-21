@@ -11,18 +11,18 @@ body {
 }
 
 /* Media queries for theme */
-@media (prefers-color-scheme: dark) {
+@media (prefers-color-scheme: light) {
   body {
-    background: linear-gradient(135deg, #000000 30%, #101031 100%);
+    background: linear-gradient(135deg, #ffffff 50%, #ffffff 100%);
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
   }
 }
 
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: dark) {
   body {
-    background: linear-gradient(135deg, #ffffff 30%, #e8dfef 100%);
+    background: linear-gradient(135deg, #000000 50%, #000000 100%);
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
