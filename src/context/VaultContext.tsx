@@ -5,13 +5,13 @@ import { CreditCard } from '../types/credit_card';
 import { LoginKey } from '../types/loginkey';
 import { Note } from '../types/note';
 import { Collection } from '../types/collection';
-import { useVaults as useVaultsHook } from '../hooks/useVaults';
-import { useIdCards as useIdCardsHook } from '../hooks/useIdCards';
-import { useCreditCards as useCreditCardsHook } from '../hooks/useCreditCards';
-import { useLoginKeys as useLoginKeysHook } from '../hooks/useLoginKeys';
-import { useNotes as useNotesHook } from '../hooks/useNotes';
-import { useCollections as useCollectionsHook } from '../hooks/useCollections';
-import { useBackend } from '../hooks/useBackend';
+import { useVaults as useVaultsHook } from '../hooks/vault/useVaults';
+import { useIdCards as useIdCardsHook } from '../hooks/items/useIdCards';
+import { useCreditCards as useCreditCardsHook } from '../hooks/items/useCreditCards';
+import { useLoginKeys as useLoginKeysHook } from '../hooks/items/useLoginKeys';
+import { useNotes as useNotesHook } from '../hooks/items/useNotes';
+import { useCollections as useCollectionsHook } from '../hooks/vault/useCollections';
+import { useBackend } from '../hooks/core/useBackend';
 
 interface VaultContextType {
   // States

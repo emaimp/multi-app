@@ -8,7 +8,7 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import { LoadingDialog, CreateDialog } from '../components/ui';
 import { useUser } from '../context/AuthContext';
 import { useVaults } from '../context/VaultContext';
-import { useBackend } from '../hooks/useBackend';
+import { useBackend } from '../hooks/core/useBackend';
 import {
   VaultListSkeleton,
   VaultEditDialog,

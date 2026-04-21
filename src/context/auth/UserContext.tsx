@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User } from '../../types/user';
-import { useBackend } from '../../hooks/useBackend';
+import { useBackend } from '../../hooks/core/useBackend';
 import { useSession } from './SessionContext';
 
 interface UserContextType {

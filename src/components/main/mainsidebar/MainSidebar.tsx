@@ -14,7 +14,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useSortableSensors } from '../../../hooks/useSortableSensors';
+import { useSortableSensors } from '../../../hooks/sensors/useSortableSensors';
 import { UserHeader } from './UserHeader';
 import { Collection } from '../../../types/collection';
 import { Vault } from '../../../types/vault';

@@ -12,7 +12,7 @@ import { IdCard, IDCARD_COLORS_HEX } from '../../../types/id_card';
 import { CreditCard, CREDITCARD_COLORS_HEX } from '../../../types/credit_card';
 import { LoginKey, LOGINKEY_COLORS_HEX } from '../../../types/loginkey';
 import { Note, NOTE_COLORS_HEX } from '../../../types/note';
-import { useSortableSensors } from '../../../hooks/useSortableSensors';
+import { useSortableSensors } from '../../../hooks/sensors/useSortableSensors';
 import {
   DndContext,
   closestCenter,

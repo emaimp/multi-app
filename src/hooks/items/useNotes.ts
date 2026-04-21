@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Note } from '../types/note';
-import { useUser } from '../context/AuthContext';
-import { useBackend } from './useBackend';
-import { reorderItems, parseImageToBytes } from './usePositionUtils';
+import { Note } from '../../types/note';
+import { useUser } from '../../context/AuthContext';
+import { useBackend } from '../core/useBackend';
+import { reorderItems, parseImageToBytes } from '../sensors/usePositionUtils';
 
 interface UseNotesReturn {
   // States

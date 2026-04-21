@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Collection } from '../types/collection';
-import { useUser } from '../context/AuthContext';
-import { useBackend } from './useBackend';
+import { Collection } from '../../types/collection';
+import { useUser } from '../../context/AuthContext';
+import { useBackend } from '../core/useBackend';
 
 interface UseCollectionsReturn {
   // States

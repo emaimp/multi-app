@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { IdCard } from '../types/id_card';
-import { useUser } from '../context/AuthContext';
-import { useBackend } from './useBackend';
-import { parseImageToBytes } from './usePositionUtils';
+import { IdCard } from '../../types/id_card';
+import { useUser } from '../../context/AuthContext';
+import { useBackend } from '../core/useBackend';
+import { parseImageToBytes } from '../sensors/usePositionUtils';
 
 interface UseIdCardsReturn {
   idCards: IdCard[];

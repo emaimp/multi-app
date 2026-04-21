@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from 'react';
-import { useBackend } from '../../hooks/useBackend';
+import { useBackend } from '../../hooks/core/useBackend';
 
 interface SessionContextType {
   initSession: (userId: number, masterKey: string) => Promise<void>;

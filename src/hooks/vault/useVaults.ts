@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { Vault } from '../types/vault';
-import { useUser } from '../context/AuthContext';
-import { useBackend } from './useBackend';
-import { reorderItems, parseImageToBytes } from './usePositionUtils';
+import { Vault } from '../../types/vault';
+import { useUser } from '../../context/AuthContext';
+import { useBackend } from '../core/useBackend';
+import { reorderItems, parseImageToBytes } from '../sensors/usePositionUtils';
 
 interface UseVaultsReturn {
   // States

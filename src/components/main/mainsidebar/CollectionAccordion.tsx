@@ -20,7 +20,7 @@ import {
   verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import { useSortableSensors } from '../../../hooks/useSortableSensors';
+import { useSortableSensors } from '../../../hooks/sensors/useSortableSensors';
 import { Collection } from '../../../types/collection';
 import { Vault, VAULT_COLORS_HEX } from '../../../types/vault';
 import { SortableItemCard } from '../cards/SortableItemCard';
