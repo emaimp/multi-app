@@ -251,6 +251,9 @@ export function CategoryAccordion({
         '&:before': { display: 'none' },
         borderBottom: '1px solid',
         borderColor: 'divider',
+        '&.Mui-disabled': {
+          opacity: 0.65,
+        },
       }}
     >
       <AccordionSummary
