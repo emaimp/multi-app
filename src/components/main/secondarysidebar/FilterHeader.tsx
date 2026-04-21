@@ -29,6 +29,7 @@ interface FilterHeaderProps {
   hasNotes?: boolean;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
+  disabled?: boolean;
 }
 
 export function FilterHeader({
@@ -41,6 +42,7 @@ export function FilterHeader({
   hasNotes = true,
   searchQuery = '',
   onSearchChange,
+  disabled = false,
 }: FilterHeaderProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -91,6 +93,8 @@ export function FilterHeader({
             borderRadius: 1,
             bgcolor: filterType !== 'all' ? 'action.selected' : 'transparent',
             '&:hover': { bgcolor: 'action.hover' },
+            opacity: disabled ? 0.65 : 1,
+            pointerEvents: disabled ? 'none' : 'auto',
           }}
         >
           {getFilterIcon()}
@@ -163,8 +167,10 @@ export function FilterHeader({
         variant="standard"
         value={searchQuery}
         onChange={(e) => onSearchChange?.(e.target.value)}
+        disabled={disabled}
         sx={{
           flex: 1,
+          opacity: disabled ? 0.65 : 1,
           '& .MuiOutlinedInput-root': {
             borderRadius: 1,
           },
@@ -178,6 +184,8 @@ export function FilterHeader({
             sx={{
               borderRadius: 1,
               '&:hover': { bgcolor: 'action.hover' },
+              opacity: disabled ? 0.65 : 1,
+              pointerEvents: disabled ? 'none' : 'auto',
             }}
           >
             <SortByAlphaIcon sx={{ fontSize: 20 }} />

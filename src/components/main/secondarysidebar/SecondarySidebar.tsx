@@ -176,6 +176,7 @@ export function SecondarySidebar({
           hasNotes={notes.length > 0}
           searchQuery={searchQuery}
           onSearchChange={onSearchChange}
+          disabled={isLocked}
         />
       </Box>
 
