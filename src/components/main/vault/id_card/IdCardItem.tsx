@@ -3,6 +3,8 @@ import { Box, TextField, IconButton, Typography, InputAdornment } from '@mui/mat
 import SaveIcon from '@mui/icons-material/Save';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { IdCard, IDCARD_COLORS_HEX } from '../../../../types/id_card';
@@ -18,7 +20,10 @@ export function IdCardItem({ idCard, isLockedByDefault = false, newlyCreatedId, 
   const [idType, setIdType] = useState(idCard.id_type);
   const [fullName, setFullName] = useState(idCard.full_name);
   const [idNumber, setIdNumber] = useState(idCard.id_number);
-  const [copied, setCopied] = useState(false);
+  const [copiedFullName, setCopiedFullName] = useState(false);
+  const [copiedIdNumber, setCopiedIdNumber] = useState(false);
+  const [showFullName, setShowFullName] = useState(false);
+  const [showIdNumber, setShowIdNumber] = useState(false);
   const [saved, setSaved] = useState(false);
   const isInitiallyUnlocked = newlyCreatedId === idCard.id;
   const [isLocked, setIsLocked] = useState(isInitiallyUnlocked ? false : isLockedByDefault);
@@ -40,8 +45,16 @@ export function IdCardItem({ idCard, isLockedByDefault = false, newlyCreatedId, 
   const handleCopyNumber = async () => {
     if (idNumber) {
       await navigator.clipboard.writeText(idNumber);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 3000);
+      setCopiedIdNumber(true);
+      setTimeout(() => setCopiedIdNumber(false), 3000);
+    }
+  };
+
+  const handleCopyFullName = async () => {
+    if (fullName) {
+      await navigator.clipboard.writeText(fullName);
+      setCopiedFullName(true);
+      setTimeout(() => setCopiedFullName(false), 3000);
     }
   };
 
@@ -125,6 +138,7 @@ export function IdCardItem({ idCard, isLockedByDefault = false, newlyCreatedId, 
         <TextField
           fullWidth
           variant="outlined"
+          type={showFullName ? 'text' : 'password'}
           label="Full Name"
           value={fullName}
           onChange={(e) => !isLocked && setFullName(e.target.value)}
@@ -134,6 +148,30 @@ export function IdCardItem({ idCard, isLockedByDefault = false, newlyCreatedId, 
             sx: {
               fontSize: '0.9rem',
             },
+            endAdornment: (
+              <InputAdornment position="end" sx={{ ml: 1, mr: -1 }}>
+                <IconButton
+                  size="small"
+                  onClick={() => setShowFullName(!showFullName)}
+                  edge="end"
+                  sx={{ opacity: 0.6 }}
+                >
+                  {showFullName ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                </IconButton>
+                <IconButton
+                  size="small"
+                  onClick={handleCopyFullName}
+                  disabled={isLocked || !fullName}
+                  sx={{
+                    color: copiedFullName ? 'success.main' : 'inherit',
+                    opacity: copiedFullName ? 1 : 0.6,
+                    '&:hover': { opacity: 1 },
+                  }}
+                >
+                  {copiedFullName ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+                </IconButton>
+              </InputAdornment>
+            ),
           }}
           sx={{ mb: 3 }}
         />
@@ -141,6 +179,7 @@ export function IdCardItem({ idCard, isLockedByDefault = false, newlyCreatedId, 
         <TextField
           fullWidth
           variant="outlined"
+          type={showIdNumber ? 'text' : 'password'}
           label="ID Number"
           value={idNumber}
           onChange={(e) => !isLocked && setIdNumber(e.target.value)}
@@ -154,15 +193,23 @@ export function IdCardItem({ idCard, isLockedByDefault = false, newlyCreatedId, 
               <InputAdornment position="end" sx={{ ml: 1, mr: -1 }}>
                 <IconButton
                   size="small"
+                  onClick={() => setShowIdNumber(!showIdNumber)}
+                  edge="end"
+                  sx={{ opacity: 0.6 }}
+                >
+                  {showIdNumber ? <VisibilityOffIcon fontSize="small" /> : <VisibilityIcon fontSize="small" />}
+                </IconButton>
+                <IconButton
+                  size="small"
                   onClick={handleCopyNumber}
                   disabled={isLocked || !idNumber}
                   sx={{
-                    color: copied ? 'success.main' : 'inherit',
-                    opacity: copied ? 1 : 0.6,
+                    color: copiedIdNumber ? 'success.main' : 'inherit',
+                    opacity: copiedIdNumber ? 1 : 0.6,
                     '&:hover': { opacity: 1 },
                   }}
                 >
-                  {copied ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+                  {copiedIdNumber ? <CheckIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
                 </IconButton>
               </InputAdornment>
             ),
