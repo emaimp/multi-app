@@ -9,6 +9,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import { useTheme } from '@mui/material/styles';
 import { ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface TopBarProps {
   onBack?: () => void;
@@ -18,6 +19,7 @@ interface TopBarProps {
 }
 
 export function TopBar({ onBack, showBackButton = true, showLanguageButton = true, actions }: TopBarProps) {
+  const { i18n } = useTranslation();
   const theme = useTheme();
   const [languageAnchor, setLanguageAnchor] = useState<null | HTMLElement>(null);
 
@@ -58,8 +60,8 @@ export function TopBar({ onBack, showBackButton = true, showLanguageButton = tru
                 open={Boolean(languageAnchor)}
                 onClose={() => setLanguageAnchor(null)}
               >
-                <MenuItem onClick={() => setLanguageAnchor(null)}>English</MenuItem>
-                <MenuItem onClick={() => setLanguageAnchor(null)}>Spanish</MenuItem>
+                <MenuItem onClick={() => { i18n.changeLanguage('en'); setLanguageAnchor(null); }}>English</MenuItem>
+                <MenuItem onClick={() => { i18n.changeLanguage('es'); setLanguageAnchor(null); }}>Español</MenuItem>
               </Menu>
             </>
           )}

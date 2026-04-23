@@ -1,0 +1,23 @@
+{
+  "login": {
+    "signIn": "Sign In",
+    "username": "Username",
+    "usernamePlaceholder": "Enter username",
+    "usernameMinLength": "It must have at least 3 characters.",
+    "userNotFound": "User not found.",
+    "password": "Password",
+    "passwordPlaceholder": "••••••",
+    "passwordRequired": "Password is required.",
+    "invalidPassword": "Invalid password.",
+    "masterKey": "Master Key",
+    "masterKeyPlaceholder": "Enter master key",
+    "masterKeyRequired": "Master key is required.",
+    "invalidMasterKey": "Invalid master key.",
+    "signingIn": "Signing In...",
+    "forgotPassword": "Forgot your password?",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "networkError": "Network error. Please check your connection.",
+    "loginFailed": "Login failed. Please try again."
+  }
+}

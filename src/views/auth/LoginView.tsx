@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -18,6 +19,7 @@ import RegisterView from './RegisterView';
 import RecoverView from './RecoverView';
 
 function LoginView() {
+  const { t } = useTranslation();
   const { login, register } = useUser();
 
   const [view, setView] = useState<'login' | 'register' | 'recover'>('login');
@@ -94,9 +96,9 @@ function LoginView() {
       } else if (errorMessage.includes('Invalid master key')) {
         setMasterKeyInvalidError(true);
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
-        setError('Network error. Please check your connection.');
+        setError(t('login.networkError'));
       } else {
-        setError('Login failed. Please try again.');
+        setError(t('login.loginFailed'));
       }
     } finally {
       setIsLoading(false);
@@ -125,7 +127,7 @@ function LoginView() {
           mb: 2,
         }}
       >
-        Sign In
+        {t('login.signIn')}
       </Typography>
 
       <Box
@@ -143,15 +145,15 @@ function LoginView() {
           id="username"
           name="username"
           type="text"
-          label="Username"
-          placeholder="Enter username"
+          label={t('login.username')}
+          placeholder={t('login.usernamePlaceholder')}
           autoComplete="off"
           autoFocus
           fullWidth
           variant="outlined"
           value={username}
           error={usernameError || usernameNotFoundError}
-          helperText={usernameError ? 'It must have at least 3 characters.' : usernameNotFoundError ? 'User not found.' : ''}
+          helperText={usernameError ? t('login.usernameMinLength') : usernameNotFoundError ? t('login.userNotFound') : ''}
           onChange={(e) => {
             setUsername(e.target.value);
             if (usernameError) setUsernameError(false);
@@ -170,14 +172,14 @@ function LoginView() {
           id="password"
           name="password"
           type={showPassword ? 'text' : 'password'}
-          label="Password"
-          placeholder="••••••"
+          label={t('login.password')}
+          placeholder={t('login.passwordPlaceholder')}
           autoComplete="off"
           fullWidth
           variant="outlined"
           value={password}
           error={passwordError || passwordInvalidError}
-          helperText={passwordError ? 'Password is required.' : passwordInvalidError ? 'Invalid password.' : ''}
+          helperText={passwordError ? t('login.passwordRequired') : passwordInvalidError ? t('login.invalidPassword') : ''}
           onChange={(e) => {
             setPassword(e.target.value);
             if (passwordError) setPasswordError(false);
@@ -207,14 +209,14 @@ function LoginView() {
           id="masterKey"
           name="masterKey"
           type={showMasterKey ? 'text' : 'password'}
-          label="Master Key"
-          placeholder="Enter master key"
+          label={t('login.masterKey')}
+          placeholder={t('login.masterKeyPlaceholder')}
           autoComplete="off"
           fullWidth
           variant="outlined"
           value={masterKey}
           error={masterKeyError || masterKeyInvalidError}
-          helperText={masterKeyError ? 'Master key is required.' : masterKeyInvalidError ? 'Invalid master key.' : ''}
+          helperText={masterKeyError ? t('login.masterKeyRequired') : masterKeyInvalidError ? t('login.invalidMasterKey') : ''}
           onChange={(e) => {
             setMasterKey(e.target.value);
             if (masterKeyError) setMasterKeyError(false);
@@ -248,7 +250,7 @@ function LoginView() {
           disabled={isLoading}
           startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
         >
-          {isLoading ? 'Signing In...' : 'Sign In'}
+          {isLoading ? t('login.signingIn') : t('login.signIn')}
         </Button>
 
         <Link
@@ -258,7 +260,7 @@ function LoginView() {
           variant="body2"
           sx={{ alignSelf: 'center' }}
         >
-          Forgot your password?
+          {t('login.forgotPassword')}
         </Link>
       </Box>
 
@@ -270,7 +272,7 @@ function LoginView() {
         }}
       >
         <Typography sx={{ textAlign: 'center' }}>
-          Don&apos;t have an account?&nbsp;
+          {t('login.dontHaveAccount')}&nbsp;
           <Link
             component="button"
             type="button"
@@ -278,7 +280,7 @@ function LoginView() {
             variant="body2"
             sx={{ alignSelf: 'center' }}
           >
-            Sign up
+            {t('login.signUp')}
           </Link>
         </Typography>
       </Box>

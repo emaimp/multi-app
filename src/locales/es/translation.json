@@ -1,0 +1,23 @@
+{
+  "login": {
+    "signIn": "Iniciar Sesión",
+    "username": "Usuario",
+    "usernamePlaceholder": "Ingrese usuario",
+    "usernameMinLength": "Debe tener al menos 3 caracteres.",
+    "userNotFound": "Usuario no encontrado.",
+    "password": "Contraseña",
+    "passwordPlaceholder": "••••••",
+    "passwordRequired": "La contraseña es requerida.",
+    "invalidPassword": "Contraseña inválida.",
+    "masterKey": "Clave Maestra",
+    "masterKeyPlaceholder": "Ingrese clave maestra",
+    "masterKeyRequired": "La clave maestra es requerida.",
+    "invalidMasterKey": "Clave maestra inválida.",
+    "signingIn": "Ingresando...",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "dontHaveAccount": "¿No tienes una cuenta?",
+    "signUp": "Regístrate",
+    "networkError": "Error de red. Verifica tu conexión.",
+    "loginFailed": "Error al iniciar sesión. Intenta de nuevo."
+  }
+}
