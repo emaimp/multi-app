@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useUser } from '../../context/AuthContext';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -21,6 +22,7 @@ interface RecoverViewProps {
 }
 
 function RecoverView({ onBack }: RecoverViewProps) {
+  const { t } = useTranslation();
   const { recoverPassword } = useUser();
 
   const [username, setUsername] = useState('');
@@ -53,11 +55,11 @@ function RecoverView({ onBack }: RecoverViewProps) {
 
     const score = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
 
-    if (value.length < 6) return { label: 'It must have at least 6 characters.', color: 'error' };
-    if (score <= 1) return { label: 'Low security - Add more specific characters.', color: 'error' };
-    if (score <= 2) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
-    if (score <= 3) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
-    return { label: `High security - Strong ${label}.`, color: 'success' };
+    if (value.length < 6) return { label: t('register.passwordMinLength'), color: 'error' };
+    if (score <= 1) return { label: t('register.lowSecurity'), color: 'error' };
+    if (score <= 2) return { label: t('register.mediumSecurity'), color: 'warning' };
+    if (score <= 3) return { label: t('register.mediumSecurity'), color: 'warning' };
+    return { label: t('register.highSecurity', { label }), color: 'success' };
   };
 
   const getColor = (color: string) => `${color}.main`;
@@ -76,7 +78,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const validateMasterKey = (value: string) => {
     if (!value || value.length < 1) {
       setMasterKeyError(true);
-      setMasterKeyErrorMessage('Master key is required.');
+      setMasterKeyErrorMessage(t('recover.masterKeyRequired'));
       return false;
     }
     setMasterKeyError(false);
@@ -87,7 +89,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const validateNewPassword = (value: string) => {
     if (!value || value.length < 6) {
       setNewPasswordError(true);
-      setNewPasswordErrorMessage('Password must be at least 6 characters.');
+      setNewPasswordErrorMessage(t('recover.newPasswordMinLength'));
       return false;
     }
     setNewPasswordError(false);
@@ -98,7 +100,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
   const validateConfirmPassword = (value: string) => {
     if (value !== newPassword) {
       setConfirmPasswordError(true);
-      setConfirmPasswordErrorMessage('Passwords do not match.');
+      setConfirmPasswordErrorMessage(t('recover.passwordsDoNotMatch'));
       return false;
     }
     setConfirmPasswordError(false);
@@ -119,27 +121,27 @@ function RecoverView({ onBack }: RecoverViewProps) {
     }
 
     if (newPassword !== confirmNewPassword) {
-      setError('Passwords do not match');
+      setError(t('recover.passwordsDoNotMatch'));
       return;
     }
 
     try {
       setIsLoading(true);
       await recoverPassword(username, masterKey, newPassword);
-      setSuccess('Password recovered. You can now log in.');
+      setSuccess(t('recover.passwordRecovered'));
       setError('');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       if (errorMessage.includes('User not found')) {
-        setError('User not found. Please check your username.');
+        setError(t('recover.userNotFound'));
         setUsernameNotFoundError(true);
       } else if (errorMessage.includes('Invalid master key')) {
-        setError('Invalid master key. Please try again.');
+        setError(t('recover.invalidMasterKey'));
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
-        setError('Network error. Please check your connection.');
+        setError(t('recover.networkError'));
       } else {
-        setError('Password recovery failed. Please try again.');
+        setError(t('recover.recoverFailed'));
       }
       setSuccess('');
     } finally {
@@ -162,7 +164,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             mb: 2,
           }}
         >
-          Recover Password
+          {t('recover.recoverPassword')}
         </Typography>
 
         <Box
@@ -174,14 +176,14 @@ function RecoverView({ onBack }: RecoverViewProps) {
             id="username"
             name="username"
             type="text"
-            label="Username"
-            placeholder="Enter username"
+            label={t('recover.username')}
+            placeholder={t('recover.usernamePlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
             value={username}
             error={usernameError || usernameNotFoundError}
-            helperText={usernameError ? 'It must have at least 3 characters.' : usernameNotFoundError ? 'User not found.' : ''}
+            helperText={usernameError ? t('recover.usernameMinLength') : usernameNotFoundError ? t('recover.userNotFound') : ''}
             onChange={(e) => {
               setUsername(e.target.value);
               if (usernameError) setUsernameError(false);
@@ -200,13 +202,13 @@ function RecoverView({ onBack }: RecoverViewProps) {
             id="masterKey"
             name="masterKey"
             type={showMasterKey ? 'text' : 'password'}
-            label="Master Key"
-            placeholder="Enter master key"
+            label={t('recover.masterKey')}
+            placeholder={t('recover.masterKeyPlaceholder')}
             fullWidth
             variant="outlined"
             value={masterKey}
             error={masterKeyError}
-            helperText={masterKeyErrorMessage || 'Required for password recovery.'}
+            helperText={masterKeyErrorMessage || t('recover.requiredForRecovery')}
             onChange={(e) => {
               setMasterKey(e.target.value);
               if (!masterKeyError) {
@@ -237,8 +239,8 @@ function RecoverView({ onBack }: RecoverViewProps) {
             id="newPassword"
             name="newPassword"
             type={showNewPassword ? 'text' : 'password'}
-            label="New Password"
-            placeholder="••••••"
+            label={t('recover.newPassword')}
+            placeholder={t('recover.newPasswordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -251,7 +253,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
                 </span>
               ) : newPassword.length === 0 ? (
                 <span>
-                  Key to access. It can be modified.
+                  {t('recover.keyToAccess')}
                 </span>
               ) : newPassword.length < 6 ? (
                 <Box component="span" sx={{ color: 'error.main' }}>
@@ -260,7 +262,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
               ) : (
                 <Box component="span" sx={{ color: getColor(newPasswordStrength.color) }}>
                   {newPasswordStrength.label}
-                  <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
+                  <Tooltip title={t('register.specificChars')}>
                     <InfoOutlined
                       sx={{
                         fontSize: 14,
@@ -317,8 +319,8 @@ function RecoverView({ onBack }: RecoverViewProps) {
             id="confirmNewPassword"
             name="confirmNewPassword"
             type={showConfirmNewPassword ? 'text' : 'password'}
-            label="Confirm New Password"
-            placeholder="••••••"
+            label={t('recover.confirmNewPassword')}
+            placeholder={t('recover.confirmNewPasswordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -332,7 +334,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
                 setConfirmPasswordErrorMessage('');
               } else {
                 setConfirmPasswordError(true);
-                setConfirmPasswordErrorMessage('Passwords do not match.');
+                setConfirmPasswordErrorMessage(t('recover.passwordsDoNotMatch'));
               }
               if (error) setError('');
             }}
@@ -363,7 +365,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
           >
-            {isLoading ? 'Recovering...' : 'Recover Password'}
+            {isLoading ? t('recover.recovering') : t('recover.recoverPassword')}
           </Button>
         </Box>
       </CenteredCard>

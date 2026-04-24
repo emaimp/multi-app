@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -21,6 +22,7 @@ interface RegisterViewProps {
 }
 
 function RegisterView({ onRegister, onBack }: RegisterViewProps) {
+  const { t } = useTranslation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -54,11 +56,11 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
 
     const score = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
 
-    if (value.length < 6) return { label: 'It must have at least 6 characters.', color: 'error' };
-    if (score <= 1) return { label: 'Low security - Add more specific characters.', color: 'error' };
-    if (score <= 2) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
-    if (score <= 3) return { label: 'Medium security - Add more specific characters.', color: 'warning' };
-    return { label: `High security - Strong ${label}.`, color: 'success' };
+    if (value.length < 6) return { label: t('register.passwordMinLength'), color: 'error' };
+    if (score <= 1) return { label: t('register.lowSecurity'), color: 'error' };
+    if (score <= 2) return { label: t('register.mediumSecurity'), color: 'warning' };
+    if (score <= 3) return { label: t('register.mediumSecurity'), color: 'warning' };
+    return { label: t('register.highSecurity', { label }), color: 'success' };
   };
 
   const getColor = (color: string) => `${color}.main`;
@@ -70,7 +72,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const validateUsername = (value: string) => {
     if (!value || value.length < 3) {
       setUsernameError(true);
-      setUsernameErrorMessage('It must have at least 3 characters.');
+      setUsernameErrorMessage(t('register.usernameMinLength'));
       return false;
     }
     setUsernameError(false);
@@ -81,7 +83,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const validatePassword = (value: string) => {
     if (!value || value.length < 6) {
       setPasswordError(true);
-      setPasswordErrorMessage('It must have at least 6 characters.');
+      setPasswordErrorMessage(t('register.passwordMinLength'));
       return false;
     }
     setPasswordError(false);
@@ -92,7 +94,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const validateConfirmPassword = (value: string) => {
     if (value !== password) {
       setConfirmPasswordError(true);
-      setConfirmPasswordErrorMessage('Passwords do not match.');
+      setConfirmPasswordErrorMessage(t('register.passwordsDoNotMatch'));
       return false;
     }
     setConfirmPasswordError(false);
@@ -103,7 +105,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const validateMasterKey = (value: string) => {
     if (!value || value.length < 6) {
       setMasterKeyError(true);
-      setMasterKeyErrorMessage('It must have at least 6 characters.');
+      setMasterKeyErrorMessage(t('register.masterKeyMinLength'));
       return false;
     }
     setMasterKeyError(false);
@@ -114,7 +116,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const validateConfirmMasterKey = (value: string) => {
     if (value !== masterKey) {
       setConfirmMasterKeyError(true);
-      setConfirmMasterKeyErrorMessage('Master Keys do not match.');
+      setConfirmMasterKeyErrorMessage(t('register.masterKeysDoNotMatch'));
       return false;
     }
     setConfirmMasterKeyError(false);
@@ -136,12 +138,12 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     }
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('register.passwordsDoNotMatch'));
       return;
     }
 
     if (masterKey !== confirmMasterKey) {
-      setError('Master Keys do not match');
+      setError(t('register.masterKeysDoNotMatch'));
       return;
     }
 
@@ -152,11 +154,11 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       if (errorMessage.includes('User already exists')) {
-        setError('Username already taken. Please choose another.');
+        setError(t('register.usernameTaken'));
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
-        setError('Network error. Please check your connection.');
+        setError(t('register.networkError'));
       } else {
-        setError('Registration failed. Please try again.');
+        setError(t('register.registerFailed'));
       }
     } finally {
       setIsLoading(false);
@@ -178,7 +180,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             mb: 2,
           }}
         >
-          Sign Up
+          {t('register.signUp')}
         </Typography>
 
         <Box
@@ -190,8 +192,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             id="username"
             name="username"
             type="text"
-            label="Username"
-            placeholder="Enter username"
+            label={t('register.username')}
+            placeholder={t('register.usernamePlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -207,7 +209,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                     color: 'error.main'
                   }}
                 >
-                  It must have at least 3 characters.
+                  {t('register.usernameMinLength')}
                 </Box>
               ) : (
                 ''
@@ -233,8 +235,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             id="password"
             name="password"
             type={showPassword ? 'text' : 'password'}
-            label="Password"
-            placeholder="••••••"
+            label={t('register.password')}
+            placeholder={t('register.passwordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -247,7 +249,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 </span>
               ) : password.length === 0 ? (
                 <span>
-                  Key to access. It can be modified.
+                  {t('register.keyToAccess')}
                 </span>
               ) : password.length < 6 ? (
                 <Box
@@ -266,7 +268,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                   }}
                 >
                   {passwordStrength.label}
-                  <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
+                  <Tooltip title={t('register.specificChars')}>
                     <InfoOutlined
                       sx={{
                         fontSize: 14,
@@ -323,8 +325,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             id="confirmPassword"
             name="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
-            label="Confirm Password"
-            placeholder="••••••"
+            label={t('register.confirmPassword')}
+            placeholder={t('register.confirmPasswordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -338,7 +340,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 setConfirmPasswordErrorMessage('');
               } else {
                 setConfirmPasswordError(true);
-                setConfirmPasswordErrorMessage('Passwords do not match.');
+                setConfirmPasswordErrorMessage(t('register.passwordsDoNotMatch'));
               }
               if (error) setError('');
             }}
@@ -365,8 +367,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             id="masterKey"
             name="masterKey"
             type={showMasterKey ? 'text' : 'password'}
-            label="Master Key"
-            placeholder="Enter master key"
+            label={t('register.masterKey')}
+            placeholder={t('register.masterKeyPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -379,7 +381,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 </span>
               ) : masterKey.length === 0 ? (
                 <span>
-                  Key to confirm access. Cannot be modified.
+                  {t('register.keyToConfirmAccess')}
                 </span>
               ) : masterKey.length < 6 ? (
                 <Box
@@ -398,7 +400,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                   }}
                 >
                   {masterKeyStrength.label}
-                  <Tooltip title="Specific characters: A-Z, 0-9, !@#$">
+                  <Tooltip title={t('register.specificChars')}>
                     <InfoOutlined
                       sx={{
                         fontSize: 14,
@@ -455,8 +457,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             id="confirmMasterKey"
             name="confirmMasterKey"
             type={showConfirmMasterKey ? 'text' : 'password'}
-            label="Confirm Master Key"
-            placeholder="••••••"
+            label={t('register.confirmMasterKey')}
+            placeholder={t('register.confirmMasterKeyPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -470,7 +472,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 setConfirmMasterKeyErrorMessage('');
               } else {
                 setConfirmMasterKeyError(true);
-                setConfirmMasterKeyErrorMessage('Master Keys do not match.');
+                setConfirmMasterKeyErrorMessage(t('register.masterKeysDoNotMatch'));
               }
               if (error) setError('');
             }}
@@ -501,7 +503,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
           >
-            {isLoading ? 'Registering...' : 'Register'}
+            {isLoading ? t('register.registering') : t('register.registerBtn')}
           </Button>
         </Box>
       </CenteredCard>
