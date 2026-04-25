@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
@@ -16,6 +17,7 @@ import { useUser } from '../../context/AuthContext';
 import { AvatarPicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/common';
 
 export function SettingsView() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, updateUser, changePassword, deleteAccount } = useUser();
 
@@ -49,15 +51,15 @@ export function SettingsView() {
     const newErrors: typeof errors = {};
 
     if (username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters.';
+      newErrors.username = t('settings.usernameMinLength');
     }
 
     if (newPassword) {
       if (newPassword.length < 6) {
-        newErrors.newPassword = 'Password must be at least 6 characters.';
+        newErrors.newPassword = t('settings.newPasswordMinLength');
       }
       if (newPassword !== confirmPassword) {
-        newErrors.confirmPassword = 'Passwords do not match.';
+        newErrors.confirmPassword = t('settings.passwordsDoNotMatch');
       }
     }
 
@@ -104,17 +106,17 @@ export function SettingsView() {
       setDeleteAccountChecked(false);
       setPasswordDialogOpen(false);
 
-      setSuccessMessage('Settings saved successfully.');
+      setSuccessMessage(t('settings.settingsSaved'));
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       if (masterKey) {
         if (errorMessage.includes('Invalid master key')) {
-          setPasswordDialogError('Invalid master key');
+          setPasswordDialogError(t('settings.invalidMasterKey'));
         } else {
-          setPasswordDialogError('Failed to save settings.');
+          setPasswordDialogError(t('settings.failedToSaveSettings'));
         }
       } else {
-        setErrorMessage('Failed to save settings.');
+        setErrorMessage(t('settings.failedToSaveSettings'));
       }
     } finally {
       setIsLoading(false);
@@ -135,9 +137,9 @@ export function SettingsView() {
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       if (errorMessage.includes('Invalid master key')) {
-        setDeleteDialogError('Invalid master key');
+        setDeleteDialogError(t('settings.invalidMasterKey'));
       } else {
-        setDeleteDialogError('Failed to delete account.');
+        setDeleteDialogError(t('settings.failedToDelete'));
       }
     } finally {
       setDialogLoading(false);
@@ -183,8 +185,8 @@ export function SettingsView() {
             id="username"
             name="username"
             type="text"
-            label="Username"
-            placeholder="Enter username"
+            label={t('settings.username')}
+            placeholder={t('settings.usernamePlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -207,8 +209,8 @@ export function SettingsView() {
             id="newPassword"
             name="newPassword"
             type={showNewPassword ? 'text' : 'password'}
-            label="New Password"
-            placeholder="••••••"
+            label={t('settings.newPassword')}
+            placeholder={t('settings.newPasswordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -243,8 +245,8 @@ export function SettingsView() {
             id="confirmPassword"
             name="confirmPassword"
             type={showConfirmPassword ? 'text' : 'password'}
-            label="Confirm Password"
-            placeholder="••••••"
+            label={t('settings.confirmPassword')}
+            placeholder={t('settings.confirmPasswordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
@@ -294,7 +296,7 @@ export function SettingsView() {
                   color: deleteAccountChecked ? 'error.main' : 'text.secondary'
                 }}
               >
-                Delete account
+                {t('settings.deleteAccount')}
               </Box>
             }
           />
@@ -306,39 +308,39 @@ export function SettingsView() {
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
           >
-            {isLoading ? 'Saving...' : 'Save Changes'}
+            {isLoading ? t('settings.saving') : t('settings.saveChanges')}
           </Button>
         </Box>
       </CenteredCard>
 
       <ConfirmDialog
         open={passwordDialogOpen}
-        title="Password Change"
-        message="Please enter your master key to confirm the password change."
+        title={t('settings.passwordChange')}
+        message={t('settings.passwordChangeMessage')}
         onConfirm={(masterKey) => masterKey && confirmPasswordChange(masterKey)}
         onCancel={() => {
           setPasswordDialogOpen(false);
           setPasswordDialogError('');
         }}
         showMasterKey
-        label="Master Key"
-        placeholder="Enter master key"
+        label={t('login.masterKey')}
+        placeholder={t('login.masterKeyPlaceholder')}
         error={passwordDialogError}
         isLoading={dialogLoading}
       />
 
       <ConfirmDialog
         open={deleteDialogOpen}
-        title="Delete Account"
-        message="This action cannot be undone and all your data will be permanently lost. Enter your master key to confirm the delete account."
+        title={t('settings.deleteAccountTitle')}
+        message={t('settings.deleteAccountMessage')}
         onConfirm={(masterKey) => masterKey && confirmDeleteAccount(masterKey)}
         onCancel={() => {
           setDeleteDialogOpen(false);
           setDeleteDialogError('');
         }}
         showMasterKey
-        label="Master Key"
-        placeholder="Enter master key"
+        label={t('login.masterKey')}
+        placeholder={t('login.masterKeyPlaceholder')}
         error={deleteDialogError}
         isLoading={dialogLoading}
       />

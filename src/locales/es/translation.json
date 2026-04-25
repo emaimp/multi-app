@@ -71,5 +71,28 @@
     "invalidMasterKey": "Clave maestra inválida. Intenta de nuevo.",
     "networkError": "Error de red. Verifica tu conexión.",
     "recoverFailed": "Error al recuperar contraseña. Intenta de nuevo."
+  },
+  "settings": {
+    "settings": "Configuración",
+    "username": "Usuario",
+    "usernamePlaceholder": "Ingrese usuario",
+    "usernameMinLength": "El usuario debe tener al menos 3 caracteres.",
+    "newPassword": "Nueva Contraseña",
+    "newPasswordPlaceholder": "••••••",
+    "newPasswordMinLength": "La contraseña debe tener al menos 6 caracteres.",
+    "confirmPassword": "Confirmar Contraseña",
+    "confirmPasswordPlaceholder": "••••••",
+    "passwordsDoNotMatch": "Las contraseñas no coinciden.",
+    "deleteAccount": "Eliminar cuenta",
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando...",
+    "settingsSaved": "Configuración guardada exitosamente.",
+    "failedToSaveSettings": "Error al guardar configuración.",
+    "passwordChange": "Cambiar Contraseña",
+    "passwordChangeMessage": "Ingresa tu clave maestra para confirmar el cambio de contraseña.",
+    "deleteAccountTitle": "Eliminar Cuenta",
+    "deleteAccountMessage": "Esta acción no se puede deshacer y todos tus datos se perderán permanentemente. Ingresa tu clave maestra para confirmar la eliminación.",
+    "invalidMasterKey": "Clave maestra inválida",
+    "failedToDelete": "Error al eliminar cuenta."
   }
 }
