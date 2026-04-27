@@ -18,4 +18,7 @@ export const theme = createTheme({
   cssVariables: {
     colorSchemeSelector: 'class',
   },
+  typography: {
+    fontFamily: '"Inter", sans-serif',
+  },
 });
