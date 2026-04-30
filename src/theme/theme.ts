@@ -19,6 +19,6 @@ export const theme = createTheme({
     colorSchemeSelector: 'class',
   },
   typography: {
-    fontFamily: '"Inter", sans-serif',
+    fontFamily: '"Oxanium", monospace',
   },
 });
