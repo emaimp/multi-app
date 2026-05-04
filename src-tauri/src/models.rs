@@ -6,9 +6,20 @@ pub struct User {
     pub username: String,
     pub username_encrypted: Option<String>,
     pub username_nonce: Option<String>,
-    pub password_hash: String,
     pub master_key_hash: String,
+    pub totp_secret_encrypted: Option<String>,
+    pub totp_secret_nonce: Option<String>,
+    pub totp_confirmed: bool,
+    pub failed_attempts: i32,
+    pub lockout_until: i64,
     pub avatar: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct RegisterStep1Response {
+    pub user_id: i32,
+    pub totp_secret: String,
+    pub otpauth_url: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

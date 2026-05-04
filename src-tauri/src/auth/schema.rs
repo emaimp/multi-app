@@ -6,8 +6,12 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
             id INTEGER PRIMARY KEY,
             username_encrypted TEXT NOT NULL,
             username_nonce TEXT NOT NULL,
-            password_hash TEXT NOT NULL,
             master_key_hash TEXT NOT NULL,
+            totp_secret_encrypted TEXT,
+            totp_secret_nonce TEXT,
+            totp_confirmed INTEGER DEFAULT 0,
+            failed_attempts INTEGER DEFAULT 0,
+            lockout_until INTEGER DEFAULT 0,
             avatar BLOB,
             avatar_nonce TEXT
         )",
