@@ -3,14 +3,19 @@ import { User } from '../../types/user';
 import { useBackend } from '../../hooks/core/useBackend';
 import { useSession } from './SessionContext';
 
+export interface RegisterStep1Response {
+  user_id: number;
+  totp_secret: string;
+  otpauth_url: string;
+}
+
 interface UserContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoadingContent: boolean;
-  login: (username: string, password: string, masterKey?: string) => Promise<void>;
-  register: (username: string, password: string, masterKey: string) => Promise<void>;
-  recoverPassword: (username: string, masterKey: string, newPassword: string) => Promise<void>;
-  changePassword: (masterKey: string, newPassword: string) => Promise<void>;
+  login: (username: string, totpCode: string, masterKey: string) => Promise<void>;
+  register: (username: string, masterKey: string) => Promise<RegisterStep1Response>;
+  confirmRegister: (userId: number, totpCode: string, masterKey: string) => Promise<void>;
   deleteAccount: (masterKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
@@ -33,32 +38,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (username: string, password: string, masterKey?: string) => {
-    const userWithoutAvatar = await invoke<User>('login', { username, password, masterKey: masterKey || '' });
+  const login = async (username: string, totpCode: string, masterKey: string) => {
+    const userWithoutAvatar = await invoke<User>('login', { username, totpCode, masterKey });
     
     setUser(userWithoutAvatar);
-    
-    if (masterKey) {
-      localStorage.setItem('masterKey', masterKey);
-      setIsLoadingContent(true);
-    }
-  };
-
-  const register = async (username: string, password: string, masterKey: string) => {
-    const user = await invoke<User>('register', { username, password, masterKey });
-    setUser(user);
     localStorage.setItem('masterKey', masterKey);
     setIsLoadingContent(true);
   };
 
-  const recoverPassword = async (username: string, masterKey: string, newPassword: string) => {
-    await invoke('recover_password', { username, masterKey, newPassword });
+  const register = async (username: string, masterKey: string): Promise<RegisterStep1Response> => {
+    const response = await invoke<RegisterStep1Response>('register', { username, masterKey });
+    return response;
   };
 
-  const changePassword = async (masterKey: string, newPassword: string) => {
-    if (user) {
-      await invoke('change_password', { userId: user.id, masterKey, newPassword });
-    }
+  const confirmRegister = async (userId: number, totpCode: string, masterKey: string) => {
+    const userWithoutAvatar = await invoke<User>('confirm_register', { userId, totpCode, masterKey });
+    setUser(userWithoutAvatar);
+    localStorage.setItem('masterKey', masterKey);
+    setIsLoadingContent(true);
   };
 
   const deleteAccount = async (masterKey: string) => {
@@ -109,7 +106,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, isAuthenticated: !!user, isLoadingContent, login, register, recoverPassword, changePassword, deleteAccount, logout, updateUser, setIsLoadingContent, setUser }}>
+    <UserContext.Provider value={{ user, isAuthenticated: !!user, isLoadingContent, login, register, confirmRegister, deleteAccount, logout, updateUser, setIsLoadingContent, setUser }}>
       {children}
     </UserContext.Provider>
   );
