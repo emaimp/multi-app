@@ -5,7 +5,7 @@ import { RegisterForm, RegisterQRView, RegisterConfirm } from './register';
 
 interface RegisterViewProps {
   onRegister: (username: string, masterKey: string) => Promise<RegisterStep1Response>;
-  onConfirmRegister: (userId: number, totpCode: string, masterKey: string) => Promise<void>;
+  onConfirmRegister: (username: string, totpCode: string, masterKey: string) => Promise<void>;
   onBack: () => void;
 }
 
@@ -124,7 +124,7 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
 
     try {
       setIsLoading(true);
-      await onConfirmRegister(registerData.user_id, totpCode, masterKey);
+      await onConfirmRegister(username, totpCode, masterKey);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 

@@ -4,7 +4,6 @@ import { useBackend } from '../../hooks/core/useBackend';
 import { useSession } from './SessionContext';
 
 export interface RegisterStep1Response {
-  user_id: number;
   totp_secret: string;
   otpauth_url: string;
 }
@@ -15,7 +14,7 @@ interface UserContextType {
   isLoadingContent: boolean;
   login: (username: string, totpCode: string, masterKey: string) => Promise<void>;
   register: (username: string, masterKey: string) => Promise<RegisterStep1Response>;
-  confirmRegister: (userId: number, totpCode: string, masterKey: string) => Promise<void>;
+  confirmRegister: (username: string, totpCode: string, masterKey: string) => Promise<void>;
   deleteAccount: (masterKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
@@ -51,8 +50,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     return response;
   };
 
-  const confirmRegister = async (userId: number, totpCode: string, masterKey: string) => {
-    const userWithoutAvatar = await invoke<User>('confirm_register', { userId, totpCode, masterKey });
+  const confirmRegister = async (username: string, totpCode: string, masterKey: string) => {
+    const userWithoutAvatar = await invoke<User>('confirm_register', { username, totpCode, masterKey });
     setUser(userWithoutAvatar);
     localStorage.setItem('masterKey', masterKey);
     setIsLoadingContent(true);

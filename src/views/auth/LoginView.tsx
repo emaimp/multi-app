@@ -107,8 +107,8 @@ function LoginView() {
     return await register(username, masterKey);
   };
 
-  const handleConfirmRegister = async (userId: number, totpCode: string, masterKey: string) => {
-    await confirmRegister(userId, totpCode, masterKey);
+  const handleConfirmRegister = async (username: string, totpCode: string, masterKey: string) => {
+    await confirmRegister(username, totpCode, masterKey);
   };
 
   const handleTotpCodeChange = (value: string) => {

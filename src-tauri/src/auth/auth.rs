@@ -110,6 +110,23 @@ impl Database {
             }
         }
 
+        let (totp_secret, otpauth_url) = generate_totp_secret(username);
+
+        Ok(RegisterStep1Response {
+            totp_secret,
+            otpauth_url,
+        })
+    }
+
+    pub fn register_step2(&self, username: &str, master_key: &str, totp_code: &str) -> Result<User, String> {
+        let (totp_secret, _) = generate_totp_secret(username);
+
+        if !verify_totp_code(&totp_secret, totp_code) {
+            return Err("Invalid TOTP code".to_string());
+        }
+
+        let conn = self.conn.lock().unwrap();
+
         let master_salt = SaltString::generate(&mut thread_rng());
         let argon2 = Argon2::default();
         let master_key_hash = argon2.hash_password(master_key.as_bytes(), &master_salt).map_err(|e| e.to_string())?.to_string();
@@ -118,65 +135,18 @@ impl Database {
         let key = derive_encryption_key(master_key, &salt)?;
         let (username_encrypted, username_nonce) = encrypt_to_base64(username, &key).map_err(|e| e.to_string())?;
 
-        let (totp_secret, otpauth_url) = generate_totp_secret(username);
-
         let (totp_secret_encrypted, totp_secret_nonce) = encrypt_to_base64(&totp_secret, &key).map_err(|e| e.to_string())?;
 
         conn.execute(
-            "INSERT INTO users (username_encrypted, username_nonce, master_key_hash, totp_secret_encrypted, totp_secret_nonce, totp_confirmed, failed_attempts, lockout_until) VALUES (?, ?, ?, ?, ?, 0, 0, 0)",
+            "INSERT INTO users (username_encrypted, username_nonce, master_key_hash, totp_secret_encrypted, totp_secret_nonce, totp_confirmed, failed_attempts, lockout_until) VALUES (?, ?, ?, ?, ?, 1, 0, 0)",
             [&username_encrypted, &username_nonce, &master_key_hash, &totp_secret_encrypted, &totp_secret_nonce],
         ).map_err(|e| e.to_string())?;
         
         let user_id = conn.last_insert_rowid() as i32;
 
-        Ok(RegisterStep1Response {
-            user_id,
-            totp_secret,
-            otpauth_url,
-        })
-    }
-
-    pub fn register_step2(&self, user_id: i32, totp_code: &str, master_key: &str) -> Result<User, String> {
-        let (username_encrypted, username_nonce, master_key_hash, totp_secret_encrypted, totp_secret_nonce) = {
-            let conn = self.conn.lock().unwrap();
-            
-            let result: Result<(String, String, String, String, String), _> = conn.query_row(
-                "SELECT username_encrypted, username_nonce, master_key_hash, totp_secret_encrypted, totp_secret_nonce FROM users WHERE id = ?",
-                [user_id],
-                |row| Ok((
-                    row.get(0)?,
-                    row.get(1)?,
-                    row.get(2)?,
-                    row.get(3)?,
-                    row.get(4)?,
-                ))
-            );
-            
-            result.map_err(|e| e.to_string())?
-        };
-
-        let salt = extract_salt_from_hash(&master_key_hash)?;
-        let key = derive_encryption_key(master_key, &salt)?;
-
-        let decrypted_username = decrypt_from_base64(&username_encrypted, &username_nonce, &key)
-            .map_err(|_| "Invalid master key".to_string())?;
-
-        let totp_secret = decrypt_from_base64(&totp_secret_encrypted, &totp_secret_nonce, &key)
-            .map_err(|_| "Invalid master key".to_string())?;
-
-        if !verify_totp_code(&totp_secret, totp_code) {
-            return Err("Invalid TOTP code".to_string());
-        }
-
-        let conn = self.conn.lock().unwrap();
-        conn.execute(
-            "UPDATE users SET totp_confirmed = 1 WHERE id = ?",
-            [user_id],
-        ).map_err(|e| e.to_string())?;
-
         Ok(User {
             id: user_id,
-            username: decrypted_username,
+            username: username.to_string(),
             username_encrypted: Some(username_encrypted),
             username_nonce: Some(username_nonce),
             master_key_hash,

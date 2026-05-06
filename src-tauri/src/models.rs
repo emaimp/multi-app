@@ -17,7 +17,6 @@ pub struct User {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct RegisterStep1Response {
-    pub user_id: i32,
     pub totp_secret: String,
     pub otpauth_url: String,
 }

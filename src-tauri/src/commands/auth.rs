@@ -14,8 +14,8 @@ pub fn register(username: String, master_key: String, state: tauri::State<Databa
 }
 
 #[tauri::command]
-pub fn confirm_register(user_id: i32, totp_code: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
-    let user = state.register_step2(user_id, &totp_code, &master_key)?;
+pub fn confirm_register(username: String, totp_code: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
+    let user = state.register_step2(&username, &master_key, &totp_code)?;
     Ok(user.into())
 }
 
