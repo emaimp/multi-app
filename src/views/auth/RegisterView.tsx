@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RegisterStep1Response } from '../../context/auth/UserContext';
-import { RegisterForm, RegisterQRView, RegisterConfirm } from './register';
+import { RegisterForm, RegisterQR, RegisterConfirm } from './register';
 
 interface RegisterViewProps {
   onRegister: (username: string, masterKey: string) => Promise<RegisterStep1Response>;
@@ -142,7 +142,7 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
 
   if (step === 'qr' && registerData) {
     return (
-      <RegisterQRView
+      <RegisterQR
         totpSecret={registerData.totp_secret}
         otpauthUrl={registerData.otpauth_url}
         onNext={handleConfirmQr}

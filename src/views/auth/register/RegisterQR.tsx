@@ -6,14 +6,14 @@ import Typography from '@mui/material/Typography';
 import { CenteredCard, TopBar } from '../../../components/common';
 import { QRCodeSVG } from 'qrcode.react';
 
-interface RegisterQRViewProps {
+interface RegisterQRProps {
   totpSecret: string;
   otpauthUrl: string;
   onNext: () => void;
   onBack: () => void;
 }
 
-function RegisterQRView({ totpSecret, otpauthUrl, onNext, onBack }: RegisterQRViewProps) {
+function RegisterQR({ totpSecret, otpauthUrl, onNext, onBack }: RegisterQRProps) {
   const { t } = useTranslation();
 
   return (
@@ -77,4 +77,4 @@ function RegisterQRView({ totpSecret, otpauthUrl, onNext, onBack }: RegisterQRVi
   );
 }
 
-export default RegisterQRView;
+export default RegisterQR;

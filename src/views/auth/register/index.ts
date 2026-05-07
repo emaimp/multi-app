@@ -1,3 +1,3 @@
 export { default as RegisterForm } from './RegisterForm';
-export { default as RegisterQRView } from './RegisterQRView';
+export { default as RegisterQR } from './RegisterQR';
 export { default as RegisterConfirm } from './RegisterConfirm';

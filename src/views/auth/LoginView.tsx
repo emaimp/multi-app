@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '../../context/AuthContext';
 import RegisterView from './RegisterView';
-import { LoginForm, LoginTOTPView } from './login';
+import { LoginForm, Login2FA } from './login';
 
 function LoginView() {
   const { t } = useTranslation();
@@ -135,7 +135,7 @@ function LoginView() {
 
   if (step === 'totp') {
     return (
-      <LoginTOTPView
+      <Login2FA
         username={username}
         totpCode={totpCode}
         totpCodeError={totpCodeError}

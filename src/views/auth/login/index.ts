@@ -1,2 +1,2 @@
 export { default as LoginForm } from './LoginForm';
-export { default as LoginTOTPView } from './Login2FA';
+export { default as Login2FA } from './Login2FA';

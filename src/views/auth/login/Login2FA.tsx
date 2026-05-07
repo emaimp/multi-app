@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import { CenteredCard, TopBar } from '../../../components/common';
 
-interface LoginTOTPViewProps {
+interface Login2FAProps {
   username: string;
   totpCode: string;
   totpCodeError: boolean;
@@ -22,7 +22,7 @@ interface LoginTOTPViewProps {
   onBack: () => void;
 }
 
-function LoginTOTPView({
+function Login2FA({
   username,
   totpCode,
   totpCodeError,
@@ -35,7 +35,7 @@ function LoginTOTPView({
   onErrorChange,
   onSubmit,
   onBack,
-}: LoginTOTPViewProps) {
+}: Login2FAProps) {
   const { t } = useTranslation();
 
   const handleTotpCodeChange = (value: string) => {
@@ -120,4 +120,4 @@ function LoginTOTPView({
   );
 }
 
-export default LoginTOTPView;
+export default Login2FA;
