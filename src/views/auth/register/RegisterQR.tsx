@@ -7,14 +7,30 @@ import { CenteredCard, TopBar } from '../../../components/common';
 import { QRCodeSVG } from 'qrcode.react';
 
 interface RegisterQRProps {
-  totpSecret: string;
   otpauthUrl: string;
+  totpCode: string;
+  totpCodeError: string;
+  isLoading: boolean;
+  onTotpCodeChange: (value: string) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-function RegisterQR({ totpSecret, otpauthUrl, onNext, onBack }: RegisterQRProps) {
+function RegisterQR({
+  otpauthUrl,
+  totpCode,
+  totpCodeError,
+  isLoading,
+  onTotpCodeChange,
+  onNext,
+  onBack,
+}: RegisterQRProps) {
   const { t } = useTranslation();
+
+  const handleTotpCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+    onTotpCodeChange(value);
+  };
 
   return (
     <>
@@ -43,33 +59,26 @@ function RegisterQR({ totpSecret, otpauthUrl, onNext, onBack }: RegisterQRProps)
             {t('register.scanWithAuthenticator')}
           </Typography>
 
-          <Box sx={{ width: '100%', mt: 2 }}>
-            <Typography variant="subtitle2" sx={{ mb: 1 }}>
-              {t('register.orEnterManually')}
-            </Typography>
-            <TextField
-              fullWidth
-              multiline
-              rows={2}
-              value={totpSecret}
-              InputProps={{ readOnly: true }}
-              variant="outlined"
-              sx={{
-                '& .MuiInputBase-input': {
-                  fontFamily: 'monospace',
-                  fontSize: '0.85rem',
-                },
-              }}
-            />
-          </Box>
+          <TextField
+            fullWidth
+            label={t('register.enterTotpCode')}
+            placeholder="000000"
+            value={totpCode}
+            onChange={handleTotpCodeChange}
+            error={!!totpCodeError}
+            helperText={totpCodeError}
+            inputProps={{ maxLength: 6, inputMode: 'numeric' }}
+            sx={{ mt: 1 }}
+          />
 
           <Button
             fullWidth
             variant="contained"
             onClick={onNext}
-            sx={{ mt: 2 }}
+            disabled={isLoading || totpCode.length !== 6}
+            sx={{ mt: 1 }}
           >
-            {t('register.iHaveScanned')}
+            {isLoading ? t('register.registering') : t('register.signUpBtn')}
           </Button>
         </Box>
       </CenteredCard>

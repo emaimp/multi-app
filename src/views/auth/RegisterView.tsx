@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RegisterStep1Response } from '../../context/auth/UserContext';
-import { RegisterForm, RegisterQR, RegisterConfirm } from './register';
+import { RegisterForm, RegisterQR } from './register';
 
 interface RegisterViewProps {
   onRegister: (username: string, masterKey: string) => Promise<RegisterStep1Response>;
@@ -12,7 +12,7 @@ interface RegisterViewProps {
 function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewProps) {
   const { t } = useTranslation();
   
-  const [step, setStep] = useState<'form' | 'qr' | 'confirm'>('form');
+  const [step, setStep] = useState<'form' | 'qr'>('form');
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
   const [confirmMasterKey, setConfirmMasterKey] = useState('');
@@ -27,7 +27,7 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
   const [masterKeyErrorMessage, setMasterKeyErrorMessage] = useState('');
   const [confirmMasterKeyError, setConfirmMasterKeyError] = useState(false);
   const [confirmMasterKeyErrorMessage, setConfirmMasterKeyErrorMessage] = useState('');
-  const [totpCodeError, setTotpCodeError] = useState(false);
+  const [totpCodeError, setTotpCodeError] = useState('');
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -105,15 +105,9 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
     }
   };
 
-  const handleConfirmQr = () => {
-    setStep('confirm');
-  };
-
-  const handleSubmitConfirm = async (e: React.FormEvent) => {
-    e.preventDefault();
-
+  const handleQrSubmit = async () => {
     if (!totpCode || totpCode.length !== 6) {
-      setTotpCodeError(true);
+      setTotpCodeError(t('register.totpCodeRequired'));
       return;
     }
 
@@ -143,26 +137,16 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
   if (step === 'qr' && registerData) {
     return (
       <RegisterQR
-        totpSecret={registerData.totp_secret}
         otpauthUrl={registerData.otpauth_url}
-        onNext={handleConfirmQr}
-        onBack={() => setStep('form')}
-      />
-    );
-  }
-
-  if (step === 'confirm') {
-    return (
-      <RegisterConfirm
         totpCode={totpCode}
         totpCodeError={totpCodeError}
         isLoading={isLoading}
-        error={error}
-        onTotpCodeChange={setTotpCode}
-        onTotpCodeErrorChange={setTotpCodeError}
-        onErrorChange={setError}
-        onSubmit={handleSubmitConfirm}
-        onBack={() => setStep('qr')}
+        onTotpCodeChange={(value) => {
+          setTotpCode(value);
+          setTotpCodeError('');
+        }}
+        onNext={handleQrSubmit}
+        onBack={() => setStep('form')}
       />
     );
   }
