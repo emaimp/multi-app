@@ -38,3 +38,8 @@ pub fn update_avatar(user_id: i32, avatar: Option<Vec<u8>>, state: tauri::State<
 pub fn delete_user(user_id: i32, master_key: String, state: tauri::State<Database>) -> Result<(), String> {
     state.delete_user(user_id, &master_key)
 }
+
+#[tauri::command]
+pub fn change_master_key(user_id: i32, current_master_key: String, new_master_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.change_master_key(user_id, &current_master_key, &new_master_key)
+}
