@@ -17,7 +17,6 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             auth::login,
             auth::register,
-            auth::confirm_register,
             auth::init_session,
             auth::logout,
             auth::get_user_avatar,

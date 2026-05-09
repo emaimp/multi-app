@@ -7,18 +7,7 @@ pub struct User {
     pub username_encrypted: Option<String>,
     pub username_nonce: Option<String>,
     pub master_key_hash: String,
-    pub totp_secret_encrypted: Option<String>,
-    pub totp_secret_nonce: Option<String>,
-    pub totp_confirmed: bool,
-    pub failed_attempts: i32,
-    pub lockout_until: i64,
     pub avatar: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct RegisterStep1Response {
-    pub totp_secret: String,
-    pub otpauth_url: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

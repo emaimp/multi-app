@@ -1,21 +1,15 @@
 use crate::auth::Database;
-use crate::models::{UserResponse, RegisterStep1Response};
+use crate::models::UserResponse;
 
 #[tauri::command]
-pub fn login(username: String, totp_code: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
-    let user = state.login(&username, &totp_code, &master_key)?;
+pub fn login(username: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
+    let user = state.login(&username, &master_key)?;
     Ok(user.into())
 }
 
 #[tauri::command]
-pub fn register(username: String, master_key: String, state: tauri::State<Database>) -> Result<RegisterStep1Response, String> {
-    let response = state.register_step1(&username, &master_key)?;
-    Ok(response)
-}
-
-#[tauri::command]
-pub fn confirm_register(username: String, totp_code: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
-    let user = state.register_step2(&username, &master_key, &totp_code)?;
+pub fn register(username: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
+    let user = state.register(&username, &master_key)?;
     Ok(user.into())
 }
 
