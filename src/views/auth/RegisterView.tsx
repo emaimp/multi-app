@@ -1,22 +1,18 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { RegisterStep1Response } from '../../context/auth/UserContext';
-import { RegisterForm, RegisterQR } from './register';
+import { RegisterForm } from './register';
 
 interface RegisterViewProps {
-  onRegister: (username: string, masterKey: string) => Promise<RegisterStep1Response>;
-  onConfirmRegister: (username: string, totpCode: string, masterKey: string) => Promise<void>;
+  onRegister: (username: string, masterKey: string) => Promise<void>;
   onBack: () => void;
 }
 
-function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewProps) {
+function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const { t } = useTranslation();
   
-  const [step, setStep] = useState<'form' | 'qr'>('form');
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
   const [confirmMasterKey, setConfirmMasterKey] = useState('');
-  const [totpCode, setTotpCode] = useState('');
 
   const [showMasterKey, setShowMasterKey] = useState(false);
   const [showConfirmMasterKey, setShowConfirmMasterKey] = useState(false);
@@ -27,12 +23,9 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
   const [masterKeyErrorMessage, setMasterKeyErrorMessage] = useState('');
   const [confirmMasterKeyError, setConfirmMasterKeyError] = useState(false);
   const [confirmMasterKeyErrorMessage, setConfirmMasterKeyErrorMessage] = useState('');
-  const [totpCodeError, setTotpCodeError] = useState('');
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-
-  const [registerData, setRegisterData] = useState<RegisterStep1Response | null>(null);
 
   const [masterKeyStrength, setMasterKeyStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
 
@@ -69,7 +62,7 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
     return true;
   };
 
-  const handleSubmitStep1 = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const isUsernameValid = validateUsername(username);
@@ -87,9 +80,7 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
 
     try {
       setIsLoading(true);
-      const data = await onRegister(username, masterKey);
-      setRegisterData(data);
-      setStep('qr');
+      await onRegister(username, masterKey);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -104,52 +95,6 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
       setIsLoading(false);
     }
   };
-
-  const handleQrSubmit = async () => {
-    if (!totpCode || totpCode.length !== 6) {
-      setTotpCodeError(t('register.totpCodeRequired'));
-      return;
-    }
-
-    if (!registerData) {
-      setError('Registration data not found');
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      await onConfirmRegister(username, totpCode, masterKey);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-
-      if (errorMessage.includes('Invalid TOTP code')) {
-        setError(t('register.invalidTotpCode'));
-      } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
-        setError(t('register.networkError'));
-      } else {
-        setError(t('register.registerFailed'));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  if (step === 'qr' && registerData) {
-    return (
-      <RegisterQR
-        otpauthUrl={registerData.otpauth_url}
-        totpCode={totpCode}
-        totpCodeError={totpCodeError}
-        isLoading={isLoading}
-        onTotpCodeChange={(value) => {
-          setTotpCode(value);
-          setTotpCodeError('');
-        }}
-        onNext={handleQrSubmit}
-        onBack={() => setStep('form')}
-      />
-    );
-  }
 
   return (
     <RegisterForm
@@ -174,7 +119,7 @@ function RegisterView({ onRegister, onConfirmRegister, onBack }: RegisterViewPro
       onToggleConfirmMasterKeyVisibility={() => setShowConfirmMasterKey(!showConfirmMasterKey)}
       onMasterKeyStrengthChange={setMasterKeyStrength}
       onErrorChange={setError}
-      onSubmit={handleSubmitStep1}
+      onSubmit={handleSubmit}
       onBack={onBack}
     />
   );

@@ -3,18 +3,12 @@ import { User } from '../../types/user';
 import { useBackend } from '../../hooks/core/useBackend';
 import { useSession } from './SessionContext';
 
-export interface RegisterStep1Response {
-  totp_secret: string;
-  otpauth_url: string;
-}
-
 interface UserContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoadingContent: boolean;
-  login: (username: string, totpCode: string, masterKey: string) => Promise<void>;
-  register: (username: string, masterKey: string) => Promise<RegisterStep1Response>;
-  confirmRegister: (username: string, totpCode: string, masterKey: string) => Promise<void>;
+  login: (username: string, masterKey: string) => Promise<void>;
+  register: (username: string, masterKey: string) => Promise<void>;
   deleteAccount: (masterKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
@@ -37,21 +31,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (username: string, totpCode: string, masterKey: string) => {
-    const userWithoutAvatar = await invoke<User>('login', { username, totpCode, masterKey });
+  const login = async (username: string, masterKey: string) => {
+    const userWithoutAvatar = await invoke<User>('login', { username, masterKey });
     
     setUser(userWithoutAvatar);
     localStorage.setItem('masterKey', masterKey);
     setIsLoadingContent(true);
   };
 
-  const register = async (username: string, masterKey: string): Promise<RegisterStep1Response> => {
-    const response = await invoke<RegisterStep1Response>('register', { username, masterKey });
-    return response;
-  };
-
-  const confirmRegister = async (username: string, totpCode: string, masterKey: string) => {
-    const userWithoutAvatar = await invoke<User>('confirm_register', { username, totpCode, masterKey });
+  const register = async (username: string, masterKey: string) => {
+    const userWithoutAvatar = await invoke<User>('register', { username, masterKey });
     setUser(userWithoutAvatar);
     localStorage.setItem('masterKey', masterKey);
     setIsLoadingContent(true);
@@ -105,7 +94,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, isAuthenticated: !!user, isLoadingContent, login, register, confirmRegister, deleteAccount, logout, updateUser, setIsLoadingContent, setUser }}>
+    <UserContext.Provider value={{ user, isAuthenticated: !!user, isLoadingContent, login, register, deleteAccount, logout, updateUser, setIsLoadingContent, setUser }}>
       {children}
     </UserContext.Provider>
   );

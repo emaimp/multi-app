@@ -2,23 +2,19 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUser } from '../../context/AuthContext';
 import RegisterView from './RegisterView';
-import { LoginForm, Login2FA } from './login';
+import { LoginForm } from './login';
 
 function LoginView() {
   const { t } = useTranslation();
-  const { login, register, confirmRegister } = useUser();
+  const { login, register } = useUser();
 
   const [view, setView] = useState<'login' | 'register'>('login');
-  const [step, setStep] = useState<'form' | 'totp'>('form');
 
   const [username, setUsername] = useState('');
-  const [totpCode, setTotpCode] = useState('');
   const [masterKey, setMasterKey] = useState('');
 
   const [usernameError, setUsernameError] = useState(false);
   const [usernameNotFoundError, setUsernameNotFoundError] = useState(false);
-  const [totpCodeError, setTotpCodeError] = useState(false);
-  const [totpCodeInvalidError, setTotpCodeInvalidError] = useState(false);
   const [masterKeyError, setMasterKeyError] = useState(false);
   const [masterKeyInvalidError, setMasterKeyInvalidError] = useState(false);
 
@@ -28,19 +24,15 @@ function LoginView() {
 
   useEffect(() => {
     setUsername('');
-    setTotpCode('');
     setMasterKey('');
     setUsernameError(false);
     setUsernameNotFoundError(false);
-    setTotpCodeError(false);
-    setTotpCodeInvalidError(false);
     setMasterKeyError(false);
     setMasterKeyInvalidError(false);
     setError('');
-    setStep('form');
   }, [view]);
 
-  const handleSubmitStep1 = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     let isValid = true;
@@ -65,44 +57,12 @@ function LoginView() {
 
     try {
       setIsLoading(true);
-      await login(username, '000000', masterKey);
+      await login(username, masterKey);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       if (errorMessage.includes('User not found')) {
         setUsernameNotFoundError(true);
-      } else if (errorMessage.includes('Invalid master key')) {
-        setMasterKeyInvalidError(true);
-      } else if (errorMessage.includes('Invalid TOTP code') || errorMessage.includes('locked')) {
-        setStep('totp');
-      } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
-        setError(t('login.networkError'));
-      } else {
-        setError(t('login.loginFailed'));
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmitStep2 = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!totpCode || totpCode.length !== 6) {
-      setTotpCodeError(true);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      await login(username, totpCode, masterKey);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-
-      if (errorMessage.includes('User not found')) {
-        setUsernameNotFoundError(true);
-      } else if (errorMessage.includes('Invalid TOTP code') || errorMessage.includes('locked')) {
-        setTotpCodeInvalidError(true);
       } else if (errorMessage.includes('Invalid master key')) {
         setMasterKeyInvalidError(true);
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
@@ -116,38 +76,14 @@ function LoginView() {
   };
 
   const handleRegister = async (username: string, masterKey: string) => {
-    return await register(username, masterKey);
-  };
-
-  const handleConfirmRegister = async (username: string, totpCode: string, masterKey: string) => {
-    await confirmRegister(username, totpCode, masterKey);
+    await register(username, masterKey);
   };
 
   if (view === 'register') {
     return (
       <RegisterView 
-        onRegister={handleRegister} 
-        onConfirmRegister={handleConfirmRegister}
+        onRegister={handleRegister}
         onBack={() => setView('login')} 
-      />
-    );
-  }
-
-  if (step === 'totp') {
-    return (
-      <Login2FA
-        username={username}
-        totpCode={totpCode}
-        totpCodeError={totpCodeError}
-        totpCodeInvalidError={totpCodeInvalidError}
-        isLoading={isLoading}
-        error={error}
-        onTotpCodeChange={setTotpCode}
-        onTotpCodeErrorChange={setTotpCodeError}
-        onTotpCodeInvalidErrorChange={setTotpCodeInvalidError}
-        onErrorChange={setError}
-        onSubmit={handleSubmitStep2}
-        onBack={() => setStep('form')}
       />
     );
   }
@@ -171,11 +107,10 @@ function LoginView() {
       onMasterKeyErrorChange={setMasterKeyError}
       onMasterKeyInvalidErrorChange={setMasterKeyInvalidError}
       onErrorChange={setError}
-      onSubmit={handleSubmitStep1}
+      onSubmit={handleSubmit}
       onBack={() => {}}
       onNavigateToRegister={() => setView('register')}
     />
-
   );
 }
 
