@@ -1,5 +1,5 @@
 use argon2::{Argon2, PasswordHash, PasswordHasher, PasswordVerifier, password_hash::SaltString};
-use rand::thread_rng;
+use rand::{Rng, thread_rng};
 use generic_array::GenericArray;
 use typenum::U32;
 
@@ -8,30 +8,40 @@ use crate::models::User;
 use super::database::Database;
 use base64::Engine as _;
 
+const MASTER_KEY_LENGTH: usize = 32;
+
+fn generate_master_key() -> String {
+    let mut rng = rand::thread_rng();
+    let key_bytes: [u8; MASTER_KEY_LENGTH] = rng.gen();
+    base64::engine::general_purpose::STANDARD.encode(key_bytes)
+}
+
 impl Database {
-    pub fn login(&self, username: &str, master_key: &str) -> Result<User, String> {
-        let (user_id, username_encrypted, username_nonce, master_key_hash) = {
+    pub fn login(&self, username: &str, access_key: &str) -> Result<User, String> {
+        let (user_id, username_encrypted, username_nonce, access_key_hash) = {
             let conn = self.conn.lock().unwrap();
-            let mut stmt = conn.prepare("SELECT id, username_encrypted, username_nonce, master_key_hash FROM users").map_err(|e| e.to_string())?;
-            let all_users: Vec<(i32, String, String, String)> = stmt.query_map([], |row| {
+            let mut stmt = conn.prepare("SELECT id, username_encrypted, username_nonce, access_key_hash, master_key_encrypted, master_key_nonce FROM users").map_err(|e| e.to_string())?;
+            let all_users: Vec<(i32, String, String, String, String, String)> = stmt.query_map([], |row| {
                 Ok((
                     row.get(0)?,
                     row.get(1)?,
                     row.get(2)?,
                     row.get(3)?,
+                    row.get(4)?,
+                    row.get(5)?,
                 ))
             }).map_err(|e| e.to_string())?
             .filter_map(|r| r.ok())
             .collect();
 
             let mut found = None;
-            for (id, enc_user, nonce, mkey_hash) in all_users {
-                let salt = extract_salt_from_hash(&mkey_hash)?;
-                let key = derive_encryption_key(master_key, &salt)?;
+            for (id, enc_user, nonce, access_hash, _master_key_encrypted, _master_key_nonce) in all_users {
+                let access_salt = extract_salt_from_hash(&access_hash)?;
+                let access_key_derived = derive_encryption_key(access_key, &access_salt)?;
                 
-                if let Ok(decrypted_username) = decrypt_from_base64(&enc_user, &nonce, &key) {
+                if let Ok(decrypted_username) = decrypt_from_base64(&enc_user, &nonce, &access_key_derived) {
                     if decrypted_username == username {
-                        found = Some((id, enc_user, nonce, mkey_hash));
+                        found = Some((id, enc_user, nonce, access_hash));
                         break;
                     }
                 }
@@ -40,34 +50,37 @@ impl Database {
             found.ok_or("User not found".to_string())?
         };
 
-        let parsed_master_hash = PasswordHash::new(&master_key_hash).map_err(|e| e.to_string())?;
-        Argon2::default().verify_password(master_key.as_bytes(), &parsed_master_hash).map_err(|_| "Invalid master key".to_string())?;
+        let parsed_access_hash = PasswordHash::new(&access_key_hash).map_err(|e| e.to_string())?;
+        Argon2::default().verify_password(access_key.as_bytes(), &parsed_access_hash).map_err(|_| "Invalid access key".to_string())?;
+
+        let access_salt = extract_salt_from_hash(&access_key_hash)?;
+        let _access_key_derived = derive_encryption_key(access_key, &access_salt)?;
 
         Ok(User {
             id: user_id,
             username: username.to_string(),
             username_encrypted: Some(username_encrypted),
             username_nonce: Some(username_nonce),
-            master_key_hash,
+            master_key_hash: access_key_hash,
             avatar: None,
         })
     }
 
-    pub fn register(&self, username: &str, master_key: &str) -> Result<User, String> {
+    pub fn register(&self, username: &str, access_key: &str) -> Result<(User, String), String> {
         let conn = self.conn.lock().unwrap();
 
         let count: i32 = conn.query_row("SELECT COUNT(*) FROM users", [], |row| row.get(0)).unwrap_or(0);
         if count > 0 {
-            let mut stmt = conn.prepare("SELECT username_encrypted, username_nonce, master_key_hash FROM users").map_err(|e| e.to_string())?;
+            let mut stmt = conn.prepare("SELECT username_encrypted, username_nonce, access_key_hash FROM users").map_err(|e| e.to_string())?;
             let all_users: Vec<(String, String, String)> = stmt.query_map([], |row| {
                 Ok((row.get(0)?, row.get(1)?, row.get(2)?))
             }).map_err(|e| e.to_string())?
             .filter_map(|r| r.ok())
             .collect();
 
-            for (enc_user, nonce, stored_master_hash) in all_users {
-                let salt = extract_salt_from_hash(&stored_master_hash)?;
-                let key = derive_encryption_key(master_key, &salt)?;
+            for (enc_user, nonce, stored_access_hash) in all_users {
+                let salt = extract_salt_from_hash(&stored_access_hash)?;
+                let key = derive_encryption_key(access_key, &salt)?;
                 
                 if let Ok(decrypted) = decrypt_from_base64(&enc_user, &nonce, &key) {
                     if decrypted == username {
@@ -77,89 +90,174 @@ impl Database {
             }
         }
 
-        let master_salt = SaltString::generate(&mut thread_rng());
+        let master_key = generate_master_key();
+        let access_salt = SaltString::generate(&mut thread_rng());
         let argon2 = Argon2::default();
-        let master_key_hash = argon2.hash_password(master_key.as_bytes(), &master_salt).map_err(|e| e.to_string())?.to_string();
+        let access_key_hash = argon2.hash_password(access_key.as_bytes(), &access_salt).map_err(|e| e.to_string())?.to_string();
         
-        let salt = extract_salt_from_hash(&master_key_hash)?;
-        let key = derive_encryption_key(master_key, &salt)?;
-        let (username_encrypted, username_nonce) = encrypt_to_base64(username, &key).map_err(|e| e.to_string())?;
+        let access_salt_bytes = extract_salt_from_hash(&access_key_hash)?;
+        let access_key_derived = derive_encryption_key(access_key, &access_salt_bytes)?;
+        
+        let (master_key_encrypted, master_key_nonce) = encrypt_to_base64(&master_key, &access_key_derived).map_err(|e| e.to_string())?;
+        
+        let (username_encrypted, username_nonce) = encrypt_to_base64(username, &access_key_derived).map_err(|e| e.to_string())?;
 
         conn.execute(
-            "INSERT INTO users (username_encrypted, username_nonce, master_key_hash) VALUES (?, ?, ?)",
-            [&username_encrypted, &username_nonce, &master_key_hash],
+            "INSERT INTO users (username_encrypted, username_nonce, access_key_hash, master_key_encrypted, master_key_nonce) VALUES (?, ?, ?, ?, ?)",
+            [&username_encrypted, &username_nonce, &access_key_hash, &master_key_encrypted, &master_key_nonce],
         ).map_err(|e| e.to_string())?;
 
         let user_id = conn.last_insert_rowid() as i32;
 
-        Ok(User {
+        Ok((User {
             id: user_id,
             username: username.to_string(),
             username_encrypted: Some(username_encrypted),
             username_nonce: Some(username_nonce),
-            master_key_hash,
+            master_key_hash: access_key_hash,
             avatar: None,
-        })
+        }, master_key))
     }
 
-    pub fn change_master_key(&self, user_id: i32, current_master_key: &str, new_master_key: &str) -> Result<(), String> {
-        let (old_key, _old_master_key_hash, username_encrypted, username_nonce) = {
+    pub fn verify_master_key(&self, user_id: i32, master_key: &str) -> Result<(), String> {
+        let conn = self.conn.lock().unwrap();
+        let access_key_hash: String = conn.query_row(
+            "SELECT access_key_hash FROM users WHERE id = ?",
+            [user_id],
+            |row| row.get(0)
+        ).map_err(|e| e.to_string())?;
+
+        let access_salt = extract_salt_from_hash(&access_key_hash)?;
+        let access_key_derived = derive_encryption_key(master_key, &access_salt).map_err(|e| e.to_string())?;
+
+        let master_enc: String = conn.query_row(
+            "SELECT master_key_encrypted FROM users WHERE id = ?",
+            [user_id],
+            |row| row.get(0)
+        ).map_err(|e| e.to_string())?;
+
+        let master_nonce: String = conn.query_row(
+            "SELECT master_key_nonce FROM users WHERE id = ?",
+            [user_id],
+            |row| row.get(0)
+        ).map_err(|e| e.to_string())?;
+
+        decrypt_from_base64(&master_enc, &master_nonce, &access_key_derived)
+            .map_err(|_| "Invalid master key".to_string())?;
+
+        Ok(())
+    }
+
+    pub fn change_master_key(&self, user_id: i32, current_master_key: &str, new_master_key: &str) -> Result<String, String> {
+        let (master_key_derived, _access_key_hash) = {
             let conn = self.conn.lock().unwrap();
-            let master_key_hash: String = conn.query_row(
-                "SELECT master_key_hash FROM users WHERE id = ?",
+            let access_hash: String = conn.query_row(
+                "SELECT access_key_hash FROM users WHERE id = ?",
                 [user_id],
                 |row| row.get(0)
             ).map_err(|e| e.to_string())?;
 
-            let parsed_hash = PasswordHash::new(&master_key_hash).map_err(|e| e.to_string())?;
-            Argon2::default().verify_password(current_master_key.as_bytes(), &parsed_hash)
+            let access_salt = extract_salt_from_hash(&access_hash)?;
+            let access_key_derived = derive_encryption_key(current_master_key, &access_salt).map_err(|e| e.to_string())?;
+
+            let master_enc: String = conn.query_row(
+                "SELECT master_key_encrypted FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+
+            let master_nonce: String = conn.query_row(
+                "SELECT master_key_nonce FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+
+            let _decrypted_master = decrypt_from_base64(&master_enc, &master_nonce, &access_key_derived)
                 .map_err(|_| "Invalid master key".to_string())?;
 
-            let old_salt = parsed_hash.salt.ok_or("Salt not found in hash")?.as_ref().as_bytes().to_vec();
-            let old_key = derive_encryption_key(current_master_key, &old_salt).map_err(|e| e.to_string())?;
-
-            let username_enc: String = conn.query_row(
-                "SELECT username_encrypted FROM users WHERE id = ?",
-                [user_id],
-                |row| row.get(0)
-            ).map_err(|e| e.to_string())?;
-
-            let username_nonce: String = conn.query_row(
-                "SELECT username_nonce FROM users WHERE id = ?",
-                [user_id],
-                |row| row.get(0)
-            ).map_err(|e| e.to_string())?;
-
-            (old_key, master_key_hash, username_enc, username_nonce)
+            (access_key_derived, access_hash)
         };
 
-        let _username = decrypt_from_base64(&username_encrypted, &username_nonce, &old_key)
+        let (new_master_key_enc, new_master_key_nonce) = encrypt_to_base64(new_master_key, &master_key_derived)
             .map_err(|e| e.to_string())?;
-
-        let new_salt = SaltString::generate(&mut thread_rng());
-        let new_argon2 = Argon2::default();
-        let new_master_key_hash = new_argon2.hash_password(new_master_key.as_bytes(), &new_salt)
-            .map_err(|e| e.to_string())?.to_string();
-
-        let new_salt_bytes = extract_salt_from_hash(&new_master_key_hash)?;
-        let new_key = derive_encryption_key(new_master_key, &new_salt_bytes)
-            .map_err(|e| e.to_string())?;
-
-        let (new_username_enc, new_username_nonce) = encrypt_to_base64(&_username, &new_key)
-            .map_err(|e| e.to_string())?;
-
-        self.reencrypt_all_data(user_id, &old_key, &new_key)?;
 
         let conn = self.conn.lock().unwrap();
         conn.execute(
-            "UPDATE users SET master_key_hash = ?, username_encrypted = ?, username_nonce = ? WHERE id = ?",
-            rusqlite::params![&new_master_key_hash, &new_username_enc, &new_username_nonce, user_id],
+            "UPDATE users SET master_key_encrypted = ?, master_key_nonce = ? WHERE id = ?",
+            rusqlite::params![&new_master_key_enc, &new_master_key_nonce, user_id],
+        ).map_err(|e| e.to_string())?;
+
+        Ok(new_master_key.to_string())
+    }
+
+    pub fn change_access_key(&self, user_id: i32, master_key: &str, new_access_key: &str) -> Result<String, String> {
+        let (old_access_key_derived, _access_key_hash) = {
+            let conn = self.conn.lock().unwrap();
+            let access_hash: String = conn.query_row(
+                "SELECT access_key_hash FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+
+            let access_salt = extract_salt_from_hash(&access_hash)?;
+            let access_key_derived = derive_encryption_key(master_key, &access_salt).map_err(|e| e.to_string())?;
+
+            let master_enc: String = conn.query_row(
+                "SELECT master_key_encrypted FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+
+            let master_nonce: String = conn.query_row(
+                "SELECT master_key_nonce FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+
+            let _decrypted_master = decrypt_from_base64(&master_enc, &master_nonce, &access_key_derived)
+                .map_err(|_| "Invalid master key".to_string())?;
+
+            (access_key_derived, access_hash)
+        };
+
+        let new_access_salt = SaltString::generate(&mut thread_rng());
+        let argon2 = Argon2::default();
+        let new_access_key_hash = argon2.hash_password(new_access_key.as_bytes(), &new_access_salt)
+            .map_err(|e| e.to_string())?.to_string();
+
+        let new_access_salt_bytes = extract_salt_from_hash(&new_access_key_hash)?;
+        let new_access_key_derived = derive_encryption_key(new_access_key, &new_access_salt_bytes)
+            .map_err(|e| e.to_string())?;
+
+        let (master_key_enc, master_key_nonce) = {
+            let conn = self.conn.lock().unwrap();
+            let master_enc: String = conn.query_row(
+                "SELECT master_key_encrypted FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+            let master_nonce: String = conn.query_row(
+                "SELECT master_key_nonce FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+            let master_key = decrypt_from_base64(&master_enc, &master_nonce, &old_access_key_derived)
+                .map_err(|e| e.to_string())?;
+            encrypt_to_base64(&master_key, &new_access_key_derived).map_err(|e| e.to_string())?
+        };
+
+        self.reencrypt_all_data(user_id, &old_access_key_derived, &new_access_key_derived)?;
+
+        let conn = self.conn.lock().unwrap();
+        conn.execute(
+            "UPDATE users SET access_key_hash = ?, master_key_encrypted = ?, master_key_nonce = ? WHERE id = ?",
+            rusqlite::params![&new_access_key_hash, &master_key_enc, &master_key_nonce, user_id],
         ).map_err(|e| e.to_string())?;
 
         let mut keys = self.encryption_keys.lock().unwrap();
-        keys.insert(user_id, new_key);
+        keys.insert(user_id, new_access_key_derived);
 
-        Ok(())
+        Ok(new_access_key.to_string())
     }
 
     fn reencrypt_all_data(&self, user_id: i32, old_key: &GenericArray<u8, U32>, new_key: &GenericArray<u8, U32>) -> Result<(), String> {

@@ -1,21 +1,31 @@
 use crate::auth::Database;
 use crate::models::UserResponse;
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Deserialize)]
+pub struct RegisterResponse {
+    pub user: UserResponse,
+    pub master_key: String,
+}
 
 #[tauri::command]
-pub fn login(username: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
-    let user = state.login(&username, &master_key)?;
+pub fn login(username: String, access_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
+    let user = state.login(&username, &access_key)?;
     Ok(user.into())
 }
 
 #[tauri::command]
-pub fn register(username: String, master_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
-    let user = state.register(&username, &master_key)?;
-    Ok(user.into())
+pub fn register(username: String, access_key: String, state: tauri::State<Database>) -> Result<RegisterResponse, String> {
+    let (user, master_key) = state.register(&username, &access_key)?;
+    Ok(RegisterResponse {
+        user: user.into(),
+        master_key,
+    })
 }
 
 #[tauri::command]
-pub fn init_session(user_id: i32, master_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.init_session(user_id, &master_key)
+pub fn init_session(user_id: i32, access_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.init_session(user_id, &access_key)
 }
 
 #[tauri::command]
@@ -36,10 +46,26 @@ pub fn update_avatar(user_id: i32, avatar: Option<Vec<u8>>, state: tauri::State<
 
 #[tauri::command]
 pub fn delete_user(user_id: i32, master_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.delete_user(user_id, &master_key)
+    state.verify_master_key(user_id, &master_key)?;
+    let conn = state.conn.lock().unwrap();
+    conn.execute("DELETE FROM users WHERE id = ?", [user_id])
+        .map_err(|e| e.to_string())?;
+    drop(conn);
+    state.clear_session(user_id);
+    Ok(())
 }
 
 #[tauri::command]
-pub fn change_master_key(user_id: i32, current_master_key: String, new_master_key: String, state: tauri::State<Database>) -> Result<(), String> {
+pub fn change_master_key(user_id: i32, current_master_key: String, new_master_key: String, state: tauri::State<Database>) -> Result<String, String> {
     state.change_master_key(user_id, &current_master_key, &new_master_key)
+}
+
+#[tauri::command]
+pub fn verify_master_key(user_id: i32, master_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.verify_master_key(user_id, &master_key)
+}
+
+#[tauri::command]
+pub fn change_access_key(user_id: i32, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<String, String> {
+    state.change_access_key(user_id, &master_key, &new_access_key)
 }
