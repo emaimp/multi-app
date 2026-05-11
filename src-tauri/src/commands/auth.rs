@@ -15,17 +15,20 @@ pub fn login(username: String, access_key: String, state: tauri::State<Database>
 }
 
 #[tauri::command]
-pub fn register(username: String, access_key: String, state: tauri::State<Database>) -> Result<RegisterResponse, String> {
-    let (user, master_key) = state.register(&username, &access_key)?;
+pub fn register(username: String, access_key: String, master_key: String, state: tauri::State<Database>) -> Result<RegisterResponse, String> {
+    let (user, returned_master_key) = state.register(&username, &access_key, &master_key)?;
     Ok(RegisterResponse {
         user: user.into(),
-        master_key,
+        master_key: returned_master_key,
     })
 }
 
 #[tauri::command]
 pub fn init_session(user_id: i32, access_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.init_session(user_id, &access_key)
+    let data_key = state.get_data_key_from_access(user_id, &access_key)?;
+    let mut keys = state.encryption_keys.lock().unwrap();
+    keys.insert(user_id, data_key);
+    Ok(())
 }
 
 #[tauri::command]
@@ -56,7 +59,7 @@ pub fn delete_user(user_id: i32, master_key: String, state: tauri::State<Databas
 }
 
 #[tauri::command]
-pub fn change_master_key(user_id: i32, current_master_key: String, new_master_key: String, state: tauri::State<Database>) -> Result<String, String> {
+pub fn change_master_key(user_id: i32, current_master_key: String, new_master_key: String, state: tauri::State<Database>) -> Result<(), String> {
     state.change_master_key(user_id, &current_master_key, &new_master_key)
 }
 
@@ -66,6 +69,12 @@ pub fn verify_master_key(user_id: i32, master_key: String, state: tauri::State<D
 }
 
 #[tauri::command]
-pub fn change_access_key(user_id: i32, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<String, String> {
+pub fn change_access_key(user_id: i32, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.change_access_key(user_id, &master_key, &new_access_key)
+}
+
+#[tauri::command]
+pub fn recover_access_key(user_id: i32, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.verify_master_key(user_id, &master_key)?;
     state.change_access_key(user_id, &master_key, &new_access_key)
 }

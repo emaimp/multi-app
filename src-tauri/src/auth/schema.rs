@@ -7,8 +7,11 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
             username_encrypted TEXT NOT NULL,
             username_nonce TEXT NOT NULL,
             access_key_hash TEXT NOT NULL,
-            master_key_encrypted TEXT NOT NULL,
-            master_key_nonce TEXT NOT NULL,
+            master_key_hash TEXT NOT NULL,
+            data_key_encrypted_access TEXT NOT NULL,
+            data_key_nonce_access TEXT NOT NULL,
+            data_key_encrypted_master TEXT NOT NULL,
+            data_key_nonce_master TEXT NOT NULL,
             avatar BLOB,
             avatar_nonce TEXT
         )",

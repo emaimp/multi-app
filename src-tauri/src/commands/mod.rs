@@ -25,6 +25,7 @@ pub fn run() {
             auth::change_master_key,
             auth::verify_master_key,
             auth::change_access_key,
+            auth::recover_access_key,
             collections::get_collections,
             collections::create_collection,
             collections::update_collection,
