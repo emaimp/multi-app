@@ -32,7 +32,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const userWithoutAvatar = await invoke<User>('login', { username, accessKey: password });
+    const userWithoutAvatar = await invoke<User>('login', { username, access_key: password });
     
     setUser(userWithoutAvatar);
     localStorage.setItem('masterKey', password);
@@ -42,7 +42,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const register = async (username: string, password: string): Promise<string> => {
     const response = await invoke<{ user: User; masterKey: string }>('register', { 
       username, 
-      accessKey: password
+      access_key: password
     });
     return response.masterKey;
   };

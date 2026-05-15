@@ -12,7 +12,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   const { invoke } = useBackend();
 
   const initSession = async (userId: number, accessKey: string) => {
-    await invoke('init_session', { userId, accessKey });
+    await invoke('init_session', { userId, access_key: accessKey });
   };
 
   const clearSession = async (userId: number) => {

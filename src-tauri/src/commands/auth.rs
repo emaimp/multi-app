@@ -1,29 +1,37 @@
 use crate::auth::Database;
 use crate::models::UserResponse;
+use base64::Engine as _;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RegisterResponse {
     pub user: UserResponse,
     pub master_key: String,
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn login(username: String, access_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
     let user = state.login(&username, &access_key)?;
     Ok(user.into())
 }
 
-#[tauri::command]
-pub fn register(username: String, access_key: String, master_key: String, state: tauri::State<Database>) -> Result<RegisterResponse, String> {
-    let (user, returned_master_key) = state.register(&username, &access_key, &master_key)?;
+#[tauri::command(rename_all = "snake_case")]
+pub fn register(username: String, access_key: String, master_key: Option<String>, state: tauri::State<Database>) -> Result<RegisterResponse, String> {
+    let generated_master_key = master_key.unwrap_or_else(|| {
+        use rand::{Rng, thread_rng};
+        let mut rng = thread_rng();
+        let key_bytes: [u8; 32] = rng.gen();
+        base64::engine::general_purpose::STANDARD.encode(key_bytes)
+    });
+    let (user, returned_master_key) = state.register(&username, &access_key, &generated_master_key)?;
     Ok(RegisterResponse {
         user: user.into(),
         master_key: returned_master_key,
     })
 }
 
-#[tauri::command]
+#[tauri::command(rename_all = "snake_case")]
 pub fn init_session(user_id: i32, access_key: String, state: tauri::State<Database>) -> Result<(), String> {
     let data_key = state.get_data_key_from_access(user_id, &access_key)?;
     let mut keys = state.encryption_keys.lock().unwrap();
