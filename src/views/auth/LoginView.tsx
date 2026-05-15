@@ -75,14 +75,15 @@ function LoginView() {
     }
   };
 
-  const handleRegister = async (username: string, masterKey: string) => {
-    await register(username, masterKey);
+  const handleRegister = async (username: string, password: string): Promise<string> => {
+    return await register(username, password);
   };
 
   if (view === 'register') {
     return (
       <RegisterView 
         onRegister={handleRegister}
+        onLogin={login}
         onBack={() => setView('login')} 
       />
     );

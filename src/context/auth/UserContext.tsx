@@ -7,8 +7,8 @@ interface UserContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoadingContent: boolean;
-  login: (username: string, masterKey: string) => Promise<void>;
-  register: (username: string, masterKey: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
+  register: (username: string, password: string) => Promise<string>;
   deleteAccount: (masterKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
@@ -31,19 +31,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = async (username: string, masterKey: string) => {
-    const userWithoutAvatar = await invoke<User>('login', { username, masterKey });
+  const login = async (username: string, password: string) => {
+    const userWithoutAvatar = await invoke<User>('login', { username, accessKey: password });
     
     setUser(userWithoutAvatar);
-    localStorage.setItem('masterKey', masterKey);
+    localStorage.setItem('masterKey', password);
     setIsLoadingContent(true);
   };
 
-  const register = async (username: string, masterKey: string) => {
-    const userWithoutAvatar = await invoke<User>('register', { username, masterKey });
-    setUser(userWithoutAvatar);
-    localStorage.setItem('masterKey', masterKey);
-    setIsLoadingContent(true);
+  const register = async (username: string, password: string): Promise<string> => {
+    const response = await invoke<{ user: User; masterKey: string }>('register', { 
+      username, 
+      accessKey: password
+    });
+    return response.masterKey;
   };
 
   const deleteAccount = async (masterKey: string) => {

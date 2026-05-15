@@ -1,33 +1,38 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RegisterForm } from './register';
+import { MasterKeyDialog } from '../../components/common';
 
 interface RegisterViewProps {
-  onRegister: (username: string, masterKey: string) => Promise<void>;
+  onRegister: (username: string, password: string) => Promise<string>;
+  onLogin: (username: string, password: string) => Promise<void>;
   onBack: () => void;
 }
 
-function RegisterView({ onRegister, onBack }: RegisterViewProps) {
+function RegisterView({ onRegister, onLogin, onBack }: RegisterViewProps) {
   const { t } = useTranslation();
   
   const [username, setUsername] = useState('');
-  const [masterKey, setMasterKey] = useState('');
-  const [confirmMasterKey, setConfirmMasterKey] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const [showMasterKey, setShowMasterKey] = useState(false);
-  const [showConfirmMasterKey, setShowConfirmMasterKey] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [usernameError, setUsernameError] = useState(false);
   const [usernameErrorMessage, setUsernameErrorMessage] = useState('');
-  const [masterKeyError, setMasterKeyError] = useState(false);
-  const [masterKeyErrorMessage, setMasterKeyErrorMessage] = useState('');
-  const [confirmMasterKeyError, setConfirmMasterKeyError] = useState(false);
-  const [confirmMasterKeyErrorMessage, setConfirmMasterKeyErrorMessage] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+  const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const [masterKeyStrength, setMasterKeyStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
+  const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
+
+  const [masterKey, setMasterKey] = useState('');
+  const [showMasterKeyDialog, setShowMasterKeyDialog] = useState(false);
 
   const validateUsername = (value: string) => {
     if (!value || value.length < 3) {
@@ -40,25 +45,25 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     return true;
   };
 
-  const validateMasterKey = (value: string) => {
+  const validatePassword = (value: string) => {
     if (!value || value.length < 6) {
-      setMasterKeyError(true);
-      setMasterKeyErrorMessage(t('register.masterKeyMinLength'));
+      setPasswordError(true);
+      setPasswordErrorMessage(t('register.passwordMinLength'));
       return false;
     }
-    setMasterKeyError(false);
-    setMasterKeyErrorMessage('');
+    setPasswordError(false);
+    setPasswordErrorMessage('');
     return true;
   };
 
-  const validateConfirmMasterKey = (value: string) => {
-    if (value !== masterKey) {
-      setConfirmMasterKeyError(true);
-      setConfirmMasterKeyErrorMessage(t('register.masterKeysDoNotMatch'));
+  const validateConfirmPassword = (value: string) => {
+    if (value !== password) {
+      setConfirmPasswordError(true);
+      setConfirmPasswordErrorMessage(t('register.passwordsDoNotMatch'));
       return false;
     }
-    setConfirmMasterKeyError(false);
-    setConfirmMasterKeyErrorMessage('');
+    setConfirmPasswordError(false);
+    setConfirmPasswordErrorMessage('');
     return true;
   };
 
@@ -66,21 +71,23 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     e.preventDefault();
 
     const isUsernameValid = validateUsername(username);
-    const isMasterKeyValid = validateMasterKey(masterKey);
-    const isConfirmMasterKeyValid = validateConfirmMasterKey(confirmMasterKey);
+    const isPasswordValid = validatePassword(password);
+    const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
 
-    if (!isUsernameValid || !isMasterKeyValid || !isConfirmMasterKeyValid) {
+    if (!isUsernameValid || !isPasswordValid || !isConfirmPasswordValid) {
       return;
     }
 
-    if (masterKey !== confirmMasterKey) {
-      setError(t('register.masterKeysDoNotMatch'));
+    if (password !== confirmPassword) {
+      setError(t('register.passwordsDoNotMatch'));
       return;
     }
 
     try {
       setIsLoading(true);
-      await onRegister(username, masterKey);
+      const generatedMasterKey = await onRegister(username, password);
+      setMasterKey(generatedMasterKey);
+      setShowMasterKeyDialog(true);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -96,32 +103,44 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     }
   };
 
+  const handleMasterKeyDialogClose = async () => {
+    setShowMasterKeyDialog(false);
+    await onLogin(username, password);
+  };
+
   return (
-    <RegisterForm
-      username={username}
-      masterKey={masterKey}
-      confirmMasterKey={confirmMasterKey}
-      usernameError={usernameError}
-      usernameErrorMessage={usernameErrorMessage}
-      masterKeyError={masterKeyError}
-      masterKeyErrorMessage={masterKeyErrorMessage}
-      confirmMasterKeyError={confirmMasterKeyError}
-      confirmMasterKeyErrorMessage={confirmMasterKeyErrorMessage}
-      masterKeyStrength={masterKeyStrength}
-      showMasterKey={showMasterKey}
-      showConfirmMasterKey={showConfirmMasterKey}
-      isLoading={isLoading}
-      error={error}
-      onUsernameChange={setUsername}
-      onMasterKeyChange={setMasterKey}
-      onConfirmMasterKeyChange={setConfirmMasterKey}
-      onToggleMasterKeyVisibility={() => setShowMasterKey(!showMasterKey)}
-      onToggleConfirmMasterKeyVisibility={() => setShowConfirmMasterKey(!showConfirmMasterKey)}
-      onMasterKeyStrengthChange={setMasterKeyStrength}
-      onErrorChange={setError}
-      onSubmit={handleSubmit}
-      onBack={onBack}
-    />
+    <>
+      <RegisterForm
+        username={username}
+        password={password}
+        confirmPassword={confirmPassword}
+        usernameError={usernameError}
+        usernameErrorMessage={usernameErrorMessage}
+        passwordError={passwordError}
+        passwordErrorMessage={passwordErrorMessage}
+        confirmPasswordError={confirmPasswordError}
+        confirmPasswordErrorMessage={confirmPasswordErrorMessage}
+        passwordStrength={passwordStrength}
+        showPassword={showPassword}
+        showConfirmPassword={showConfirmPassword}
+        isLoading={isLoading}
+        error={error}
+        onUsernameChange={setUsername}
+        onPasswordChange={setPassword}
+        onConfirmPasswordChange={setConfirmPassword}
+        onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
+        onToggleConfirmPasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+        onPasswordStrengthChange={setPasswordStrength}
+        onErrorChange={setError}
+        onSubmit={handleSubmit}
+        onBack={onBack}
+      />
+      <MasterKeyDialog
+        open={showMasterKeyDialog}
+        masterKey={masterKey}
+        onClose={handleMasterKeyDialogClose}
+      />
+    </>
   );
 }
 

@@ -16,25 +16,25 @@ import { CenteredCard, TopBar } from '../../../components/common';
 
 interface RegisterFormProps {
   username: string;
-  masterKey: string;
-  confirmMasterKey: string;
+  password: string;
+  confirmPassword: string;
   usernameError: boolean;
   usernameErrorMessage: string;
-  masterKeyError: boolean;
-  masterKeyErrorMessage: string;
-  confirmMasterKeyError: boolean;
-  confirmMasterKeyErrorMessage: string;
-  masterKeyStrength: { label: string; color: 'error' | 'warning' | 'success' };
-  showMasterKey: boolean;
-  showConfirmMasterKey: boolean;
+  passwordError: boolean;
+  passwordErrorMessage: string;
+  confirmPasswordError: boolean;
+  confirmPasswordErrorMessage: string;
+  passwordStrength: { label: string; color: 'error' | 'warning' | 'success' };
+  showPassword: boolean;
+  showConfirmPassword: boolean;
   isLoading: boolean;
   error: string;
   onUsernameChange: (value: string) => void;
-  onMasterKeyChange: (value: string) => void;
-  onConfirmMasterKeyChange: (value: string) => void;
-  onToggleMasterKeyVisibility: () => void;
-  onToggleConfirmMasterKeyVisibility: () => void;
-  onMasterKeyStrengthChange: (strength: { label: string; color: 'error' | 'warning' | 'success' }) => void;
+  onPasswordChange: (value: string) => void;
+  onConfirmPasswordChange: (value: string) => void;
+  onTogglePasswordVisibility: () => void;
+  onToggleConfirmPasswordVisibility: () => void;
+  onPasswordStrengthChange: (strength: { label: string; color: 'error' | 'warning' | 'success' }) => void;
   onErrorChange: (error: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   onBack: () => void;
@@ -42,25 +42,25 @@ interface RegisterFormProps {
 
 function RegisterForm({
   username,
-  masterKey,
-  confirmMasterKey,
+  password,
+  confirmPassword,
   usernameError,
   usernameErrorMessage,
-  masterKeyError,
-  masterKeyErrorMessage,
-  confirmMasterKeyError,
-  confirmMasterKeyErrorMessage,
-  masterKeyStrength,
-  showMasterKey,
-  showConfirmMasterKey,
+  passwordError,
+  passwordErrorMessage,
+  confirmPasswordError,
+  confirmPasswordErrorMessage,
+  passwordStrength,
+  showPassword,
+  showConfirmPassword,
   isLoading,
   error,
   onUsernameChange,
-  onMasterKeyChange,
-  onConfirmMasterKeyChange,
-  onToggleMasterKeyVisibility,
-  onToggleConfirmMasterKeyVisibility,
-  onMasterKeyStrengthChange,
+  onPasswordChange,
+  onConfirmPasswordChange,
+  onTogglePasswordVisibility,
+  onToggleConfirmPasswordVisibility,
+  onPasswordStrengthChange,
   onErrorChange,
   onSubmit,
   onBack,
@@ -89,21 +89,21 @@ function RegisterForm({
     onErrorChange('');
   };
 
-  const handleMasterKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    onMasterKeyChange(value);
+    onPasswordChange(value);
     
     if (value.length === 0) {
-      onMasterKeyStrengthChange({ label: '', color: 'error' });
+      onPasswordStrengthChange({ label: '', color: 'error' });
     } else {
-      onMasterKeyStrengthChange(getStrength(value));
+      onPasswordStrengthChange(getStrength(value));
     }
     
     onErrorChange('');
   };
 
-  const handleConfirmMasterKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onConfirmMasterKeyChange(e.target.value);
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onConfirmPasswordChange(e.target.value);
     onErrorChange('');
   };
 
@@ -162,46 +162,46 @@ function RegisterForm({
           />
 
           <TextField
-            id="masterKey"
-            name="masterKey"
-            type={showMasterKey ? 'text' : 'password'}
-            label={t('register.masterKey')}
-            placeholder={t('register.masterKeyPlaceholder')}
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            label={t('register.password')}
+            placeholder={t('register.passwordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
-            value={masterKey}
-            error={masterKeyError}
+            value={password}
+            error={passwordError}
             helperText={
-              masterKeyError ? (
-                <span>{masterKeyErrorMessage}</span>
-              ) : masterKey.length === 0 ? (
-                <span>{t('register.keyToConfirmAccess')}</span>
-              ) : masterKey.length < 6 ? (
+              passwordError ? (
+                <span>{passwordErrorMessage}</span>
+              ) : password.length === 0 ? (
+                <span>{t('register.passwordHelperText')}</span>
+              ) : password.length < 6 ? (
                 <Box component="span" sx={{ color: 'error.main' }}>
-                  {masterKeyStrength.label}
+                  {passwordStrength.label}
                 </Box>
               ) : (
-                <Box component="span" sx={{ color: getColor(masterKeyStrength.color) }}>
-                  {masterKeyStrength.label}
+                <Box component="span" sx={{ color: getColor(passwordStrength.color) }}>
+                  {passwordStrength.label}
                   <Tooltip title={t('register.specificChars')}>
                     <InfoOutlined sx={{ fontSize: 14, ml: 1, verticalAlign: 'middle', cursor: 'help', color: 'action.active' }} />
                   </Tooltip>
                 </Box>
               )
             }
-            onChange={handleMasterKeyChange}
+            onChange={handlePasswordChange}
             slotProps={{
               input: {
                 startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="toggle master key visibility"
-                      onClick={onToggleMasterKeyVisibility}
+                      aria-label="toggle password visibility"
+                      onClick={onTogglePasswordVisibility}
                       edge="end"
                     >
-                      {showMasterKey ? <VisibilityOff /> : <Visibility />}
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
@@ -211,29 +211,29 @@ function RegisterForm({
           />
 
           <TextField
-            id="confirmMasterKey"
-            name="confirmMasterKey"
-            type={showConfirmMasterKey ? 'text' : 'password'}
-            label={t('register.confirmMasterKey')}
-            placeholder={t('register.confirmMasterKeyPlaceholder')}
+            id="confirmPassword"
+            name="confirmPassword"
+            type={showConfirmPassword ? 'text' : 'password'}
+            label={t('register.confirmPassword')}
+            placeholder={t('register.confirmPasswordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
-            value={confirmMasterKey}
-            error={confirmMasterKeyError}
-            helperText={confirmMasterKeyErrorMessage}
-            onChange={handleConfirmMasterKeyChange}
+            value={confirmPassword}
+            error={confirmPasswordError}
+            helperText={confirmPasswordErrorMessage}
+            onChange={handleConfirmPasswordChange}
             slotProps={{
               input: {
                 startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="toggle confirm master key visibility"
-                      onClick={onToggleConfirmMasterKeyVisibility}
+                      aria-label="toggle confirm password visibility"
+                      onClick={onToggleConfirmPasswordVisibility}
                       edge="end"
                     >
-                      {showConfirmMasterKey ? <VisibilityOff /> : <Visibility />}
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
