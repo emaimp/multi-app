@@ -83,7 +83,6 @@ function LoginView() {
     return (
       <RegisterView 
         onRegister={handleRegister}
-        onLogin={login}
         onBack={() => setView('login')} 
       />
     );

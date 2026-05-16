@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { RegisterForm } from './register';
-import { MasterKeyDialog } from '../../components/common';
+import { MasterKeyView } from './masterKey/MasterKeyView';
 
 interface RegisterViewProps {
   onRegister: (username: string, password: string) => Promise<string>;
-  onLogin: (username: string, password: string) => Promise<void>;
   onBack: () => void;
 }
 
-function RegisterView({ onRegister, onLogin, onBack }: RegisterViewProps) {
+function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const { t } = useTranslation();
   
   const [username, setUsername] = useState('');
@@ -27,12 +26,13 @@ function RegisterView({ onRegister, onLogin, onBack }: RegisterViewProps) {
   const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState('');
 
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
 
   const [masterKey, setMasterKey] = useState('');
-  const [showMasterKeyDialog, setShowMasterKeyDialog] = useState(false);
+  const [view, setView] = useState<'form' | 'masterKey'>('form');
 
   const validateUsername = (value: string) => {
     if (!value || value.length < 3) {
@@ -87,7 +87,8 @@ function RegisterView({ onRegister, onLogin, onBack }: RegisterViewProps) {
       setIsLoading(true);
       const generatedMasterKey = await onRegister(username, password);
       setMasterKey(generatedMasterKey);
-      setShowMasterKeyDialog(true);
+      setSuccess(t('register.registeredSuccessfully'));
+      setView('masterKey');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -103,44 +104,58 @@ function RegisterView({ onRegister, onLogin, onBack }: RegisterViewProps) {
     }
   };
 
-  const handleMasterKeyDialogClose = async () => {
-    setShowMasterKeyDialog(false);
-    await onLogin(username, password);
+  const handleSignUp = () => {
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+    setMasterKey('');
+    setSuccess('');
+    setView('form');
   };
 
-  return (
-    <>
-      <RegisterForm
-        username={username}
-        password={password}
-        confirmPassword={confirmPassword}
-        usernameError={usernameError}
-        usernameErrorMessage={usernameErrorMessage}
-        passwordError={passwordError}
-        passwordErrorMessage={passwordErrorMessage}
-        confirmPasswordError={confirmPasswordError}
-        confirmPasswordErrorMessage={confirmPasswordErrorMessage}
-        passwordStrength={passwordStrength}
-        showPassword={showPassword}
-        showConfirmPassword={showConfirmPassword}
-        isLoading={isLoading}
-        error={error}
-        onUsernameChange={setUsername}
-        onPasswordChange={setPassword}
-        onConfirmPasswordChange={setConfirmPassword}
-        onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
-        onToggleConfirmPasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
-        onPasswordStrengthChange={setPasswordStrength}
-        onErrorChange={setError}
-        onSubmit={handleSubmit}
-        onBack={onBack}
-      />
-      <MasterKeyDialog
-        open={showMasterKeyDialog}
+  const handleSuccessClose = () => {
+    setSuccess('');
+  };
+
+  if (view === 'masterKey') {
+    return (
+      <MasterKeyView
         masterKey={masterKey}
-        onClose={handleMasterKeyDialogClose}
+        isLoading={isLoading}
+        success={success}
+        onSuccessClose={handleSuccessClose}
+        onSignUp={handleSignUp}
+        onBack={() => setView('form')}
       />
-    </>
+    );
+  }
+
+  return (
+    <RegisterForm
+      username={username}
+      password={password}
+      confirmPassword={confirmPassword}
+      usernameError={usernameError}
+      usernameErrorMessage={usernameErrorMessage}
+      passwordError={passwordError}
+      passwordErrorMessage={passwordErrorMessage}
+      confirmPasswordError={confirmPasswordError}
+      confirmPasswordErrorMessage={confirmPasswordErrorMessage}
+      passwordStrength={passwordStrength}
+      showPassword={showPassword}
+      showConfirmPassword={showConfirmPassword}
+      isLoading={isLoading}
+      error={error}
+      onUsernameChange={setUsername}
+      onPasswordChange={setPassword}
+      onConfirmPasswordChange={setConfirmPassword}
+      onTogglePasswordVisibility={() => setShowPassword(!showPassword)}
+      onToggleConfirmPasswordVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
+      onPasswordStrengthChange={setPasswordStrength}
+      onErrorChange={setError}
+      onSubmit={handleSubmit}
+      onBack={onBack}
+    />
   );
 }
 
