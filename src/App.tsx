@@ -5,7 +5,7 @@ import { AuthProvider, useUser } from './context/AuthContext';
 import { VaultProvider } from './context/VaultContext';
 import { theme } from './theme/theme';
 import { LoginView } from './views/auth';
-import { MainView } from './views/MainView';
+import { MainView } from './views/main/MainMenu';
 
 function AppContent() {
   const { isAuthenticated } = useUser();

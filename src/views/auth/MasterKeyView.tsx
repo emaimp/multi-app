@@ -1,34 +1,36 @@
 import { useState } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Typography,
-  Box,
-  TextField,
-  IconButton,
-  Checkbox,
-  FormControlLabel,
-  Alert,
-} from '@mui/material';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { useTranslation } from 'react-i18next';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import { CenteredCard, TopBar } from '../../components/common';
 
-interface MasterKeyDialogProps {
-  open: boolean;
+interface MasterKeyViewProps {
   masterKey: string;
-  onClose: () => void;
+  isLoading: boolean;
+  success?: string;
+  onSuccessClose?: () => void;
+  onSignUp: () => void;
+  onBack: () => void;
 }
 
-export function MasterKeyDialog({
-  open,
+export function MasterKeyView({
   masterKey,
-  onClose,
-}: MasterKeyDialogProps) {
+  isLoading,
+  success,
+  onSuccessClose,
+  onSignUp,
+  onBack,
+}: MasterKeyViewProps) {
+  const { t } = useTranslation();
   const [showKey, setShowKey] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -43,34 +45,32 @@ export function MasterKeyDialog({
     }
   };
 
-  const handleClose = () => {
-    setShowKey(false);
-    setAcknowledged(false);
-    setCopied(false);
-    onClose();
-  };
-
   const handleConfirm = () => {
-    handleClose();
+    onSignUp();
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <WarningAmberIcon color="warning" />
-        Save Your Master Key
-      </DialogTitle>
-      <DialogContent>
-        <Alert severity="warning" sx={{ mb: 2 }}>
-          This is crucial! Your Master Key cannot be recovered if lost.
-        </Alert>
-
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          Your Master Key is displayed below. You will need it to recover your account 
-          if you forget your password. Write it down or save it in a secure password manager.
+    <>
+      <TopBar onBack={onBack} />
+      <CenteredCard success={success} onSuccessClose={onSuccessClose}>
+        <Typography
+          component="h1"
+          variant="h4"
+          sx={{
+            width: '100%',
+            fontSize: 'clamp(1.5rem, 8vw, 2rem)',
+            textAlign: 'center',
+            mb: 2,
+          }}
+        >
+          {t('register.masterKeyTitle')}
         </Typography>
 
-        <Box sx={{ mb: 2 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          {t('register.masterKeyDescription')}
+        </Typography>
+
+        <Box sx={{ mb: 3 }}>
           <TextField
             fullWidth
             variant="outlined"
@@ -106,20 +106,22 @@ export function MasterKeyDialog({
               color="primary"
             />
           }
-          label="I have saved my Master Key in a secure place"
+          label={t('register.masterKeySaved')}
+          sx={{ mb: 2 }}
         />
-      </DialogContent>
-      <DialogActions>
+
         <Button
           onClick={handleConfirm}
           variant="contained"
-          disabled={!acknowledged}
+          fullWidth
+          disabled={!acknowledged || isLoading}
+          startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
         >
-          I Understand
+          {t('login.signUp')}
         </Button>
-      </DialogActions>
-    </Dialog>
+      </CenteredCard>
+    </>
   );
 }
 
-export default MasterKeyDialog;
+export default MasterKeyView;

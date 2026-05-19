@@ -5,44 +5,44 @@ import FolderIcon from '@mui/icons-material/Folder';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import KeyIcon from '@mui/icons-material/Key';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
-import { LoadingDialog, CreateDialog } from '../components/common';
-import { useUser } from '../context/AuthContext';
-import { useVaults } from '../context/VaultContext';
-import { useBackend } from '../hooks/core/useBackend';
+import { LoadingDialog, CreateDialog } from '../../components/common';
+import { useUser } from '../../context/AuthContext';
+import { useVaults } from '../../context/VaultContext';
+import { useBackend } from '../../hooks/core/useBackend';
 import {
   VaultListSkeleton,
   VaultEditDialog,
-} from '../components/main/vault';
+} from '../../components/main/vault';
 import {
   MainSidebar,
   CreateTypeSelector,
   CreateCollectionDialog
-} from '../components/main/mainsidebar';
-import { SecondarySidebar } from '../components/main/secondarysidebar';
-import { ItemCardEditDialog } from '../components/main/cards';
-import { Vault } from '../types/vault';
+} from '../../components/main/mainsidebar';
+import { SecondarySidebar } from '../../components/main/secondarysidebar';
+import { ItemCardEditDialog } from '../../components/main/cards';
+import { Vault } from '../../types/vault';
 import {
   IdCard,
   IDCARD_COLORS,
   IDCARD_COLORS_HEX
-} from '../types/id_card';
+} from '../../types/id_card';
 import {
   CreditCard,
   CREDITCARD_COLORS,
   CREDITCARD_COLORS_HEX
-} from '../types/credit_card';
+} from '../../types/credit_card';
 import {
   LoginKey,
   LOGINKEY_COLORS,
   LOGINKEY_COLORS_HEX
-} from '../types/loginkey';
+} from '../../types/loginkey';
 import {
   Note,
   NOTE_COLORS,
   NOTE_COLORS_HEX
-} from '../types/note';
-import { VaultContent } from '../components/main/vault';
-import { SettingsView } from './user/SettingsView';
+} from '../../types/note';
+import { VaultContent } from '../../components/main/vault';
+import { SettingsView } from '../user/SettingsView';
 
 export function MainView() {
   const navigate = useNavigate();

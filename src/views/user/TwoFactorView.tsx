@@ -3,28 +3,28 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import { CenteredCard, TopBar } from '../../../components/common';
+import { CenteredCard, TopBar } from '../../components/common';
 import { QRCodeSVG } from 'qrcode.react';
 
-interface RegisterQRProps {
+interface TwoFactorViewProps {
   otpauthUrl: string;
   totpCode: string;
   totpCodeError: string;
   isLoading: boolean;
   onTotpCodeChange: (value: string) => void;
-  onNext: () => void;
+  onVerify: () => void;
   onBack: () => void;
 }
 
-function RegisterQR({
+export function TwoFactorView({
   otpauthUrl,
   totpCode,
   totpCodeError,
   isLoading,
   onTotpCodeChange,
-  onNext,
+  onVerify,
   onBack,
-}: RegisterQRProps) {
+}: TwoFactorViewProps) {
   const { t } = useTranslation();
 
   const handleTotpCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +74,7 @@ function RegisterQR({
           <Button
             fullWidth
             variant="contained"
-            onClick={onNext}
+            onClick={onVerify}
             disabled={isLoading || totpCode.length !== 6}
             sx={{ mt: 1 }}
           >
@@ -86,4 +86,4 @@ function RegisterQR({
   );
 }
 
-export default RegisterQR;
+export default TwoFactorView;
