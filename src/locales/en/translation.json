@@ -21,6 +21,21 @@
     "networkError": "Network error. Please check your connection.",
     "loginFailed": "Login failed. Please try again."
   },
+  "recoverPassword": {
+    "title": "Recover Password",
+    "description": "Enter your username and master key to recover your access key.",
+    "masterKey": "Master Key",
+    "newAccessKey": "New Access Key",
+    "newAccessKeyPlaceholder": "Enter new access key",
+    "confirmNewAccessKey": "Confirm New Access Key",
+    "confirmNewAccessKeyPlaceholder": "Confirm new access key",
+    "recoverBtn": "Recover",
+    "recovering": "Recovering...",
+    "success": "Access key recovered successfully! Use your new access key to login.",
+    "invalidMasterKey": "Invalid master key.",
+    "failed": "Failed to recover access key. Please try again.",
+    "forgotPassword": "Forgot password?"
+  },
   "register": {
     "signUp": "Sign Up",
     "registering": "Registering...",

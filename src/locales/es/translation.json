@@ -21,6 +21,21 @@
     "networkError": "Error de red. Verifica tu conexión.",
     "loginFailed": "Error al iniciar sesión. Intenta de nuevo."
   },
+  "recoverPassword": {
+    "title": "Recuperar Contraseña",
+    "description": "Ingresa tu usuario y clave maestra para recuperar tu clave de acceso.",
+    "masterKey": "Clave Maestra",
+    "newAccessKey": "Nueva Clave de Acceso",
+    "newAccessKeyPlaceholder": "Ingresa nueva clave de acceso",
+    "confirmNewAccessKey": "Confirmar Nueva Clave de Acceso",
+    "confirmNewAccessKeyPlaceholder": "Confirma nueva clave de acceso",
+    "recoverBtn": "Recuperar",
+    "recovering": "Recuperando...",
+    "success": "¡Clave de acceso recuperada exitosamente! Usa tu nueva clave de acceso para iniciar sesión.",
+    "invalidMasterKey": "Clave maestra inválida.",
+    "failed": "Error al recuperar la clave de acceso. Intenta de nuevo.",
+    "forgotPassword": "¿Olvidaste tu contraseña?"
+  },
   "register": {
     "signUp": "Regístrate",
     "registering": "Registrando...",

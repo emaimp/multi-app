@@ -131,6 +131,42 @@ impl Database {
         }, master_key.to_string()))
     }
 
+    pub fn get_user_id_by_username(&self, username: &str) -> Result<i32, String> {
+        let conn = self.conn.lock().unwrap();
+        let mut stmt = conn.prepare("SELECT id, username_encrypted, username_nonce, access_key_hash FROM users")
+            .map_err(|e| e.to_string())?;
+        
+        let all_users: Vec<(i32, String, String, String)> = stmt.query_map([], |row| {
+            Ok((
+                row.get(0)?,
+                row.get(1)?,
+                row.get(2)?,
+                row.get(3)?,
+            ))
+        }).map_err(|e| e.to_string())?
+        .filter_map(|r| r.ok())
+        .collect();
+
+        for (id, enc_user, nonce, access_hash) in all_users {
+            let access_salt = match extract_salt_from_hash(&access_hash) {
+                Ok(salt) => salt,
+                Err(_) => continue,
+            };
+            let key = match derive_encryption_key(username, &access_salt) {
+                Ok(k) => k,
+                Err(_) => continue,
+            };
+            
+            if let Ok(decrypted) = decrypt_from_base64(&enc_user, &nonce, &key) {
+                if decrypted == username {
+                    return Ok(id);
+                }
+            }
+        }
+
+        Err("User not found".to_string())
+    }
+
     pub fn verify_master_key(&self, user_id: i32, master_key: &str) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
         let master_key_hash: String = conn.query_row(

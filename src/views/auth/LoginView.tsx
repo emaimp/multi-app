@@ -15,13 +15,14 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useUser } from '../../context/AuthContext';
 import RegisterView from './RegisterView';
 import MasterKeyView from './MasterKeyView';
+import RecoverPasswordView from './RecoverPasswordView';
 import { CenteredCard, TopBar } from '../../components/common';
 
 function LoginView() {
   const { t } = useTranslation();
   const { login, register } = useUser();
 
-  const [view, setView] = useState<'login' | 'register' | 'masterKey'>('login');
+  const [view, setView] = useState<'login' | 'register' | 'masterKey' | 'recoverPassword'>('login');
 
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
@@ -143,6 +144,14 @@ function LoginView() {
     );
   }
 
+  if (view === 'recoverPassword') {
+    return (
+      <RecoverPasswordView 
+        onBack={() => setView('login')} 
+      />
+    );
+  }
+
   return (
     <>
       <TopBar onBack={() => {}} showBackButton={false} />
@@ -255,6 +264,16 @@ function LoginView() {
                 sx={{ alignSelf: 'center' }}
               >
                 {t('login.signUp')}
+              </Link>
+            </Typography>
+            <Typography sx={{ textAlign: 'center' }}>
+              <Link
+                component="button"
+                type="button"
+                onClick={() => setView('recoverPassword')}
+                variant="body2"
+              >
+                {t('recoverPassword.forgotPassword')}
               </Link>
             </Typography>
           </Box>

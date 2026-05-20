@@ -82,7 +82,8 @@ pub fn change_access_key(user_id: i32, master_key: String, new_access_key: Strin
 }
 
 #[tauri::command]
-pub fn recover_access_key(user_id: i32, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
+pub fn recover_access_key(username: String, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    let user_id = state.get_user_id_by_username(&username)?;
     state.verify_master_key(user_id, &master_key)?;
     state.change_access_key(user_id, &master_key, &new_access_key)
 }
