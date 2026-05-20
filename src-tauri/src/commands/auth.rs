@@ -67,11 +67,6 @@ pub fn delete_user(user_id: i32, master_key: String, state: tauri::State<Databas
 }
 
 #[tauri::command]
-pub fn change_master_key(user_id: i32, current_master_key: String, new_master_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.change_master_key(user_id, &current_master_key, &new_master_key)
-}
-
-#[tauri::command]
 pub fn verify_master_key(user_id: i32, master_key: String, state: tauri::State<Database>) -> Result<(), String> {
     state.verify_master_key(user_id, &master_key)
 }
@@ -83,7 +78,6 @@ pub fn change_access_key(user_id: i32, master_key: String, new_access_key: Strin
 
 #[tauri::command]
 pub fn recover_access_key(username: String, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    let user_id = state.get_user_id_by_username(&username)?;
-    state.verify_master_key(user_id, &master_key)?;
+    let user_id = state.get_user_by_master_key(&username, &master_key)?;
     state.change_access_key(user_id, &master_key, &new_access_key)
 }

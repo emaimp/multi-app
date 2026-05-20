@@ -4,8 +4,10 @@ pub fn create_tables(conn: &Connection) -> Result<(), rusqlite::Error> {
     conn.execute(
         "CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY,
-            username_encrypted TEXT NOT NULL,
-            username_nonce TEXT NOT NULL,
+            username_encrypted_access TEXT NOT NULL,
+            username_nonce_access TEXT NOT NULL,
+            username_encrypted_master TEXT NOT NULL,
+            username_nonce_master TEXT NOT NULL,
             access_key_hash TEXT NOT NULL,
             master_key_hash TEXT NOT NULL,
             data_key_encrypted_access TEXT NOT NULL,

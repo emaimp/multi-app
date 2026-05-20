@@ -7,21 +7,14 @@ import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
-import InputAdornment from '@mui/material/InputAdornment';
 import PersonIcon from '@mui/icons-material/Person';
-import KeyIcon from '@mui/icons-material/Key';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useUser } from '../../context/AuthContext';
-import { useBackend } from '../../hooks/core/useBackend';
 import { AvatarPicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/common';
 
 export function SettingsView() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user, updateUser, deleteAccount } = useUser();
-  const { invoke } = useBackend();
 
   const [username, setUsername] = useState(user?.username || '');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
@@ -39,15 +32,6 @@ export function SettingsView() {
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-
-  const [currentMasterKey, setCurrentMasterKey] = useState('');
-  const [newMasterKey, setNewMasterKey] = useState('');
-  const [confirmNewMasterKey, setConfirmNewMasterKey] = useState('');
-  const [showCurrentMasterKey, setShowCurrentMasterKey] = useState(false);
-  const [showNewMasterKey, setShowNewMasterKey] = useState(false);
-  const [showConfirmNewMasterKey, setShowConfirmNewMasterKey] = useState(false);
-  const [changeMasterKeyError, setChangeMasterKeyError] = useState('');
-  const [isChangingMasterKey, setIsChangingMasterKey] = useState(false);
 
   const validateForm = () => {
     const newErrors: typeof errors = {};
@@ -67,11 +51,6 @@ export function SettingsView() {
 
     if (deleteAccountChecked) {
       setDeleteDialogOpen(true);
-      return;
-    }
-
-    if (currentMasterKey || newMasterKey || confirmNewMasterKey) {
-      await handleChangeMasterKey();
       return;
     }
 
@@ -118,54 +97,6 @@ export function SettingsView() {
       }
     } finally {
       setDialogLoading(false);
-    }
-  };
-
-  const handleChangeMasterKey = async () => {
-    if (!currentMasterKey && !newMasterKey && !confirmNewMasterKey) {
-      await saveSettings();
-      return;
-    }
-
-    if (!currentMasterKey || !newMasterKey || !confirmNewMasterKey) {
-      setChangeMasterKeyError('All fields are required');
-      return;
-    }
-
-    if (newMasterKey.length < 6) {
-      setChangeMasterKeyError(t('register.masterKeyMinLength'));
-      return;
-    }
-
-    if (newMasterKey !== confirmNewMasterKey) {
-      setChangeMasterKeyError(t('settings.masterKeysDoNotMatch'));
-      return;
-    }
-
-    setIsChangingMasterKey(true);
-    setChangeMasterKeyError('');
-
-    try {
-      await invoke('change_master_key', {
-        userId: user?.id,
-        currentMasterKey,
-        newMasterKey,
-      });
-
-      localStorage.setItem('masterKey', newMasterKey);
-      setCurrentMasterKey('');
-      setNewMasterKey('');
-      setConfirmNewMasterKey('');
-      setSuccessMessage(t('settings.masterKeyChanged'));
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : String(err);
-      if (errorMessage.includes('Invalid master key') || errorMessage.includes('incorrect')) {
-        setChangeMasterKeyError(t('settings.invalidCurrentMasterKey'));
-      } else {
-        setChangeMasterKeyError('Failed to change master key');
-      }
-    } finally {
-      setIsChangingMasterKey(false);
     }
   };
 
@@ -221,81 +152,7 @@ export function SettingsView() {
                 startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
               },
             }}
-            sx={{ mt: 1 }}
-          />
-
-          <TextField
-            label={t('settings.currentMasterKey')}
-            type={showCurrentMasterKey ? 'text' : 'password'}
-            fullWidth
-            value={currentMasterKey}
-            onChange={(e) => {
-              setCurrentMasterKey(e.target.value);
-              setChangeMasterKeyError('');
-            }}
-            disabled={isChangingMasterKey}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowCurrentMasterKey(!showCurrentMasterKey)} edge="end">
-                      {showCurrentMasterKey ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <TextField
-            label={t('settings.newMasterKey')}
-            type={showNewMasterKey ? 'text' : 'password'}
-            fullWidth
-            value={newMasterKey}
-            onChange={(e) => {
-              setNewMasterKey(e.target.value);
-              setChangeMasterKeyError('');
-            }}
-            disabled={isChangingMasterKey}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowNewMasterKey(!showNewMasterKey)} edge="end">
-                      {showNewMasterKey ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <TextField
-            label={t('settings.confirmNewMasterKey')}
-            type={showConfirmNewMasterKey ? 'text' : 'password'}
-            fullWidth
-            value={confirmNewMasterKey}
-            onChange={(e) => {
-              setConfirmNewMasterKey(e.target.value);
-              setChangeMasterKeyError('');
-            }}
-            disabled={isChangingMasterKey}
-            error={!!changeMasterKeyError}
-            helperText={changeMasterKeyError}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowConfirmNewMasterKey(!showConfirmNewMasterKey)} edge="end">
-                      {showConfirmNewMasterKey ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
+sx={{ mt: 1 }}
           />
 
           <FormControlLabel
@@ -326,10 +183,10 @@ export function SettingsView() {
             variant="contained"
             fullWidth
             onClick={handleSave}
-            disabled={isLoading || isChangingMasterKey}
-            startIcon={isLoading || isChangingMasterKey ? <CircularProgress size={20} color="inherit" /> : null}
+            disabled={isLoading}
+            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
           >
-            {isChangingMasterKey ? t('settings.changingMasterKey') : isLoading ? t('settings.saving') : t('settings.saveChanges')}
+            {isLoading ? t('settings.saving') : t('settings.saveChanges')}
           </Button>
         </Box>
       </CenteredCard>
