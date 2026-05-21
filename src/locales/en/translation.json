@@ -22,19 +22,27 @@
     "loginFailed": "Login failed. Please try again."
   },
   "recoverPassword": {
-    "title": "Recover Password",
-    "description": "Enter your username and master key to recover your access key.",
+    "title": "Verify Identity",
+    "description": "Enter your username and master key to verify your identity.",
     "masterKey": "Master Key",
+    "verifyBtn": "Verify",
+    "verifying": "Verifying...",
+    "invalidMasterKey": "Invalid master key.",
+    "failed": "Failed to verify identity. Please try again.",
+    "forgotPassword": "Forgot password?"
+  },
+  "changePassword": {
+    "title": "Change Password",
+    "description": "Enter your new access key.",
     "newAccessKey": "New Access Key",
     "newAccessKeyPlaceholder": "Enter new access key",
     "confirmNewAccessKey": "Confirm New Access Key",
     "confirmNewAccessKeyPlaceholder": "Confirm new access key",
-    "recoverBtn": "Recover",
-    "recovering": "Recovering...",
-    "success": "Access key recovered successfully! Use your new access key to login.",
+    "changeBtn": "Change Password",
+    "changing": "Changing password...",
+    "success": "Password changed successfully! Use your new access key to login.",
     "invalidMasterKey": "Invalid master key.",
-    "failed": "Failed to recover access key. Please try again.",
-    "forgotPassword": "Forgot password?"
+    "failed": "Failed to change password. Please try again."
   },
   "register": {
     "signUp": "Sign Up",

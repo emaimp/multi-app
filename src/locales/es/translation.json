@@ -22,19 +22,27 @@
     "loginFailed": "Error al iniciar sesión. Intenta de nuevo."
   },
   "recoverPassword": {
-    "title": "Recuperar Contraseña",
-    "description": "Ingresa tu usuario y clave maestra para recuperar tu clave de acceso.",
+    "title": "Verificar Identidad",
+    "description": "Ingresa tu usuario y clave maestra para verificar tu identidad.",
     "masterKey": "Clave Maestra",
+    "verifyBtn": "Verificar",
+    "verifying": "Verificando...",
+    "invalidMasterKey": "Clave maestra inválida.",
+    "failed": "Error al verificar identidad. Intenta de nuevo.",
+    "forgotPassword": "¿Olvidaste tu contraseña?"
+  },
+  "changePassword": {
+    "title": "Cambiar Contraseña",
+    "description": "Ingresa tu nueva clave de acceso.",
     "newAccessKey": "Nueva Clave de Acceso",
     "newAccessKeyPlaceholder": "Ingresa nueva clave de acceso",
     "confirmNewAccessKey": "Confirmar Nueva Clave de Acceso",
     "confirmNewAccessKeyPlaceholder": "Confirma nueva clave de acceso",
-    "recoverBtn": "Recuperar",
-    "recovering": "Recuperando...",
-    "success": "¡Clave de acceso recuperada exitosamente! Usa tu nueva clave de acceso para iniciar sesión.",
+    "changeBtn": "Cambiar Contraseña",
+    "changing": "Cambiando contraseña...",
+    "success": "¡Contraseña cambiada exitosamente! Usa tu nueva clave de acceso para iniciar sesión.",
     "invalidMasterKey": "Clave maestra inválida.",
-    "failed": "Error al recuperar la clave de acceso. Intenta de nuevo.",
-    "forgotPassword": "¿Olvidaste tu contraseña?"
+    "failed": "Error al cambiar la contraseña. Intenta de nuevo."
   },
   "register": {
     "signUp": "Regístrate",

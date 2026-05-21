@@ -23,6 +23,7 @@ pub fn run() {
             auth::update_avatar,
             auth::delete_user,
             auth::verify_master_key,
+            auth::verify_user_by_master_key,
             auth::change_access_key,
             auth::recover_access_key,
             collections::get_collections,

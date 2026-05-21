@@ -16,13 +16,16 @@ import { useUser } from '../../context/AuthContext';
 import RegisterView from './RegisterView';
 import MasterKeyView from './MasterKeyView';
 import RecoverPasswordView from './RecoverPasswordView';
+import ChangePasswordView from './ChangePasswordView';
 import { CenteredCard, TopBar } from '../../components/common';
 
 function LoginView() {
   const { t } = useTranslation();
   const { login, register } = useUser();
 
-  const [view, setView] = useState<'login' | 'register' | 'masterKey' | 'recoverPassword'>('login');
+  const [view, setView] = useState<'login' | 'register' | 'masterKey' | 'recoverPassword' | 'changePassword'>('login');
+  const [recoveryUserId, setRecoveryUserId] = useState<number>(0);
+  const [recoveryMasterKey, setRecoveryMasterKey] = useState('');
 
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
@@ -47,6 +50,8 @@ function LoginView() {
     setMasterKeyError(false);
     setMasterKeyInvalidError(false);
     setError('');
+    setRecoveryUserId(0);
+    setRecoveryMasterKey('');
   }, [view]);
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,7 +152,23 @@ function LoginView() {
   if (view === 'recoverPassword') {
     return (
       <RecoverPasswordView 
-        onBack={() => setView('login')} 
+        onBack={() => setView('login')}
+        onVerified={(userId, username, masterKey) => {
+          setRecoveryUserId(userId);
+          setRecoveryMasterKey(masterKey);
+          setView('changePassword');
+        }}
+      />
+    );
+  }
+
+  if (view === 'changePassword') {
+    return (
+      <ChangePasswordView
+        onBack={() => setView('recoverPassword')}
+        onSuccess={() => setView('login')}
+        userId={recoveryUserId}
+        masterKey={recoveryMasterKey}
       />
     );
   }
