@@ -50,8 +50,10 @@ function LoginView() {
     setMasterKeyError(false);
     setMasterKeyInvalidError(false);
     setError('');
-    setRecoveryUserId(0);
-    setRecoveryMasterKey('');
+    if (view === 'login') {
+      setRecoveryUserId(0);
+      setRecoveryMasterKey('');
+    }
   }, [view]);
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {

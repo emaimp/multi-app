@@ -237,18 +237,15 @@ impl Database {
         let data_key = decrypt_from_base64(&data_key_enc, &data_key_nonce, &access_key_derived)
             .map_err(|e| e.to_string())?;
 
-        let data_salt = SaltString::generate(&mut thread_rng());
-        let argon2 = Argon2::default();
-        let data_key_hash = argon2.hash_password(data_key.as_bytes(), &data_salt).map_err(|e| e.to_string())?.to_string();
-        
-        let data_salt_bytes = extract_salt_from_hash(&data_key_hash)?;
-        let data_key_derived = derive_encryption_key(&data_key, &data_salt_bytes).map_err(|e| e.to_string())?;
+        let data_key_bytes = base64::engine::general_purpose::STANDARD.decode(&data_key)
+            .map_err(|e| format!("Failed to decode data key: {}", e))?;
+        let data_key_derived = GenericArray::clone_from_slice(&data_key_bytes);
 
         Ok(data_key_derived)
     }
 
     pub fn change_access_key(&self, user_id: i32, master_key: &str, new_access_key: &str) -> Result<(), String> {
-        let data_key = {
+        let (data_key, username) = {
             let conn = self.conn.lock().unwrap();
             let master_key_hash: String = conn.query_row(
                 "SELECT master_key_hash FROM users WHERE id = ?",
@@ -275,8 +272,25 @@ impl Database {
                 |row| row.get(0)
             ).map_err(|e| e.to_string())?;
 
-            decrypt_from_base64(&data_key_enc, &data_key_nonce, &master_key_derived)
-                .map_err(|_| "Invalid master key".to_string())?
+            let data_key = decrypt_from_base64(&data_key_enc, &data_key_nonce, &master_key_derived)
+                .map_err(|_| "Invalid master key".to_string())?;
+
+            let username_enc: String = conn.query_row(
+                "SELECT username_encrypted_master FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+
+            let username_nonce: String = conn.query_row(
+                "SELECT username_nonce_master FROM users WHERE id = ?",
+                [user_id],
+                |row| row.get(0)
+            ).map_err(|e| e.to_string())?;
+
+            let username = decrypt_from_base64(&username_enc, &username_nonce, &master_key_derived)
+                .map_err(|_| "Invalid master key".to_string())?;
+
+            (data_key, username)
         };
 
         let new_access_salt = SaltString::generate(&mut thread_rng());
@@ -291,15 +305,17 @@ impl Database {
         let (new_data_key_enc, new_data_key_nonce) = encrypt_to_base64(&data_key, &new_access_key_derived)
             .map_err(|e| e.to_string())?;
 
-        let data_salt = SaltString::generate(&mut thread_rng());
-        let _data_key_hash = argon2.hash_password(data_key.as_bytes(), &data_salt).map_err(|e| e.to_string())?.to_string();
-        let data_salt_bytes = extract_salt_from_hash(&_data_key_hash)?;
-        let data_key_derived = derive_encryption_key(&data_key, &data_salt_bytes).map_err(|e| e.to_string())?;
+        let (new_username_enc, new_username_nonce) = encrypt_to_base64(&username, &new_access_key_derived)
+            .map_err(|e| e.to_string())?;
+
+        let data_key_bytes = base64::engine::general_purpose::STANDARD.decode(&data_key)
+            .map_err(|e| format!("Failed to decode data key: {}", e))?;
+        let data_key_derived = GenericArray::clone_from_slice(&data_key_bytes);
 
         let conn = self.conn.lock().unwrap();
         conn.execute(
-            "UPDATE users SET access_key_hash = ?, data_key_encrypted_access = ?, data_key_nonce_access = ? WHERE id = ?",
-            rusqlite::params![&new_access_key_hash, &new_data_key_enc, &new_data_key_nonce, user_id],
+            "UPDATE users SET access_key_hash = ?, data_key_encrypted_access = ?, data_key_nonce_access = ?, username_encrypted_access = ?, username_nonce_access = ? WHERE id = ?",
+            rusqlite::params![&new_access_key_hash, &new_data_key_enc, &new_data_key_nonce, &new_username_enc, &new_username_nonce, user_id],
         ).map_err(|e| e.to_string())?;
 
         let mut keys = self.encryption_keys.lock().unwrap();
