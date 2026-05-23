@@ -180,10 +180,10 @@ impl Database {
 
     pub fn verify_master_key(&self, user_id: i32, master_key: &str) -> Result<(), String> {
         let conn = self.conn.lock().unwrap();
-        let master_key_hash: String = conn.query_row(
-            "SELECT master_key_hash FROM users WHERE id = ?",
+        let (master_key_hash, data_key_enc, data_key_nonce): (String, String, String) = conn.query_row(
+            "SELECT master_key_hash, data_key_encrypted_master, data_key_nonce_master FROM users WHERE id = ?",
             [user_id],
-            |row| row.get(0)
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?))
         ).map_err(|e| e.to_string())?;
 
         let parsed_hash = PasswordHash::new(&master_key_hash).map_err(|e| e.to_string())?;
@@ -193,18 +193,6 @@ impl Database {
         let master_salt = extract_salt_from_hash(&master_key_hash)?;
         let master_key_derived = derive_encryption_key(master_key, &master_salt).map_err(|e| e.to_string())?;
 
-        let data_key_enc: String = conn.query_row(
-            "SELECT data_key_encrypted_master FROM users WHERE id = ?",
-            [user_id],
-            |row| row.get(0)
-        ).map_err(|e| e.to_string())?;
-
-        let data_key_nonce: String = conn.query_row(
-            "SELECT data_key_nonce_master FROM users WHERE id = ?",
-            [user_id],
-            |row| row.get(0)
-        ).map_err(|e| e.to_string())?;
-
         decrypt_from_base64(&data_key_enc, &data_key_nonce, &master_key_derived)
             .map_err(|_| "Invalid master key".to_string())?;
 
@@ -213,22 +201,10 @@ impl Database {
 
     pub fn get_data_key_from_access(&self, user_id: i32, access_key: &str) -> Result<GenericArray<u8, U32>, String> {
         let conn = self.conn.lock().unwrap();
-        let access_key_hash: String = conn.query_row(
-            "SELECT access_key_hash FROM users WHERE id = ?",
+        let (access_key_hash, data_key_enc, data_key_nonce): (String, String, String) = conn.query_row(
+            "SELECT access_key_hash, data_key_encrypted_access, data_key_nonce_access FROM users WHERE id = ?",
             [user_id],
-            |row| row.get(0)
-        ).map_err(|e| e.to_string())?;
-
-        let data_key_enc: String = conn.query_row(
-            "SELECT data_key_encrypted_access FROM users WHERE id = ?",
-            [user_id],
-            |row| row.get(0)
-        ).map_err(|e| e.to_string())?;
-
-        let data_key_nonce: String = conn.query_row(
-            "SELECT data_key_nonce_access FROM users WHERE id = ?",
-            [user_id],
-            |row| row.get(0)
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?))
         ).map_err(|e| e.to_string())?;
 
         let access_salt = extract_salt_from_hash(&access_key_hash)?;
@@ -247,10 +223,10 @@ impl Database {
     pub fn change_access_key(&self, user_id: i32, master_key: &str, new_access_key: &str) -> Result<(), String> {
         let (data_key, username) = {
             let conn = self.conn.lock().unwrap();
-            let master_key_hash: String = conn.query_row(
-                "SELECT master_key_hash FROM users WHERE id = ?",
+            let (master_key_hash, data_key_enc, data_key_nonce, username_enc, username_nonce): (String, String, String, String, String) = conn.query_row(
+                "SELECT master_key_hash, data_key_encrypted_master, data_key_nonce_master, username_encrypted_master, username_nonce_master FROM users WHERE id = ?",
                 [user_id],
-                |row| row.get(0)
+                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?))
             ).map_err(|e| e.to_string())?;
 
             let parsed_hash = PasswordHash::new(&master_key_hash).map_err(|e| e.to_string())?;
@@ -260,32 +236,8 @@ impl Database {
             let master_salt = parsed_hash.salt.ok_or("Salt not found in hash")?.as_ref().as_bytes().to_vec();
             let master_key_derived = derive_encryption_key(master_key, &master_salt).map_err(|e| e.to_string())?;
 
-            let data_key_enc: String = conn.query_row(
-                "SELECT data_key_encrypted_master FROM users WHERE id = ?",
-                [user_id],
-                |row| row.get(0)
-            ).map_err(|e| e.to_string())?;
-
-            let data_key_nonce: String = conn.query_row(
-                "SELECT data_key_nonce_master FROM users WHERE id = ?",
-                [user_id],
-                |row| row.get(0)
-            ).map_err(|e| e.to_string())?;
-
             let data_key = decrypt_from_base64(&data_key_enc, &data_key_nonce, &master_key_derived)
                 .map_err(|_| "Invalid master key".to_string())?;
-
-            let username_enc: String = conn.query_row(
-                "SELECT username_encrypted_master FROM users WHERE id = ?",
-                [user_id],
-                |row| row.get(0)
-            ).map_err(|e| e.to_string())?;
-
-            let username_nonce: String = conn.query_row(
-                "SELECT username_nonce_master FROM users WHERE id = ?",
-                [user_id],
-                |row| row.get(0)
-            ).map_err(|e| e.to_string())?;
 
             let username = decrypt_from_base64(&username_enc, &username_nonce, &master_key_derived)
                 .map_err(|_| "Invalid master key".to_string())?;
