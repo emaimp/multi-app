@@ -48,7 +48,7 @@ impl Database {
         let parsed_access_hash = PasswordHash::new(&access_key_hash).map_err(|e| e.to_string())?;
         Argon2::default().verify_password(access_key.as_bytes(), &parsed_access_hash).map_err(|_| "Invalid access key".to_string())?;
 
-        let access_salt = extract_salt_from_hash(&access_key_hash)?;
+        let access_salt = parsed_access_hash.salt.ok_or("Salt not found in hash".to_string())?.as_ref().as_bytes().to_vec();
         let access_key_derived = derive_encryption_key(access_key, &access_salt)?;
 
         let _data_key = decrypt_from_base64(&data_key_encrypted, &data_key_nonce, &access_key_derived)
@@ -84,7 +84,7 @@ impl Database {
         let argon2 = Argon2::default();
         let access_key_hash = argon2.hash_password(access_key.as_bytes(), &access_salt).map_err(|e| e.to_string())?.to_string();
         
-        let access_salt_bytes = extract_salt_from_hash(&access_key_hash)?;
+        let access_salt_bytes = access_salt.as_ref().as_bytes().to_vec();
         let access_key_derived = derive_encryption_key(access_key, &access_salt_bytes)?;
         
         let (data_key_encrypted_access, data_key_nonce_access) = encrypt_to_base64(&data_key, &access_key_derived).map_err(|e| e.to_string())?;
@@ -92,7 +92,7 @@ impl Database {
         let master_salt = SaltString::generate(&mut thread_rng());
         let master_key_hash = argon2.hash_password(master_key.as_bytes(), &master_salt).map_err(|e| e.to_string())?.to_string();
         
-        let master_salt_bytes = extract_salt_from_hash(&master_key_hash)?;
+        let master_salt_bytes = master_salt.as_ref().as_bytes().to_vec();
         let master_key_derived = derive_encryption_key(master_key, &master_salt_bytes)?;
         
         let (data_key_encrypted_master, data_key_nonce_master) = encrypt_to_base64(&data_key, &master_key_derived).map_err(|e| e.to_string())?;
@@ -131,7 +131,7 @@ impl Database {
         Argon2::default().verify_password(master_key.as_bytes(), &parsed_hash)
             .map_err(|_| "Invalid master key".to_string())?;
 
-        let master_salt = extract_salt_from_hash(&master_key_hash)?;
+        let master_salt = parsed_hash.salt.ok_or("Salt not found in hash".to_string())?.as_ref().as_bytes().to_vec();
         let key = derive_encryption_key(master_key, &master_salt)?;
 
         let decrypted = decrypt_from_base64(&enc_user_master, &nonce_master, &key)
@@ -156,7 +156,7 @@ impl Database {
         Argon2::default().verify_password(master_key.as_bytes(), &parsed_hash)
             .map_err(|_| "Invalid master key".to_string())?;
 
-        let master_salt = extract_salt_from_hash(&master_key_hash)?;
+        let master_salt = parsed_hash.salt.ok_or("Salt not found in hash".to_string())?.as_ref().as_bytes().to_vec();
         let master_key_derived = derive_encryption_key(master_key, &master_salt).map_err(|e| e.to_string())?;
 
         decrypt_from_base64(&data_key_enc, &data_key_nonce, &master_key_derived)
@@ -173,7 +173,8 @@ impl Database {
             |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?))
         ).map_err(|e| e.to_string())?;
 
-        let access_salt = extract_salt_from_hash(&access_key_hash)?;
+        let parsed_hash = PasswordHash::new(&access_key_hash).map_err(|e| e.to_string())?;
+        let access_salt = parsed_hash.salt.ok_or("Salt not found in hash".to_string())?.as_ref().as_bytes().to_vec();
         let access_key_derived = derive_encryption_key(access_key, &access_salt).map_err(|e| e.to_string())?;
 
         let data_key = decrypt_from_base64(&data_key_enc, &data_key_nonce, &access_key_derived)
@@ -216,7 +217,7 @@ impl Database {
         let new_access_key_hash = argon2.hash_password(new_access_key.as_bytes(), &new_access_salt)
             .map_err(|e| e.to_string())?.to_string();
 
-        let new_access_salt_bytes = extract_salt_from_hash(&new_access_key_hash)?;
+        let new_access_salt_bytes = new_access_salt.as_ref().as_bytes().to_vec();
         let new_access_key_derived = derive_encryption_key(new_access_key, &new_access_salt_bytes)
             .map_err(|e| e.to_string())?;
 
@@ -241,11 +242,4 @@ impl Database {
 
         Ok(())
     }
-}
-
-fn extract_salt_from_hash(hash: &str) -> Result<Vec<u8>, String> {
-    let parsed_hash = PasswordHash::new(hash).map_err(|e| e.to_string())?;
-    let salt = parsed_hash.salt
-        .ok_or("Salt not found in hash".to_string())?;
-    Ok(salt.as_ref().as_bytes().to_vec())
 }
