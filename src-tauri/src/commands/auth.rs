@@ -12,8 +12,7 @@ pub struct RegisterResponse {
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn login(username: String, access_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
-    let user = state.login(&username, &access_key)?;
-    Ok(user.into())
+    state.login(&username, &access_key)
 }
 
 #[tauri::command(rename_all = "snake_case")]

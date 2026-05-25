@@ -6,7 +6,7 @@ pub struct User {
     pub username: String,
     pub username_encrypted: Option<String>,
     pub username_nonce: Option<String>,
-    pub master_key_hash: String,
+    pub access_key_hash: String,
     pub avatar: Option<String>,
 }
 

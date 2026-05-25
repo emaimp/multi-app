@@ -5,7 +5,7 @@ use typenum::U32;
 use sha2::{Sha256, Digest};
 
 use crate::crypto::{encrypt_to_base64, decrypt_from_base64, derive_encryption_key};
-use crate::models::User;
+use crate::models::{User, UserResponse};
 use super::database::Database;
 use base64::Engine as _;
 
@@ -25,41 +25,38 @@ fn hash_username(username: &str) -> String {
 }
 
 impl Database {
-    pub fn login(&self, username: &str, access_key: &str) -> Result<User, String> {
-        let (user_id, username_encrypted_access, username_nonce_access, data_key_encrypted, data_key_nonce, access_key_hash) = {
-            let conn = self.conn.lock().unwrap();
-            let username_hash = hash_username(username);
+    pub fn get_user_by_access_key(&self, username: &str, access_key: &str) -> Result<i32, String> {
+        let conn = self.conn.lock().unwrap();
+        let username_hash = hash_username(username);
 
-            conn.query_row(
-                "SELECT id, username_encrypted_access, username_nonce_access, data_key_encrypted_access, data_key_nonce_access, access_key_hash FROM users WHERE username_hash = ?",
-                [&username_hash],
-                |row| {
-                    let id: i32 = row.get(0)?;
-                    let enc_user: String = row.get(1)?;
-                    let nonce: String = row.get(2)?;
-                    let data_key_enc: String = row.get(3)?;
-                    let data_key_nonce: String = row.get(4)?;
-                    let access_hash: String = row.get(5)?;
-                    Ok((id, enc_user, nonce, data_key_enc, data_key_nonce, access_hash))
-                }
-            ).map_err(|_| "User not found".to_string())?
-        };
+        let (id, username_encrypted_access, username_nonce_access, access_key_hash): (i32, String, String, String) = conn.query_row(
+            "SELECT id, username_encrypted_access, username_nonce_access, access_key_hash FROM users WHERE username_hash = ?",
+            [&username_hash],
+            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+        ).map_err(|_| "User not found".to_string())?;
 
-        let parsed_access_hash = PasswordHash::new(&access_key_hash).map_err(|e| e.to_string())?;
-        Argon2::default().verify_password(access_key.as_bytes(), &parsed_access_hash).map_err(|_| "Invalid access key".to_string())?;
+        let parsed_hash = PasswordHash::new(&access_key_hash).map_err(|e| e.to_string())?;
+        Argon2::default().verify_password(access_key.as_bytes(), &parsed_hash)
+            .map_err(|_| "Invalid access key".to_string())?;
 
-        let access_salt = parsed_access_hash.salt.ok_or("Salt not found in hash".to_string())?.as_ref().as_bytes().to_vec();
+        let access_salt = parsed_hash.salt.ok_or("Salt not found in hash".to_string())?.as_ref().as_bytes().to_vec();
         let access_key_derived = derive_encryption_key(access_key, &access_salt)?;
 
-        let _data_key = decrypt_from_base64(&data_key_encrypted, &data_key_nonce, &access_key_derived)
-            .map_err(|e| e.to_string())?;
+        let decrypted = decrypt_from_base64(&username_encrypted_access, &username_nonce_access, &access_key_derived)
+            .map_err(|_| "Invalid access key".to_string())?;
 
-        Ok(User {
+        if decrypted != username {
+            return Err("User not found".to_string());
+        }
+
+        Ok(id)
+    }
+
+    pub fn login(&self, username: &str, access_key: &str) -> Result<UserResponse, String> {
+        let user_id = self.get_user_by_access_key(username, access_key)?;
+        Ok(UserResponse {
             id: user_id,
             username: username.to_string(),
-            username_encrypted: Some(username_encrypted_access),
-            username_nonce: Some(username_nonce_access),
-            master_key_hash: access_key_hash,
             avatar: None,
         })
     }
@@ -112,7 +109,7 @@ impl Database {
             username: username.to_string(),
             username_encrypted: Some(username_encrypted_access),
             username_nonce: Some(username_nonce_access),
-            master_key_hash: access_key_hash,
+            access_key_hash,
             avatar: None,
         }, master_key.to_string()))
     }
