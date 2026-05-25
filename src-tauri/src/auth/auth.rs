@@ -65,16 +65,6 @@ impl Database {
         let conn = self.conn.lock().unwrap();
         let username_hash = hash_username(username);
 
-        let username_hash_exists: bool = conn.query_row(
-            "SELECT 1 FROM users WHERE username_hash = ?",
-            [&username_hash],
-            |row| row.get::<_, i32>(0)
-        ).unwrap_or(0) != 0;
-
-        if username_hash_exists {
-            return Err("User already exists".to_string());
-        }
-
         let data_key = generate_data_key();
         
         let access_salt = SaltString::generate(&mut thread_rng());
@@ -99,8 +89,11 @@ impl Database {
 
         conn.execute(
             "INSERT INTO users (username_encrypted_access, username_nonce_access, username_encrypted_master, username_nonce_master, access_key_hash, master_key_hash, data_key_encrypted_access, data_key_nonce_access, data_key_encrypted_master, data_key_nonce_master, username_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            [&username_encrypted_access, &username_nonce_access, &username_encrypted_master, &username_nonce_master, &access_key_hash, &master_key_hash, &data_key_encrypted_access, &data_key_nonce_access, &data_key_encrypted_master, &data_key_nonce_master, &username_hash],
-        ).map_err(|e| e.to_string())?;
+            rusqlite::params![&username_encrypted_access, &username_nonce_access, &username_encrypted_master, &username_nonce_master, &access_key_hash, &master_key_hash, &data_key_encrypted_access, &data_key_nonce_access, &data_key_encrypted_master, &data_key_nonce_master, &username_hash],
+        ).map_err(|e| match e {
+            rusqlite::Error::SqliteFailure(err, _) if err.code == rusqlite::ffi::ErrorCode::ConstraintViolation => "User already exists".to_string(),
+            e => e.to_string(),
+        })?;
 
         let user_id = conn.last_insert_rowid() as i32;
 
