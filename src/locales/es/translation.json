@@ -22,13 +22,13 @@
     "loginFailed": "Error al iniciar sesión. Intenta de nuevo."
   },
   "recoverPassword": {
-    "title": "Verificar Identidad",
-    "description": "Ingresa tu usuario y clave maestra para verificar tu identidad.",
+    "title": "Recuperar Contraseña",
+    "description": "Ingresa tu usuario, clave maestra y una nueva clave de acceso.",
     "masterKey": "Clave Maestra",
-    "verifyBtn": "Verificar",
-    "verifying": "Verificando...",
+    "recoverBtn": "Recuperar Contraseña",
+    "recovering": "Recuperando...",
     "invalidMasterKey": "Clave maestra inválida.",
-    "failed": "Error al verificar identidad. Intenta de nuevo.",
+    "failed": "Error al recuperar contraseña. Intenta de nuevo.",
     "forgotPassword": "¿Olvidaste tu contraseña?"
   },
   "changePassword": {

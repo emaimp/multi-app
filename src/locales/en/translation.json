@@ -22,13 +22,13 @@
     "loginFailed": "Login failed. Please try again."
   },
   "recoverPassword": {
-    "title": "Verify Identity",
-    "description": "Enter your username and master key to verify your identity.",
+    "title": "Recover Password",
+    "description": "Enter your username, master key, and a new access key.",
     "masterKey": "Master Key",
-    "verifyBtn": "Verify",
-    "verifying": "Verifying...",
+    "recoverBtn": "Recover Password",
+    "recovering": "Recovering...",
     "invalidMasterKey": "Invalid master key.",
-    "failed": "Failed to verify identity. Please try again.",
+    "failed": "Failed to recover password. Please try again.",
     "forgotPassword": "Forgot password?"
   },
   "changePassword": {

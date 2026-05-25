@@ -13,24 +13,32 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { CenteredCard, TopBar } from '../../components/common';
 import { useBackend } from '../../hooks/core/useBackend';
+import { useUser } from '../../context/AuthContext';
+import type { User } from '../../types/user';
 
 interface RecoverPasswordViewProps {
   onBack: () => void;
-  onVerified: (userId: number, username: string, masterKey: string) => void;
 }
 
-function RecoverPasswordView({ onBack, onVerified }: RecoverPasswordViewProps) {
+function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
   const { t } = useTranslation();
   const { invoke } = useBackend();
+  const { setUser, setIsLoadingContent } = useUser();
 
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
+  const [newAccessKey, setNewAccessKey] = useState('');
+  const [confirmNewAccessKey, setConfirmNewAccessKey] = useState('');
 
   const [showMasterKey, setShowMasterKey] = useState(false);
+  const [showNewAccessKey, setShowNewAccessKey] = useState(false);
+  const [showConfirmNewAccessKey, setShowConfirmNewAccessKey] = useState(false);
 
   const [usernameError, setUsernameError] = useState(false);
   const [masterKeyError, setMasterKeyError] = useState(false);
   const [masterKeyInvalidError, setMasterKeyInvalidError] = useState(false);
+  const [newAccessKeyError, setNewAccessKeyError] = useState(false);
+  const [accessKeysNotMatchError, setAccessKeysNotMatchError] = useState(false);
 
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -45,6 +53,20 @@ function RecoverPasswordView({ onBack, onVerified }: RecoverPasswordViewProps) {
     setMasterKey(e.target.value);
     if (masterKeyError) setMasterKeyError(false);
     if (masterKeyInvalidError) setMasterKeyInvalidError(false);
+    if (error) setError('');
+  };
+
+  const handleNewAccessKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewAccessKey(e.target.value);
+    if (newAccessKeyError) setNewAccessKeyError(false);
+    if (accessKeysNotMatchError) setAccessKeysNotMatchError(false);
+    if (error) setError('');
+  };
+
+  const handleConfirmNewAccessKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConfirmNewAccessKey(e.target.value);
+    if (newAccessKeyError) setNewAccessKeyError(false);
+    if (accessKeysNotMatchError) setAccessKeysNotMatchError(false);
     if (error) setError('');
   };
 
@@ -63,17 +85,30 @@ function RecoverPasswordView({ onBack, onVerified }: RecoverPasswordViewProps) {
       isValid = false;
     }
 
+    if (!newAccessKey || newAccessKey.length < 6) {
+      setNewAccessKeyError(true);
+      isValid = false;
+    }
+
+    if (newAccessKey !== confirmNewAccessKey) {
+      setAccessKeysNotMatchError(true);
+      isValid = false;
+    }
+
     if (!isValid) {
       return;
     }
 
     try {
       setIsLoading(true);
-      const userId: number = await invoke('verify_user_by_master_key', {
+      const user = await invoke<User>('recover', {
         username,
         masterKey,
+        newAccessKey,
       });
-      onVerified(userId, username, masterKey);
+      setUser(user);
+      localStorage.setItem('masterKey', newAccessKey);
+      setIsLoadingContent(true);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -177,6 +212,68 @@ function RecoverPasswordView({ onBack, onVerified }: RecoverPasswordViewProps) {
             }}
           />
 
+          <TextField
+            id="newAccessKey"
+            name="newAccessKey"
+            type={showNewAccessKey ? 'text' : 'password'}
+            label={t('changePassword.newAccessKey')}
+            placeholder={t('changePassword.newAccessKeyPlaceholder')}
+            autoComplete="off"
+            fullWidth
+            variant="outlined"
+            value={newAccessKey}
+            error={newAccessKeyError}
+            helperText={newAccessKeyError ? t('register.masterKeyMinLength') : ''}
+            onChange={handleNewAccessKeyChange}
+            slotProps={{
+              input: {
+                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle new access key visibility"
+                      onClick={() => setShowNewAccessKey(!showNewAccessKey)}
+                      edge="end"
+                    >
+                      {showNewAccessKey ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+
+          <TextField
+            id="confirmNewAccessKey"
+            name="confirmNewAccessKey"
+            type={showConfirmNewAccessKey ? 'text' : 'password'}
+            label={t('changePassword.confirmNewAccessKey')}
+            placeholder={t('changePassword.confirmNewAccessKeyPlaceholder')}
+            autoComplete="off"
+            fullWidth
+            variant="outlined"
+            value={confirmNewAccessKey}
+            error={accessKeysNotMatchError}
+            helperText={accessKeysNotMatchError ? t('settings.masterKeysDoNotMatch') : ''}
+            onChange={handleConfirmNewAccessKeyChange}
+            slotProps={{
+              input: {
+                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm new access key visibility"
+                      onClick={() => setShowConfirmNewAccessKey(!showConfirmNewAccessKey)}
+                      edge="end"
+                    >
+                      {showConfirmNewAccessKey ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+
           <Button
             type="submit"
             fullWidth
@@ -185,7 +282,7 @@ function RecoverPasswordView({ onBack, onVerified }: RecoverPasswordViewProps) {
             disabled={isLoading}
             startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
           >
-            {isLoading ? t('recoverPassword.verifying') : t('recoverPassword.verifyBtn')}
+            {isLoading ? t('recoverPassword.recovering') : t('recoverPassword.recoverBtn')}
           </Button>
         </Box>
       </CenteredCard>
