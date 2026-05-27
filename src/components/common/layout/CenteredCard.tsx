@@ -29,9 +29,10 @@ interface CenteredCardProps {
   onErrorClose?: () => void;
   success?: string;
   onSuccessClose?: () => void;
+  minHeight?: string | number;
 }
 
-function CenteredCard({ children, error, onErrorClose, success, onSuccessClose }: CenteredCardProps) {
+function CenteredCard({ children, error, onErrorClose, success, onSuccessClose, minHeight }: CenteredCardProps) {
   return (
     <AuthContainer direction="column">
       <Box
@@ -45,7 +46,7 @@ function CenteredCard({ children, error, onErrorClose, success, onSuccessClose }
           pt: 2,
         }}
       >
-        <Card variant="outlined">{children}</Card>
+        <Card variant="outlined" sx={{ minHeight }}>{children}</Card>
 
         {error && (
           <Snackbar

@@ -172,7 +172,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     <>
       <TopBar onBack={onBack} />
 
-      <CenteredCard error={error} onErrorClose={() => setError('')} success={success} onSuccessClose={onBack}>
+      <CenteredCard error={error} onErrorClose={() => setError('')} success={success} onSuccessClose={onBack} minHeight="420px">
         {!success && (
           <>
             <Typography

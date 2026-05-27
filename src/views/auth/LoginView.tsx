@@ -129,7 +129,7 @@ function LoginView() {
     <>
       <TopBar onBack={() => {}} showBackButton={false} />
       
-      <CenteredCard error={error} onErrorClose={() => setError('')}>
+      <CenteredCard error={error} onErrorClose={() => setError('')} minHeight="420px">
         <Typography
           component="h1"
           variant="h4"

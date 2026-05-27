@@ -133,6 +133,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
         onErrorClose={() => setError('')}
         success={success}
         onSuccessClose={onBack}
+        minHeight="420px"
       >
         <Typography
           component="h1"
