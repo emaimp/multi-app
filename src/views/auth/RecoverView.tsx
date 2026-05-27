@@ -14,11 +14,11 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { CenteredCard, TopBar } from '../../components/common';
 import { useBackend } from '../../hooks/core/useBackend';
 
-interface RecoverPasswordViewProps {
+interface RecoverViewProps {
   onBack: () => void;
 }
 
-function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
+function RecoverView({ onBack }: RecoverViewProps) {
   const { t } = useTranslation();
   const { invoke } = useBackend();
 
@@ -303,4 +303,4 @@ function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
   );
 }
 
-export default RecoverPasswordView;
+export default RecoverView;
