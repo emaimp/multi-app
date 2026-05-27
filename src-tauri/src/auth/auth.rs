@@ -102,7 +102,7 @@ impl Database {
         }, master_key.to_string()))
     }
 
-    pub fn recover(&self, username: &str, master_key: &str, new_access_key: &str) -> Result<UserResponse, String> {
+    pub fn recover(&self, username: &str, master_key: &str, new_access_key: &str) -> Result<(), String> {
         let (data_key, user_id) = {
             let conn = self.conn.lock().unwrap();
             let username_hash = hash_username(username);
@@ -148,24 +148,13 @@ impl Database {
         let (new_username_enc, new_username_nonce) = encrypt_to_base64(username, &new_access_key_derived)
             .map_err(|e| e.to_string())?;
 
-        let data_key_bytes = base64::engine::general_purpose::STANDARD.decode(&data_key)
-            .map_err(|e| format!("Failed to decode data key: {}", e))?;
-        let data_key_derived = GenericArray::clone_from_slice(&data_key_bytes);
-
         let conn = self.conn.lock().unwrap();
         conn.execute(
             "UPDATE users SET access_key_hash = ?, data_key_encrypted_access = ?, data_key_nonce_access = ?, username_encrypted_access = ?, username_nonce_access = ? WHERE id = ?",
             rusqlite::params![&new_access_key_hash, &new_data_key_enc, &new_data_key_nonce, &new_username_enc, &new_username_nonce, user_id],
         ).map_err(|e| e.to_string())?;
 
-        let mut keys = self.encryption_keys.lock().unwrap();
-        keys.insert(user_id, data_key_derived);
-
-        Ok(UserResponse {
-            id: user_id,
-            username: username.to_string(),
-            avatar: None,
-        })
+        Ok(())
     }
 
     pub fn verify_master_key(&self, user_id: i32, master_key: &str) -> Result<(), String> {

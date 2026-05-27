@@ -28,6 +28,7 @@
     "recoverBtn": "Recuperar Contraseña",
     "recovering": "Recuperando...",
     "invalidMasterKey": "Clave maestra inválida.",
+    "success": "¡Contraseña recuperada exitosamente! Usa tu nueva clave de acceso para iniciar sesión.",
     "failed": "Error al recuperar contraseña. Intenta de nuevo.",
     "forgotPassword": "¿Olvidaste tu contraseña?"
   },

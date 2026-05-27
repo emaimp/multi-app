@@ -13,8 +13,6 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { CenteredCard, TopBar } from '../../components/common';
 import { useBackend } from '../../hooks/core/useBackend';
-import { useUser } from '../../context/AuthContext';
-import type { User } from '../../types/user';
 
 interface RecoverPasswordViewProps {
   onBack: () => void;
@@ -23,7 +21,6 @@ interface RecoverPasswordViewProps {
 function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
   const { t } = useTranslation();
   const { invoke } = useBackend();
-  const { setUser, setIsLoadingContent } = useUser();
 
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
@@ -41,6 +38,7 @@ function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
   const [accessKeysNotMatchError, setAccessKeysNotMatchError] = useState(false);
 
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,14 +99,12 @@ function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
 
     try {
       setIsLoading(true);
-      const user = await invoke<User>('recover', {
+      await invoke('recover', {
         username,
-        masterKey,
-        newAccessKey,
+        master_key: masterKey,
+        new_access_key: newAccessKey,
       });
-      setUser(user);
-      localStorage.setItem('masterKey', newAccessKey);
-      setIsLoadingContent(true);
+      setSuccess(t('recoverPassword.success'));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -135,6 +131,8 @@ function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
       <CenteredCard 
         error={error} 
         onErrorClose={() => setError('')}
+        success={success}
+        onSuccessClose={onBack}
       >
         <Typography
           component="h1"
@@ -162,128 +160,143 @@ function RecoverPasswordView({ onBack }: RecoverPasswordViewProps) {
             gap: 2,
           }}
         >
-          <TextField
-            id="username"
-            name="username"
-            type="text"
-            label={t('login.username')}
-            placeholder={t('login.usernamePlaceholder')}
-            autoComplete="off"
-            fullWidth
-            variant="outlined"
-            value={username}
-            error={usernameError}
-            onChange={handleUsernameChange}
-            slotProps={{
-              input: {
-                startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
-              },
-            }}
-          />
+          {!success && (
+            <>
+              <TextField
+                id="username"
+                name="username"
+                type="text"
+                label={t('login.username')}
+                placeholder={t('login.usernamePlaceholder')}
+                autoComplete="off"
+                fullWidth
+                variant="outlined"
+                value={username}
+                error={usernameError}
+                onChange={handleUsernameChange}
+                slotProps={{
+                  input: {
+                    startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
+                  },
+                }}
+              />
 
-          <TextField
-            id="masterKey"
-            name="masterKey"
-            type={showMasterKey ? 'text' : 'password'}
-            label={t('recoverPassword.masterKey')}
-            placeholder={t('login.masterKeyPlaceholder')}
-            autoComplete="off"
-            fullWidth
-            variant="outlined"
-            value={masterKey}
-            error={masterKeyError || masterKeyInvalidError}
-            helperText={masterKeyError ? t('login.masterKeyRequired') : masterKeyInvalidError ? t('recoverPassword.invalidMasterKey') : ''}
-            onChange={handleMasterKeyChange}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle master key visibility"
-                      onClick={() => setShowMasterKey(!showMasterKey)}
-                      edge="end"
-                    >
-                      {showMasterKey ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+              <TextField
+                id="masterKey"
+                name="masterKey"
+                type={showMasterKey ? 'text' : 'password'}
+                label={t('recoverPassword.masterKey')}
+                placeholder={t('login.masterKeyPlaceholder')}
+                autoComplete="off"
+                fullWidth
+                variant="outlined"
+                value={masterKey}
+                error={masterKeyError || masterKeyInvalidError}
+                helperText={masterKeyError ? t('login.masterKeyRequired') : masterKeyInvalidError ? t('recoverPassword.invalidMasterKey') : ''}
+                onChange={handleMasterKeyChange}
+                slotProps={{
+                  input: {
+                    startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle master key visibility"
+                          onClick={() => setShowMasterKey(!showMasterKey)}
+                          edge="end"
+                        >
+                          {showMasterKey ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
 
-          <TextField
-            id="newAccessKey"
-            name="newAccessKey"
-            type={showNewAccessKey ? 'text' : 'password'}
-            label={t('changePassword.newAccessKey')}
-            placeholder={t('changePassword.newAccessKeyPlaceholder')}
-            autoComplete="off"
-            fullWidth
-            variant="outlined"
-            value={newAccessKey}
-            error={newAccessKeyError}
-            helperText={newAccessKeyError ? t('register.masterKeyMinLength') : ''}
-            onChange={handleNewAccessKeyChange}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle new access key visibility"
-                      onClick={() => setShowNewAccessKey(!showNewAccessKey)}
-                      edge="end"
-                    >
-                      {showNewAccessKey ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+              <TextField
+                id="newAccessKey"
+                name="newAccessKey"
+                type={showNewAccessKey ? 'text' : 'password'}
+                label={t('changePassword.newAccessKey')}
+                placeholder={t('changePassword.newAccessKeyPlaceholder')}
+                autoComplete="off"
+                fullWidth
+                variant="outlined"
+                value={newAccessKey}
+                error={newAccessKeyError}
+                helperText={newAccessKeyError ? t('register.masterKeyMinLength') : ''}
+                onChange={handleNewAccessKeyChange}
+                slotProps={{
+                  input: {
+                    startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle new access key visibility"
+                          onClick={() => setShowNewAccessKey(!showNewAccessKey)}
+                          edge="end"
+                        >
+                          {showNewAccessKey ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
 
-          <TextField
-            id="confirmNewAccessKey"
-            name="confirmNewAccessKey"
-            type={showConfirmNewAccessKey ? 'text' : 'password'}
-            label={t('changePassword.confirmNewAccessKey')}
-            placeholder={t('changePassword.confirmNewAccessKeyPlaceholder')}
-            autoComplete="off"
-            fullWidth
-            variant="outlined"
-            value={confirmNewAccessKey}
-            error={accessKeysNotMatchError}
-            helperText={accessKeysNotMatchError ? t('settings.masterKeysDoNotMatch') : ''}
-            onChange={handleConfirmNewAccessKeyChange}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle confirm new access key visibility"
-                      onClick={() => setShowConfirmNewAccessKey(!showConfirmNewAccessKey)}
-                      edge="end"
-                    >
-                      {showConfirmNewAccessKey ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
+              <TextField
+                id="confirmNewAccessKey"
+                name="confirmNewAccessKey"
+                type={showConfirmNewAccessKey ? 'text' : 'password'}
+                label={t('changePassword.confirmNewAccessKey')}
+                placeholder={t('changePassword.confirmNewAccessKeyPlaceholder')}
+                autoComplete="off"
+                fullWidth
+                variant="outlined"
+                value={confirmNewAccessKey}
+                error={accessKeysNotMatchError}
+                helperText={accessKeysNotMatchError ? t('settings.masterKeysDoNotMatch') : ''}
+                onChange={handleConfirmNewAccessKeyChange}
+                slotProps={{
+                  input: {
+                    startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle confirm new access key visibility"
+                          onClick={() => setShowConfirmNewAccessKey(!showConfirmNewAccessKey)}
+                          edge="end"
+                        >
+                          {showConfirmNewAccessKey ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={isLoading}
-            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
-          >
-            {isLoading ? t('recoverPassword.recovering') : t('recoverPassword.recoverBtn')}
-          </Button>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 2 }}
+                disabled={isLoading}
+                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+              >
+                {isLoading ? t('recoverPassword.recovering') : t('recoverPassword.recoverBtn')}
+              </Button>
+            </>
+          )}
+
+          {success && (
+            <Button
+              fullWidth
+              variant="contained"
+              sx={{ mt: 2 }}
+              onClick={onBack}
+            >
+              {t('login.signIn')}
+            </Button>
+          )}
         </Box>
       </CenteredCard>
     </>

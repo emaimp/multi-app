@@ -28,6 +28,7 @@
     "recoverBtn": "Recover Password",
     "recovering": "Recovering...",
     "invalidMasterKey": "Invalid master key.",
+    "success": "Password recovered successfully! Use your new access key to sign in.",
     "failed": "Failed to recover password. Please try again.",
     "forgotPassword": "Forgot password?"
   },
