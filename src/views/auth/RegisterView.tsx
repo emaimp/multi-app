@@ -3,11 +3,14 @@ import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import KeyIcon from '@mui/icons-material/Key';
 import PersonIcon from '@mui/icons-material/Person';
@@ -41,6 +44,12 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
+
+  const [success, setSuccess] = useState('');
+  const [generatedMasterKey, setGeneratedMasterKey] = useState('');
+  const [showKey, setShowKey] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const getStrength = (value: string): { label: string; color: 'error' | 'warning' | 'success' } => {
     const hasLower = /[a-z]/.test(value);
@@ -131,7 +140,9 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
 
     try {
       setIsLoading(true);
-      await onRegister(username, password);
+      const masterKey = await onRegister(username, password);
+      setGeneratedMasterKey(masterKey);
+      setSuccess(t('register.registeredSuccessfully'));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -147,152 +158,237 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     }
   };
 
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedMasterKey);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  };
+
   return (
     <>
       <TopBar onBack={onBack} />
 
-      <CenteredCard error={error} onErrorClose={() => setError('')}>
-        <Typography
-          component="h1"
-          variant="h4"
-          sx={{
-            width: '100%',
-            fontSize: 'clamp(2rem, 10vw, 2.15rem)',
-            textAlign: 'center',
-            mb: 2,
-          }}
-        >
-          {t('register.signUp')}
-        </Typography>
+      <CenteredCard error={error} onErrorClose={() => setError('')} success={success} onSuccessClose={onBack}>
+        {!success && (
+          <>
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{
+                width: '100%',
+                fontSize: 'clamp(2rem, 10vw, 2.15rem)',
+                textAlign: 'center',
+                mb: 2,
+              }}
+            >
+              {t('register.signUp')}
+            </Typography>
 
-        <Box
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
-        >
-          <TextField
-            id="username"
-            name="username"
-            type="text"
-            label={t('register.username')}
-            placeholder={t('register.usernamePlaceholder')}
-            autoComplete="off"
-            fullWidth
-            variant="outlined"
-            value={username}
-            error={usernameError}
-            helperText={
-              usernameErrorMessage ? (
-                usernameErrorMessage
-              ) : username.length > 0 && username.length < 3 ? (
-                <Box component="span" sx={{ color: 'error.main' }}>
-                  {t('register.usernameMinLength')}
-                </Box>
-              ) : (
-                ''
-              )
-            }
-            onChange={handleUsernameChange}
-            slotProps={{
-              input: {
-                startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
-              },
-            }}
-            sx={{ mt: 1 }}
-          />
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
+              <TextField
+                id="username"
+                name="username"
+                type="text"
+                label={t('register.username')}
+                placeholder={t('register.usernamePlaceholder')}
+                autoComplete="off"
+                fullWidth
+                variant="outlined"
+                value={username}
+                error={usernameError}
+                helperText={
+                  usernameErrorMessage ? (
+                    usernameErrorMessage
+                  ) : username.length > 0 && username.length < 3 ? (
+                    <Box component="span" sx={{ color: 'error.main' }}>
+                      {t('register.usernameMinLength')}
+                    </Box>
+                  ) : (
+                    ''
+                  )
+                }
+                onChange={handleUsernameChange}
+                slotProps={{
+                  input: {
+                    startAdornment: <PersonIcon sx={{ color: 'action.active', mr: 1 }} />,
+                  },
+                }}
+                sx={{ mt: 1 }}
+              />
 
-          <TextField
-            id="password"
-            name="password"
-            type={showPassword ? 'text' : 'password'}
-            label={t('register.password')}
-            placeholder={t('register.passwordPlaceholder')}
-            autoComplete="off"
-            fullWidth
-            variant="outlined"
-            value={password}
-            error={passwordError}
-            helperText={
-              passwordError ? (
-                <span>{passwordErrorMessage}</span>
-              ) : password.length === 0 ? (
-                <span>{t('register.passwordHelperText')}</span>
-              ) : password.length < 6 ? (
-                <Box component="span" sx={{ color: 'error.main' }}>
-                  {passwordStrength.label}
-                </Box>
-              ) : (
-                <Box component="span" sx={{ color: getColor(passwordStrength.color) }}>
-                  {passwordStrength.label}
-                  <Tooltip title={t('register.specificChars')}>
-                    <InfoOutlined sx={{ fontSize: 14, ml: 1, verticalAlign: 'middle', cursor: 'help', color: 'action.active' }} />
-                  </Tooltip>
-                </Box>
-              )
-            }
-            onChange={handlePasswordChange}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
+              <TextField
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                label={t('register.password')}
+                placeholder={t('register.passwordPlaceholder')}
+                autoComplete="off"
+                fullWidth
+                variant="outlined"
+                value={password}
+                error={passwordError}
+                helperText={
+                  passwordError ? (
+                    <span>{passwordErrorMessage}</span>
+                  ) : password.length === 0 ? (
+                    <span>{t('register.passwordHelperText')}</span>
+                  ) : password.length < 6 ? (
+                    <Box component="span" sx={{ color: 'error.main' }}>
+                      {passwordStrength.label}
+                    </Box>
+                  ) : (
+                    <Box component="span" sx={{ color: getColor(passwordStrength.color) }}>
+                      {passwordStrength.label}
+                      <Tooltip title={t('register.specificChars')}>
+                        <InfoOutlined sx={{ fontSize: 14, ml: 1, verticalAlign: 'middle', cursor: 'help', color: 'action.active' }} />
+                      </Tooltip>
+                    </Box>
+                  )
+                }
+                onChange={handlePasswordChange}
+                slotProps={{
+                  input: {
+                    startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ mt: 1 }}
+              />
+
+              <TextField
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                label={t('register.confirmPassword')}
+                placeholder={t('register.confirmPasswordPlaceholder')}
+                autoComplete="off"
+                fullWidth
+                variant="outlined"
+                value={confirmPassword}
+                error={confirmPasswordError}
+                helperText={confirmPasswordErrorMessage}
+                onChange={handleConfirmPasswordChange}
+                slotProps={{
+                  input: {
+                    startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle confirm password visibility"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          edge="end"
+                        >
+                          {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+                sx={{ mt: 1 }}
+              />
+
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 2 }}
+                disabled={isLoading}
+                startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+              >
+                {isLoading ? t('register.registering') : t('register.registerBtn')}
+              </Button>
+            </Box>
+          </>
+        )}
+
+        {success && (
+          <>
+            <Typography
+              component="h1"
+              variant="h4"
+              sx={{
+                width: '100%',
+                fontSize: 'clamp(1.5rem, 8vw, 2rem)',
+                textAlign: 'center',
+                mb: 2,
+              }}
+            >
+              {t('register.masterKeyTitle')}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              {t('register.masterKeyDescription')}
+            </Typography>
+
+            <Box sx={{ mb: 3 }}>
+              <TextField
+                fullWidth
+                variant="outlined"
+                value={generatedMasterKey}
+                InputProps={{
+                  readOnly: true,
+                  startAdornment: (
+                    <IconButton onClick={handleCopy} edge="start" title="Copy to clipboard">
+                      <ContentCopyIcon color={copied ? 'success' : 'action'} />
                     </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-            sx={{ mt: 1 }}
-          />
-
-          <TextField
-            id="confirmPassword"
-            name="confirmPassword"
-            type={showConfirmPassword ? 'text' : 'password'}
-            label={t('register.confirmPassword')}
-            placeholder={t('register.confirmPasswordPlaceholder')}
-            autoComplete="off"
-            fullWidth
-            variant="outlined"
-            value={confirmPassword}
-            error={confirmPasswordError}
-            helperText={confirmPasswordErrorMessage}
-            onChange={handleConfirmPasswordChange}
-            slotProps={{
-              input: {
-                startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle confirm password visibility"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      edge="end"
-                    >
-                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  ),
+                  endAdornment: (
+                    <IconButton onClick={() => setShowKey(!showKey)} edge="end">
+                      {showKey ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-            sx={{ mt: 1 }}
-          />
+                  ),
+                }}
+                type={showKey ? 'text' : 'password'}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    fontFamily: 'monospace',
+                    letterSpacing: '0.1em',
+                  },
+                }}
+              />
+            </Box>
 
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 2 }}
-            disabled={isLoading}
-            startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
-          >
-            {isLoading ? t('register.registering') : t('register.registerBtn')}
-          </Button>
-        </Box>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={acknowledged}
+                  onChange={(e) => setAcknowledged(e.target.checked)}
+                  color="primary"
+                />
+              }
+              label={t('register.masterKeySaved')}
+              sx={{ mb: 2 }}
+            />
+
+            <Button
+              onClick={onBack}
+              variant="contained"
+              fullWidth
+              disabled={!acknowledged || isLoading}
+              startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
+            >
+              {t('login.signUp')}
+            </Button>
+          </>
+        )}
       </CenteredCard>
     </>
   );

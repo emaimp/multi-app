@@ -14,7 +14,6 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useUser } from '../../context/AuthContext';
 import RegisterView from './RegisterView';
-import MasterKeyView from './MasterKeyView';
 import RecoverPasswordView from './RecoverPasswordView';
 import { CenteredCard, TopBar } from '../../components/common';
 
@@ -22,7 +21,7 @@ function LoginView() {
   const { t } = useTranslation();
   const { login, register } = useUser();
 
-  const [view, setView] = useState<'login' | 'register' | 'masterKey' | 'recoverPassword'>('login');
+  const [view, setView] = useState<'login' | 'register' | 'recoverPassword'>('login');
 
   const [username, setUsername] = useState('');
   const [masterKey, setMasterKey] = useState('');
@@ -36,8 +35,7 @@ function LoginView() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const [generatedMasterKey, setGeneratedMasterKey] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
+
 
   useEffect(() => {
     setUsername('');
@@ -107,33 +105,8 @@ function LoginView() {
   };
 
   const handleRegister = async (username: string, password: string): Promise<string> => {
-    const masterKey = await register(username, password);
-    setGeneratedMasterKey(masterKey);
-    setSuccessMessage(t('register.registeredSuccessfully'));
-    setView('masterKey');
-    return masterKey;
+    return await register(username, password);
   };
-
-  const handleSignUp = () => {
-    setUsername('');
-    setMasterKey('');
-    setGeneratedMasterKey('');
-    setSuccessMessage('');
-    setView('login');
-  };
-
-  if (view === 'masterKey') {
-    return (
-      <MasterKeyView
-        masterKey={generatedMasterKey}
-        isLoading={isLoading}
-        success={successMessage}
-        onSuccessClose={() => setSuccessMessage('')}
-        onSignUp={handleSignUp}
-        onBack={() => setView('register')}
-      />
-    );
-  }
 
   if (view === 'register') {
     return (
