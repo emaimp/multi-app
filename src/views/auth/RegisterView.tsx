@@ -172,7 +172,13 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     <>
       <TopBar onBack={onBack} />
 
-      <CenteredCard error={error} onErrorClose={() => setError('')} success={success} onSuccessClose={onBack} minHeight="420px">
+      <CenteredCard
+        error={error}
+        onErrorClose={() => setError('')}
+        success={success}
+        onSuccessClose={onBack}
+        minHeight="420px"
+      >
         {!success && (
           <>
             <Typography
@@ -238,12 +244,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 helperText={
                   passwordError ? (
                     <span>{passwordErrorMessage}</span>
-                  ) : password.length === 0 ? (
-                    <span>{t('register.passwordHelperText')}</span>
                   ) : password.length < 6 ? (
-                    <Box component="span" sx={{ color: 'error.main' }}>
-                      {passwordStrength.label}
-                    </Box>
+                    <span>{t('register.masterKeyMinLength')}</span>
                   ) : (
                     <Box component="span" sx={{ color: getColor(passwordStrength.color) }}>
                       {passwordStrength.label}

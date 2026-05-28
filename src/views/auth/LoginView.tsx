@@ -24,14 +24,14 @@ function LoginView() {
   const [view, setView] = useState<'login' | 'register' | 'recover'>('login');
 
   const [username, setUsername] = useState('');
-  const [masterKey, setMasterKey] = useState('');
+  const [password, setPassword] = useState('');
 
   const [usernameError, setUsernameError] = useState(false);
   const [usernameNotFoundError, setUsernameNotFoundError] = useState(false);
-  const [masterKeyError, setMasterKeyError] = useState(false);
-  const [masterKeyInvalidError, setMasterKeyInvalidError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordInvalidError, setPasswordInvalidError] = useState(false);
 
-  const [showMasterKey, setShowMasterKey] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -39,11 +39,11 @@ function LoginView() {
 
   useEffect(() => {
     setUsername('');
-    setMasterKey('');
+    setPassword('');
     setUsernameError(false);
     setUsernameNotFoundError(false);
-    setMasterKeyError(false);
-    setMasterKeyInvalidError(false);
+    setPasswordError(false);
+    setPasswordInvalidError(false);
     setError('');
   }, [view]);
 
@@ -54,10 +54,10 @@ function LoginView() {
     if (error) setError('');
   };
 
-  const handleMasterKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMasterKey(e.target.value);
-    if (masterKeyError) setMasterKeyError(false);
-    if (masterKeyInvalidError) setMasterKeyInvalidError(false);
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (passwordError) setPasswordError(false);
+    if (passwordInvalidError) setPasswordInvalidError(false);
     if (error) setError('');
   };
 
@@ -73,11 +73,11 @@ function LoginView() {
       setUsernameError(false);
     }
 
-    if (!masterKey || masterKey.length < 1) {
-      setMasterKeyError(true);
+    if (!password || password.length < 1) {
+      setPasswordError(true);
       isValid = false;
     } else {
-      setMasterKeyError(false);
+      setPasswordError(false);
     }
 
     if (!isValid) {
@@ -86,14 +86,14 @@ function LoginView() {
 
     try {
       setIsLoading(true);
-      await login(username, masterKey);
+      await login(username, password);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       if (errorMessage.includes('User not found')) {
         setUsernameNotFoundError(true);
       } else if (errorMessage.includes('Invalid master key')) {
-        setMasterKeyInvalidError(true);
+        setPasswordInvalidError(true);
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch') || errorMessage.includes('connection')) {
         setError(t('login.networkError'));
       } else {
@@ -129,7 +129,11 @@ function LoginView() {
     <>
       <TopBar onBack={() => {}} showBackButton={false} />
       
-      <CenteredCard error={error} onErrorClose={() => setError('')} minHeight="420px">
+      <CenteredCard
+        error={error}
+        onErrorClose={() => setError('')}
+        minHeight="420px"
+      >
         <Typography
           component="h1"
           variant="h4"
@@ -177,29 +181,29 @@ function LoginView() {
           />
 
           <TextField
-            id="masterKey"
-            name="masterKey"
-            type={showMasterKey ? 'text' : 'password'}
-            label={t('login.masterKey')}
-            placeholder={t('login.masterKeyPlaceholder')}
+            id="password"
+            name="password"
+            type={showPassword ? 'text' : 'password'}
+            label={t('login.password')}
+            placeholder={t('login.passwordPlaceholder')}
             autoComplete="off"
             fullWidth
             variant="outlined"
-            value={masterKey}
-            error={masterKeyError || masterKeyInvalidError}
-            helperText={masterKeyError ? t('login.masterKeyRequired') : masterKeyInvalidError ? t('login.invalidMasterKey') : ''}
-            onChange={handleMasterKeyChange}
+            value={password}
+            error={passwordError || passwordInvalidError}
+            helperText={passwordError ? t('login.passwordRequired') : passwordInvalidError ? t('login.invalidPassword') : ''}
+            onChange={handlePasswordChange}
             slotProps={{
               input: {
                 startAdornment: <KeyIcon sx={{ color: 'action.active', mr: 1 }} />,
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      aria-label="toggle master key visibility"
-                      onClick={() => setShowMasterKey(!showMasterKey)}
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                     >
-                      {showMasterKey ? <VisibilityOff /> : <Visibility />}
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
