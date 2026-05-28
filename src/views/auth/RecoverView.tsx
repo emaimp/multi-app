@@ -131,7 +131,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
         master_key: masterKey,
         new_access_key: password,
       });
-      setSuccess(t('recoverPassword.success'));
+      setSuccess(t('recover.success'));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -140,11 +140,11 @@ function RecoverView({ onBack }: RecoverViewProps) {
         setError(t('login.userNotFound'));
       } else if (errorMessage.includes('Invalid master key')) {
         setMasterKeyInvalidError(true);
-        setError(t('recoverPassword.invalidMasterKey'));
+        setError(t('recover.invalidMasterKey'));
       } else if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
         setError(t('login.networkError'));
       } else {
-        setError(t('recoverPassword.failed'));
+        setError(t('recover.failed'));
       }
     } finally {
       setIsLoading(false);
@@ -172,7 +172,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
             mb: 2,
           }}
         >
-          {t('recoverPassword.title')}
+          {t('recover.title')}
         </Typography>
 
         <Box
@@ -209,14 +209,14 @@ function RecoverView({ onBack }: RecoverViewProps) {
                 id="masterKey"
                 name="masterKey"
                 type={showMasterKey ? 'text' : 'password'}
-                label={t('recoverPassword.masterKey')}
-                placeholder={t('recoverPassword.masterKeyPlaceholder')}
+                label={t('recover.masterKey')}
+                placeholder={t('recover.masterKeyPlaceholder')}
                 autoComplete="off"
                 fullWidth
                 variant="outlined"
                 value={masterKey}
                 error={masterKeyError || masterKeyInvalidError}
-                helperText={masterKeyError ? t('login.masterKeyRequired') : masterKeyInvalidError ? t('recoverPassword.invalidMasterKey') : t('recoverPassword.masterKeyHelperText')}
+                helperText={masterKeyError ? t('recover.masterKeyRequired') : masterKeyInvalidError ? t('recover.invalidMasterKey') : t('recover.masterKeyHelperText')}
                 onChange={handleMasterKeyChange}
                 slotProps={{
                   input: {
@@ -240,8 +240,8 @@ function RecoverView({ onBack }: RecoverViewProps) {
                 id="password"
                 name="password"
                 type={showPassword ? 'text' : 'password'}
-                label={t('changePassword.newPassword')}
-                placeholder={t('changePassword.newPasswordPlaceholder')}
+                label={t('recover.newPassword')}
+                placeholder={t('recover.newPasswordPlaceholder')}
                 autoComplete="off"
                 fullWidth
                 variant="outlined"
@@ -284,8 +284,8 @@ function RecoverView({ onBack }: RecoverViewProps) {
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? 'text' : 'password'}
-                label={t('changePassword.confirmNewPassword')}
-                placeholder={t('changePassword.confirmNewPasswordPlaceholder')}
+                label={t('recover.confirmNewPassword')}
+                placeholder={t('recover.confirmNewPasswordPlaceholder')}
                 autoComplete="off"
                 fullWidth
                 variant="outlined"
@@ -319,7 +319,7 @@ function RecoverView({ onBack }: RecoverViewProps) {
                 disabled={isLoading}
                 startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
               >
-                {isLoading ? t('recoverPassword.recovering') : t('recoverPassword.recoverBtn')}
+                {isLoading ? t('recover.recovering') : t('recover.recoverBtn')}
               </Button>
             </>
           )}

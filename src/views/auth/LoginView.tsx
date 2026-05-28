@@ -250,7 +250,7 @@ function LoginView() {
                 onClick={() => setView('recover')}
                 variant="body2"
               >
-                {t('recoverPassword.forgotPassword')}
+                {t('recover.forgotPassword')}
               </Link>
             </Typography>
           </Box>

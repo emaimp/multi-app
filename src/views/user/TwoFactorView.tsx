@@ -47,7 +47,7 @@ export function TwoFactorView({
             mb: 3,
           }}
         >
-          {t('register.scanQrCode')}
+          {t('twofactor.scanQrCode')}
         </Typography>
 
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
@@ -56,12 +56,12 @@ export function TwoFactorView({
           </Box>
 
           <Typography variant="body2" color="text.secondary" textAlign="center">
-            {t('register.scanWithAuthenticator')}
+            {t('twofactor.scanWithAuthenticator')}
           </Typography>
 
           <TextField
             fullWidth
-            label={t('register.enterTotpCode')}
+            label={t('twofactor.enterTotpCode')}
             placeholder="000000"
             value={totpCode}
             onChange={handleTotpCodeChange}
@@ -78,7 +78,7 @@ export function TwoFactorView({
             disabled={isLoading || totpCode.length !== 6}
             sx={{ mt: 1 }}
           >
-            {isLoading ? t('register.registering') : t('register.signUpBtn')}
+            {isLoading ? t('twofactor.registering') : t('twofactor.signUpBtn')}
           </Button>
         </Box>
       </CenteredCard>
