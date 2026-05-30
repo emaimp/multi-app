@@ -12,9 +12,11 @@ pub fn register(username: String, access_key: String, state: tauri::State<Databa
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn init_session(user_id: i32, access_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    let data_key = state.get_data_key_from_access(user_id, &access_key)?;
+    let (access_key_derived, data_key_derived) = state.get_data_key_from_access(user_id, &access_key)?;
     let mut keys = state.encryption_keys.lock().unwrap();
-    keys.insert(user_id, data_key);
+    keys.insert(user_id, data_key_derived);
+    let mut access_keys = state.access_derived_keys.lock().unwrap();
+    access_keys.insert(user_id, access_key_derived);
     Ok(())
 }
 

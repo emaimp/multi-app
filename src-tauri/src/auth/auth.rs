@@ -171,7 +171,7 @@ impl Database {
         Ok(())
     }
 
-    pub fn get_data_key_from_access(&self, user_id: i32, access_key: &str) -> Result<GenericArray<u8, U32>, String> {
+    pub fn get_data_key_from_access(&self, user_id: i32, access_key: &str) -> Result<(GenericArray<u8, U32>, GenericArray<u8, U32>), String> {
         let conn = self.conn.lock().unwrap();
         let (access_key_hash, data_key_enc, data_key_nonce): (String, String, String) = conn.query_row(
             "SELECT access_key_hash, data_key_encrypted_access, data_key_nonce_access FROM users WHERE id = ?",
@@ -190,7 +190,7 @@ impl Database {
             .map_err(|e| format!("Failed to decode data key: {}", e))?;
         let data_key_derived = GenericArray::clone_from_slice(&data_key_bytes);
 
-        Ok(data_key_derived)
+        Ok((access_key_derived, data_key_derived))
     }
 
     pub fn change_access_key(&self, user_id: i32, master_key: &str, new_access_key: &str) -> Result<(), String> {

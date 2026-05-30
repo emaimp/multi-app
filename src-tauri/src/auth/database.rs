@@ -8,6 +8,7 @@ use super::schema::create_tables;
 pub struct Database {
     pub conn: Mutex<Connection>,
     pub encryption_keys: Mutex<std::collections::HashMap<i32, GenericArray<u8, U32>>>,
+    pub access_derived_keys: Mutex<std::collections::HashMap<i32, GenericArray<u8, U32>>>,
 }
 
 impl Database {
@@ -22,6 +23,7 @@ impl Database {
         Ok(Database {
             conn: Mutex::new(conn),
             encryption_keys: Mutex::new(std::collections::HashMap::new()),
+            access_derived_keys: Mutex::new(std::collections::HashMap::new()),
         })
     }
 }
