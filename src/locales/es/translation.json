@@ -80,6 +80,7 @@
     "deleteAccountTitle": "Eliminar Cuenta",
     "deleteAccountMessage": "Esta acción no se puede deshacer y todos tus datos se perderán permanentemente. Ingresa tu clave maestra para confirmar la eliminación.",
     "invalidMasterKey": "Clave maestra inválida",
+    "invalidPassword": "Contraseña inválida",
     "failedToDelete": "Error al eliminar cuenta."
   },
   "twofactor": {

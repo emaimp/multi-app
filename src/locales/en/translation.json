@@ -80,6 +80,7 @@
     "deleteAccountTitle": "Delete Account",
     "deleteAccountMessage": "This action cannot be undone and all your data will be permanently lost. Enter your master key to confirm the delete account.",
     "invalidMasterKey": "Invalid master key",
+    "invalidPassword": "Invalid password",
     "failedToDelete": "Failed to delete account."
   },
   "twofactor": {

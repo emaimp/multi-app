@@ -82,16 +82,16 @@ export function SettingsView() {
     navigate(-1);
   };
 
-  const confirmDeleteAccount = async (masterKey: string) => {
+  const confirmDeleteAccount = async (password: string) => {
     setDialogLoading(true);
     try {
-      await deleteAccount(masterKey);
+      await deleteAccount(password);
       setDeleteDialogOpen(false);
       navigate('/');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : String(err);
-      if (errorMessage.includes('Invalid master key')) {
-        setDeleteDialogError(t('settings.invalidMasterKey'));
+      if (errorMessage.includes('Invalid access key')) {
+        setDeleteDialogError(t('settings.invalidPassword'));
       } else {
         setDeleteDialogError(t('settings.failedToDelete'));
       }
@@ -195,14 +195,14 @@ sx={{ mt: 1 }}
         open={deleteDialogOpen}
         title={t('settings.deleteAccountTitle')}
         message={t('settings.deleteAccountMessage')}
-        onConfirm={(masterKey) => masterKey && confirmDeleteAccount(masterKey)}
+        onConfirm={(password) => password && confirmDeleteAccount(password)}
         onCancel={() => {
           setDeleteDialogOpen(false);
           setDeleteDialogError('');
         }}
         showMasterKey
-        label={t('login.masterKey')}
-        placeholder={t('login.masterKeyPlaceholder')}
+        label={t('login.password')}
+        placeholder={t('login.passwordPlaceholder')}
         error={deleteDialogError}
         isLoading={dialogLoading}
       />

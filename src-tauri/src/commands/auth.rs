@@ -37,27 +37,12 @@ pub fn update_avatar(user_id: i32, avatar: Option<Vec<u8>>, state: tauri::State<
 }
 
 #[tauri::command]
-pub fn delete_user(user_id: i32, master_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.verify_master_key(user_id, &master_key)?;
+pub fn delete_user(user_id: i32, current_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.get_data_key_from_access(user_id, &current_access_key)?;
     let conn = state.conn.lock().unwrap();
     conn.execute("DELETE FROM users WHERE id = ?", [user_id])
         .map_err(|e| e.to_string())?;
     drop(conn);
     state.clear_session(user_id);
     Ok(())
-}
-
-#[tauri::command]
-pub fn verify_master_key(user_id: i32, master_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.verify_master_key(user_id, &master_key)
-}
-
-#[tauri::command]
-pub fn change_access_key(user_id: i32, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.change_access_key(user_id, &master_key, &new_access_key)
-}
-
-#[tauri::command(rename_all = "snake_case")]
-pub fn recover(username: String, master_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    state.recover(&username, &master_key, &new_access_key)
 }
