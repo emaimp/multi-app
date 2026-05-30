@@ -104,8 +104,8 @@ function LoginView() {
     }
   };
 
-  const handleRegister = async (username: string, password: string): Promise<string> => {
-    return await register(username, password);
+  const handleRegister = async (username: string, password: string): Promise<void> => {
+    await register(username, password);
   };
 
   if (view === 'register') {

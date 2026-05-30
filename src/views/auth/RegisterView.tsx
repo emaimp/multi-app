@@ -3,23 +3,21 @@ import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import KeyIcon from '@mui/icons-material/Key';
 import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { CenteredCard, TopBar } from '../../components/common';
 
 interface RegisterViewProps {
-  onRegister: (username: string, password: string) => Promise<string>;
+  onRegister: (username: string, password: string) => Promise<void>;
   onBack: () => void;
 }
 
@@ -45,11 +43,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
 
   const [passwordStrength, setPasswordStrength] = useState({ label: '', color: 'error' as 'error' | 'warning' | 'success' });
 
-  const [success, setSuccess] = useState('');
-  const [generatedMasterKey, setGeneratedMasterKey] = useState('');
-  const [showKey, setShowKey] = useState(false);
-  const [acknowledged, setAcknowledged] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const getStrength = (value: string): { label: string; color: 'error' | 'warning' | 'success' } => {
     const hasLower = /[a-z]/.test(value);
@@ -63,7 +57,7 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     if (score <= 1) return { label: t('register.lowSecurity'), color: 'error' };
     if (score <= 2) return { label: t('register.mediumSecurity'), color: 'warning' };
     if (score <= 3) return { label: t('register.mediumSecurity'), color: 'warning' };
-    return { label: t('register.highSecurity', { label: 'master key' }), color: 'success' };
+    return { label: t('register.highSecurity', { label: 'password' }), color: 'success' };
   };
 
   const getColor = (color: string) => `${color}.main`;
@@ -140,9 +134,8 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
 
     try {
       setIsLoading(true);
-      const masterKey = await onRegister(username, password);
-      setGeneratedMasterKey(masterKey);
-      setSuccess(t('register.registeredSuccessfully'));
+      await onRegister(username, password);
+      setSuccess(true);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
@@ -158,16 +151,6 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
     }
   };
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(generatedMasterKey);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
   return (
     <>
       <TopBar onBack={onBack} />
@@ -175,8 +158,6 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
       <CenteredCard
         error={error}
         onErrorClose={() => setError('')}
-        success={success}
-        onSuccessClose={onBack}
         minHeight="420px"
       >
         {!success && (
@@ -333,61 +314,35 @@ function RegisterView({ onRegister, onBack }: RegisterViewProps) {
                 mb: 2,
               }}
             >
-              {t('register.masterKeyTitle')}
+              {t('register.registeredSuccessfully')}
             </Typography>
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              {t('register.masterKeyDescription')}
-            </Typography>
-
-            <Box sx={{ mb: 3 }}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                value={generatedMasterKey}
-                InputProps={{
-                  readOnly: true,
-                  startAdornment: (
-                    <IconButton onClick={handleCopy} edge="start" title="Copy to clipboard">
-                      <ContentCopyIcon color={copied ? 'success' : 'action'} />
-                    </IconButton>
-                  ),
-                  endAdornment: (
-                    <IconButton onClick={() => setShowKey(!showKey)} edge="end">
-                      {showKey ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  ),
-                }}
-                type={showKey ? 'text' : 'password'}
-                sx={{
-                  '& .MuiInputBase-input': {
-                    fontFamily: 'monospace',
-                    letterSpacing: '0.1em',
-                  },
-                }}
-              />
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 2,
+                mb: 3,
+                p: 2,
+                bgcolor: 'warning.soft',
+                borderRadius: 2,
+              }}
+            >
+              <WarningAmberIcon color="warning" sx={{ fontSize: 40 }} />
+              <Typography variant="body1" fontWeight="medium" textAlign="center">
+                {t('register.passwordWarning')}
+              </Typography>
             </Box>
-
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={acknowledged}
-                  onChange={(e) => setAcknowledged(e.target.checked)}
-                  color="primary"
-                />
-              }
-              label={t('register.masterKeySaved')}
-              sx={{ mb: 2 }}
-            />
 
             <Button
               onClick={onBack}
               variant="contained"
               fullWidth
-              disabled={!acknowledged || isLoading}
+              disabled={isLoading}
               startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
             >
-              {t('login.signUp')}
+              {t('login.continue')}
             </Button>
           </>
         )}

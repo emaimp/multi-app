@@ -8,7 +8,7 @@ interface UserContextType {
   isAuthenticated: boolean;
   isLoadingContent: boolean;
   login: (username: string, password: string) => Promise<void>;
-  register: (username: string, password: string) => Promise<string>;
+  register: (username: string, password: string) => Promise<void>;
   deleteAccount: (masterKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
@@ -39,12 +39,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setIsLoadingContent(true);
   };
 
-  const register = async (username: string, password: string): Promise<string> => {
-    const response = await invoke<{ user: User; masterKey: string }>('register', { 
+  const register = async (username: string, password: string): Promise<void> => {
+    await invoke('register', { 
       username, 
-      access_key: password
+      access_key: password 
     });
-    return response.masterKey;
   };
 
   const deleteAccount = async (masterKey: string) => {
