@@ -1,4 +1,3 @@
-use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use crate::crypto::{encrypt_bytes_to_base64, decrypt_bytes_from_base64};
 use super::database::Database;
@@ -79,22 +78,5 @@ impl Database {
         };
 
         Ok(avatar_base64)
-    }
-
-    pub fn delete_user(&self, user_id: i32, master_key: &str) -> Result<(), String> {
-        let conn = self.conn.lock().unwrap();
-        
-        let stored_master_hash: String = conn.query_row(
-            "SELECT master_key_hash FROM users WHERE id = ?",
-            [user_id],
-            |row| row.get(0)
-        ).map_err(|e| e.to_string())?;
-
-        let parsed_hash = PasswordHash::new(&stored_master_hash).map_err(|e| e.to_string())?;
-        Argon2::default().verify_password(master_key.as_bytes(), &parsed_hash).map_err(|_| "Invalid master key".to_string())?;
-
-        conn.execute("DELETE FROM users WHERE id = ?", [user_id])
-            .map_err(|e| e.to_string())?;
-        Ok(())
     }
 }

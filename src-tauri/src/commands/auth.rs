@@ -12,11 +12,9 @@ pub fn register(username: String, access_key: String, state: tauri::State<Databa
 
 #[tauri::command(rename_all = "snake_case")]
 pub fn init_session(user_id: i32, access_key: String, state: tauri::State<Database>) -> Result<(), String> {
-    let (access_key_derived, data_key_derived) = state.get_data_key_from_access(user_id, &access_key)?;
+    let data_key = state.get_data_key_from_access(user_id, &access_key)?;
     let mut keys = state.encryption_keys.lock().unwrap();
-    keys.insert(user_id, data_key_derived);
-    let mut access_keys = state.access_derived_keys.lock().unwrap();
-    access_keys.insert(user_id, access_key_derived);
+    keys.insert(user_id, data_key);
     Ok(())
 }
 
@@ -34,6 +32,16 @@ pub fn get_user_avatar(user_id: i32, state: tauri::State<Database>) -> Result<Op
 #[tauri::command]
 pub fn update_avatar(user_id: i32, avatar: Option<Vec<u8>>, state: tauri::State<Database>) -> Result<(), String> {
     state.update_avatar(user_id, avatar.as_deref())
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn change_password(user_id: i32, current_access_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
+    state.change_password(user_id, &current_access_key, &new_access_key)
+}
+
+#[tauri::command(rename_all = "snake_case")]
+pub fn change_username(user_id: i32, current_access_key: String, new_username: String, state: tauri::State<Database>) -> Result<String, String> {
+    state.change_username(user_id, &current_access_key, &new_username)
 }
 
 #[tauri::command]

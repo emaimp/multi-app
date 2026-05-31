@@ -22,6 +22,8 @@ pub fn run() {
             auth::get_user_avatar,
             auth::update_avatar,
             auth::delete_user,
+            auth::change_password,
+            auth::change_username,
             collections::get_collections,
             collections::create_collection,
             collections::update_collection,
