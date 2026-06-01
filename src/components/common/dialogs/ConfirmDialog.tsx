@@ -47,7 +47,7 @@ export function ConfirmDialog({
 
   const handleSubmit = () => {
     if (showMasterKey && !value.trim()) {
-      setLocalError('Master key is required');
+      setLocalError(`${label} is required`);
       return;
     }
     onConfirm(value);

@@ -12,6 +12,8 @@ interface UserContextType {
   deleteAccount: (currentAccessKey: string) => Promise<void>;
   logout: () => void;
   updateUser: (updates: Partial<User>) => Promise<void>;
+  changePassword: (currentAccessKey: string, newAccessKey: string) => Promise<void>;
+  changeUsername: (currentAccessKey: string, newUsername: string) => Promise<void>;
   setIsLoadingContent: (loading: boolean) => void;
   setUser: (user: User | null) => void;
 }
@@ -51,6 +53,26 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await invoke('delete_user', { userId: user.id, currentAccessKey });
       logout();
     }
+  };
+
+  const changePassword = async (currentAccessKey: string, newAccessKey: string) => {
+    if (!user) return;
+    await invoke('change_password', {
+      userId: user.id,
+      currentAccessKey,
+      newAccessKey,
+    });
+    localStorage.setItem('masterKey', newAccessKey);
+  };
+
+  const changeUsername = async (currentAccessKey: string, newUsername: string) => {
+    if (!user) return;
+    const updatedUsername = await invoke<string>('change_username', {
+      userId: user.id,
+      currentAccessKey,
+      newUsername,
+    });
+    setUser(prev => prev ? { ...prev, username: updatedUsername } : null);
   };
 
   const logout = () => {
@@ -94,7 +116,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <UserContext.Provider value={{ user, isAuthenticated: !!user, isLoadingContent, login, register, deleteAccount, logout, updateUser, setIsLoadingContent, setUser }}>
+    <UserContext.Provider value={{ user, isAuthenticated: !!user, isLoadingContent, login, register, deleteAccount, logout, updateUser, changePassword, changeUsername, setIsLoadingContent, setUser }}>
       {children}
     </UserContext.Provider>
   );
