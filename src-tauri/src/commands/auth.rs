@@ -1,16 +1,16 @@
 use crate::auth::Database;
 use crate::models::UserResponse;
-#[tauri::command(rename_all = "snake_case")]
+#[tauri::command]
 pub fn login(username: String, access_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
     state.login(&username, &access_key)
 }
 
-#[tauri::command(rename_all = "snake_case")]
+#[tauri::command]
 pub fn register(username: String, access_key: String, state: tauri::State<Database>) -> Result<UserResponse, String> {
     state.register(&username, &access_key).map(|u| u.into())
 }
 
-#[tauri::command(rename_all = "snake_case")]
+#[tauri::command]
 pub fn init_session(user_id: i32, access_key: String, state: tauri::State<Database>) -> Result<(), String> {
     let data_key = state.get_data_key_from_access(user_id, &access_key)?;
     let mut keys = state.encryption_keys.lock().unwrap();
@@ -34,12 +34,12 @@ pub fn update_avatar(user_id: i32, avatar: Option<Vec<u8>>, state: tauri::State<
     state.update_avatar(user_id, avatar.as_deref())
 }
 
-#[tauri::command(rename_all = "snake_case")]
+#[tauri::command]
 pub fn change_password(user_id: i32, current_access_key: String, new_access_key: String, state: tauri::State<Database>) -> Result<(), String> {
     state.change_password(user_id, &current_access_key, &new_access_key)
 }
 
-#[tauri::command(rename_all = "snake_case")]
+#[tauri::command]
 pub fn change_username(user_id: i32, current_access_key: String, new_username: String, state: tauri::State<Database>) -> Result<String, String> {
     state.change_username(user_id, &current_access_key, &new_username)
 }

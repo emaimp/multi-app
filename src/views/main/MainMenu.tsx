@@ -91,7 +91,7 @@ export function MainView() {
       if (masterKey) {
         setAvatarLoading(true);
         Promise.all([
-          invoke('init_session', { user_id: user.id, access_key: masterKey }),
+          invoke('init_session', { userId: user.id, accessKey: masterKey }),
           loadVaults(),
         ]).then(() => {
           invoke<string | null>('get_user_avatar', { userId: user.id }).then((avatar) => {
