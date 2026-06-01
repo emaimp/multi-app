@@ -77,10 +77,7 @@
     "saving": "Saving...",
     "settingsSaved": "Settings saved successfully.",
     "failedToSaveSettings": "Failed to save settings.",
-    "deleteAccountTitle": "Delete Account",
-    "deleteAccountMessage": "This action cannot be undone and all your data will be permanently lost. Enter your password to confirm.",
-    "invalidPassword": "Invalid password",
-    "failedToDelete": "Failed to delete account."
+    "invalidPassword": "Invalid password"
   },
   "twofactor": {
     "scanQrCode": "Scan QR Code",

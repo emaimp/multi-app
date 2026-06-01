@@ -77,10 +77,7 @@
     "saving": "Guardando...",
     "settingsSaved": "Configuración guardada exitosamente.",
     "failedToSaveSettings": "Error al guardar configuración.",
-    "deleteAccountTitle": "Eliminar Cuenta",
-    "deleteAccountMessage": "Esta acción no se puede deshacer y todos tus datos se perderán permanentemente. Ingresa tu contraseña para confirmar la eliminación.",
-    "invalidPassword": "Contraseña inválida",
-    "failedToDelete": "Error al eliminar cuenta."
+    "invalidPassword": "Contraseña inválida"
   },
   "twofactor": {
     "scanQrCode": "Escanea el código QR",

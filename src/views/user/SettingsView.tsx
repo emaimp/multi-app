@@ -5,7 +5,6 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
-import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -17,7 +16,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useUser } from '../../context/AuthContext';
-import { AvatarPicker, CenteredCard, ConfirmDialog, TopBar } from '../../components/common';
+import { AvatarPicker, CenteredCard, TopBar } from '../../components/common';
 
 export function SettingsView() {
   const { t } = useTranslation();
@@ -35,10 +34,6 @@ export function SettingsView() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [deleteDialogError, setDeleteDialogError] = useState('');
-  const [deleteDialogLoading, setDeleteDialogLoading] = useState(false);
 
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
@@ -79,6 +74,7 @@ export function SettingsView() {
     setAvatarPreview(avatar);
     try {
       await updateUser({ avatar });
+      showSuccess(t('settings.settingsSaved'));
     } catch {
       setErrorMessage(t('settings.failedToSaveSettings'));
     }
@@ -105,7 +101,18 @@ export function SettingsView() {
     }
 
     if (deleteAccountChecked) {
-      setDeleteDialogOpen(true);
+      if (!currentPassword) {
+        setCurrentPasswordError(t('settings.currentPasswordHelper'));
+        return;
+      }
+      setIsLoading(true);
+      try {
+        await deleteAccount(currentPassword);
+        navigate('/');
+      } catch {
+        setCurrentPasswordError(t('settings.invalidPassword'));
+        setIsLoading(false);
+      }
       return;
     }
 
@@ -140,20 +147,6 @@ export function SettingsView() {
     }
   };
 
-  const confirmDeleteAccount = async (password: string) => {
-    if (!password) return;
-    setDeleteDialogLoading(true);
-    try {
-      await deleteAccount(password);
-      setDeleteDialogOpen(false);
-      navigate('/');
-    } catch {
-      setDeleteDialogError(t('settings.invalidPassword'));
-    } finally {
-      setDeleteDialogLoading(false);
-    }
-  };
-
   const renderEye = (show: boolean, toggle: () => void) => (
     <InputAdornment position="end">
       <IconButton
@@ -176,7 +169,7 @@ export function SettingsView() {
         error={errorMessage}
         onErrorClose={() => setErrorMessage('')}
       >
-        <Box sx={{ textAlign: 'center', mb: 2 }}>
+        <Box sx={{ textAlign: 'center', mb: 1 }}>
           <AvatarPicker
             value={avatarPreview}
             onChange={handleAvatarChange}
@@ -184,8 +177,6 @@ export function SettingsView() {
             showUserIcon
           />
         </Box>
-
-        <Divider sx={{ mb: 2 }} />
 
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <TextField
@@ -284,8 +275,6 @@ export function SettingsView() {
             }}
           />
 
-          <Divider />
-
           <FormControlLabel
             control={
               <Checkbox
@@ -313,21 +302,6 @@ export function SettingsView() {
         </Box>
       </CenteredCard>
 
-      <ConfirmDialog
-        open={deleteDialogOpen}
-        title={t('settings.deleteAccountTitle')}
-        message={t('settings.deleteAccountMessage')}
-        onConfirm={(password) => password && confirmDeleteAccount(password)}
-        onCancel={() => {
-          setDeleteDialogOpen(false);
-          setDeleteDialogError('');
-        }}
-        showMasterKey
-        label={t('login.password')}
-        placeholder={t('login.passwordPlaceholder')}
-        error={deleteDialogError}
-        isLoading={deleteDialogLoading}
-      />
     </>
   );
 }
